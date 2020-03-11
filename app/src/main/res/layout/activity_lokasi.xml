@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".view.activity.LokasiActivity">
+
+    <include layout="@layout/header_layout"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="16dp">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_provinsi"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardUseCompatPadding="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <TextView
+                    android:textColor="?attr/textcolor"
+                    android:id="@+id/tv_provinsi"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Provinsi"
+                    android:textSize="16sp"
+                    android:layout_toLeftOf="@id/iv_arrow"/>
+
+                <ImageView
+                    android:id="@+id/iv_arrow"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_keyboard_arrow_right"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_kota"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardUseCompatPadding="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <TextView
+                    android:textColor="?attr/textcolor"
+                    android:id="@+id/tv_kota"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Kota"
+                    android:textSize="16sp"
+                    android:layout_toLeftOf="@id/iv_arrow2"/>
+
+                <ImageView
+                    android:textColor="?attr/textcolor"
+                    android:id="@+id/iv_arrow2"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_keyboard_arrow_right"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_wilayah"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardUseCompatPadding="true">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp">
+
+                <TextView
+                    android:textColor="?attr/textcolor"
+                    android:id="@+id/tv_wilayah"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Wilayah"
+                    android:textSize="16sp"
+                    android:layout_toLeftOf="@id/iv_arrow3"/>
+
+                <ImageView
+                    android:id="@+id/iv_arrow3"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_keyboard_arrow_right"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_alignParentEnd="true"/>
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_simpan"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Simpan"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
