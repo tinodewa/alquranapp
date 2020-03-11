@@ -3,27 +3,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group android:checkableBehavior="none">
         <item
             android:id="@+id/nav_laporan"
             android:icon="@drawable/ic_laporan"
-            android:title="Laporan" />
+            android:title="@string/laporan" />
         <item
             android:id="@+id/nav_user"
             android:icon="@drawable/ic_person"
-            android:title="User" />
+            android:title="@string/judul_user" />
+        <item
+            android:id="@+id/nav_master"
+            android:icon="@drawable/ic_laporan"
+            android:title="Master" />
         <item
             android:id="@+id/nav_data"
             android:icon="@drawable/ic_data"
-            android:title="Data HMI" />
+            android:title="@string/data_hmi"
+            android:visible="false"/>
         <item
             android:id="@+id/nav_pengaturan"
             android:icon="@drawable/ic_settings"
-            android:title="Pengaturan" />
+            android:title="@string/judul_pengaturan" />
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_info"
-            android:title="Tentang Kami" />
+            android:title="@string/judul_tentang_kami" />
     </group>
 
 </menu>
