@@ -705,7 +705,7 @@ public class Tools {
     public static void initial(ImageView imageView, String initial){
         String first = String.valueOf(initial.charAt(0));
         ColorGenerator generator = ColorGenerator.MATERIAL;
-        int color = generator.getColor(initial);
+        int color = generator.getColor(first);
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(first, color);
         imageView.setImageDrawable(drawable);
