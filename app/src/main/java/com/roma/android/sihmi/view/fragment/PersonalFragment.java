@@ -100,7 +100,7 @@ public class PersonalFragment extends Fragment {
 
         list = new ArrayList<>();
         reference = FirebaseDatabase.getInstance().getReference("Chatlist").child(userDao.getUser().get_id());
-        reference.addValueEventListener(new ValueEventListener() {
+        eventListenerChats = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: personalfragment 86");
@@ -119,7 +119,8 @@ public class PersonalFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        reference.addValueEventListener(eventListenerChats);
 
         initAdapter();
 
@@ -185,9 +186,10 @@ public class PersonalFragment extends Fragment {
 
     private void getListChating(List<Contact> contactList) {
         Log.e("roma", "onDataChange getListChating: Chats_v2");
-        chatingDao.deleteAllChating();
+//        chatingDao.deleteAllChating();
+//        referenceChats.removeEventListener(eventListenerChats);
         referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
-        eventListenerChats = referenceChats.addValueEventListener(new ValueEventListener() {
+        eventListenerChats = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: personalfragment 187");
@@ -224,7 +226,8 @@ public class PersonalFragment extends Fragment {
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
-        });
+        };
+        referenceChats.addValueEventListener(eventListenerChats);
     }
 
     @Override
@@ -297,6 +300,8 @@ public class PersonalFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
+            List<Contact> contactListReal = new ArrayList<>();
+            List<Chating> thisChating;
             try {
                 for (int i = 0; i < contactList.size(); i++) {
                     String myuserid = userDao.getUser().get_id();
@@ -304,21 +309,26 @@ public class PersonalFragment extends Fragment {
                     for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
                         Chat chat = snapshot.getValue(Chat.class);
                         String userid = list.get(i).get_id();
+                        thisChating = chatingDao.getChatingById(userid);
                         if (chat.getReceiver().equals(myuserid) && chat.getSender().equals(userid) ||
                                 chat.getReceiver().equals(userid) && chat.getSender().equals(myuserid)) {
-                            if (!chat.isIsseen()) {
-                                unReadCount++;
+                            if (thisChating.size() > 0) {
+                                if (chat.getTime() >= thisChating.get(0).getTime_message()) {
+                                    if (!chat.isIsseen()) {
+                                        unReadCount++;
+                                    }
+                                    String lastMsg;
+                                    if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
+                                        lastMsg = Constant.IMAGE;
+                                    } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
+                                        lastMsg = Constant.DOCUMENT;
+                                    } else {
+                                        lastMsg = chat.getMessage();
+                                    }
+                                    String name = contactDao.getContactById(userid).getFullName();
+                                    chatingDao.insertChating(new Chating(userid, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unReadCount));
+                                }
                             }
-                            String lastMsg;
-                            if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
-                                lastMsg = Constant.IMAGE;
-                            } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
-                                lastMsg = Constant.DOCUMENT;
-                            } else {
-                                lastMsg = chat.getMessage();
-                            }
-                            String name = contactDao.getContactById(userid).getFullName();
-                            chatingDao.insertChating(new Chating(userid, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unReadCount));
                         }
                     }
 
