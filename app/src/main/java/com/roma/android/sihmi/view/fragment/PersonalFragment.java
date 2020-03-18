@@ -106,13 +106,6 @@ public class PersonalFragment extends Fragment {
                 Log.e("roma", "onDataChange: personalfragment 86");
                 list.clear();
                 new ListChatAsync().execute(dataSnapshot);
-
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Chatlist chatlist = snapshot.getValue(Chatlist.class);
-//                    list.add(chatlist);
-//                }
-//                //initAdapter(list.size());
-//                chatList();
             }
 
             @Override
@@ -129,7 +122,6 @@ public class PersonalFragment extends Fragment {
         refreshLayout.setRefreshing(false);
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(false);
-//                initAdapter();
         });
 
         chatingDao.getListChating().observe(getActivity(), chatings -> adapter.updateData(chatings));
@@ -165,13 +157,7 @@ public class PersonalFragment extends Fragment {
     private void chatList(){
         contactList = new ArrayList<>();
         List<Contact> contactList1 = contactDao.getAllListContact("%"+userDao.getUser().get_id()+"%");
-//        for (Chatlist chatlist : list){
-//            for (int i = 0; i < contactList.size(); i++) {
-//                if (chatlist.get_id().equals(contactList.get(i))){
-//
-//                }
-//            }
-//        }
+
         if (contactList1.size()>0) {
             for (Contact contact : contactList1) {
                 for (Chatlist chatlist : list) {
@@ -186,40 +172,12 @@ public class PersonalFragment extends Fragment {
 
     private void getListChating(List<Contact> contactList) {
         Log.e("roma", "onDataChange getListChating: Chats_v2");
-//        chatingDao.deleteAllChating();
-//        referenceChats.removeEventListener(eventListenerChats);
         referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
         eventListenerChats = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: personalfragment 187");
                 new getListChatingAsync(contactList).execute(dataSnapshot);
-
-//                for (int i = 0; i < contactList.size(); i++) {
-//                    String myuserid = userDao.getUser().get_id();
-//                    int unReadCount = 0;
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        Chat chat = snapshot.getValue(Chat.class);
-//                        String userid = contactList.get(i).get_id();
-//                        if (chat.getReceiver().equals(myuserid) && chat.getSender().equals(userid) ||
-//                                chat.getReceiver().equals(userid) && chat.getSender().equals(myuserid)) {
-//                            if (!chat.isIsseen()){
-//                                unReadCount++;
-//                            }
-//                            String lastMsg;
-//                            if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
-//                                lastMsg = Constant.IMAGE;
-//                            } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)){
-//                                lastMsg = Constant.DOCUMENT;
-//                            } else {
-//                                lastMsg = chat.getMessage();
-//                            }
-//                            String name = contactDao.getContactById(userid).getFullName();
-//                            chatingDao.insertChating(new Chating(userid, name, chat.getReceiver()+"split100x"+lastMsg, chat.getTime(), unReadCount));
-//                        }
-//                    }
-//
-//                }
             }
 
             @Override
@@ -264,13 +222,11 @@ public class PersonalFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-//        referenceChats.removeEventListener(eventListenerChats);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-//        referenceChats.removeEventListener(eventListenerChats);
     }
 
     private class ListChatAsync extends AsyncTask<DataSnapshot, Void, Boolean> {
@@ -300,7 +256,6 @@ public class PersonalFragment extends Fragment {
 
         @Override
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
-            List<Contact> contactListReal = new ArrayList<>();
             List<Chating> thisChating;
             try {
                 for (int i = 0; i < contactList.size(); i++) {
