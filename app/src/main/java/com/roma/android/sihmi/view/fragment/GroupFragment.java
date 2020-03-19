@@ -231,19 +231,21 @@ public class GroupFragment extends Fragment {
 
                     GroupChat groupChat = groupChatDao.getGroupChatByName(chat.getReceiver());
                     if (groupChat != null) {
-                        groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
-                        groupChat.setTime(chat.getTime());
-                        groupChat.setLast_seen(groupChat.getLast_seen());
-                        Log.d("roma", "onDataChange: masuk if !=null " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
-                        int unread;
-                        if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())) {
-                            Log.d("roma", "onDataChange: masuk if unread++ " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
-                            unread = groupChat.getUnread() + 1;
-                        } else {
-                            unread = 0;
+                        if (chat.getTime() >= groupChat.getTime()) {
+                            groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
+                            groupChat.setTime(chat.getTime());
+                            groupChat.setLast_seen(groupChat.getLast_seen());
+                            Log.d("roma", "onDataChange: masuk if !=null " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
+                            int unread;
+                            if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())) {
+                                Log.d("roma", "onDataChange: masuk if unread++ " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
+                                unread = groupChat.getUnread() + 1;
+                            } else {
+                                unread = 0;
+                            }
+                            groupChat.setUnread(unread);
+                            groupChatDao.insertGroupChat(groupChat);
                         }
-                        groupChat.setUnread(unread);
-                        groupChatDao.insertGroupChat(groupChat);
                     }
                 }
             } catch (IndexOutOfBoundsException e){
