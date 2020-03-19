@@ -267,22 +267,20 @@ public class PersonalFragment extends Fragment {
                         thisChating = chatingDao.getChatingById(userid);
                         if (chat.getReceiver().equals(myuserid) && chat.getSender().equals(userid) ||
                                 chat.getReceiver().equals(userid) && chat.getSender().equals(myuserid)) {
-                            if (thisChating.size() > 0) {
-                                if (chat.getTime() >= thisChating.get(0).getTime_message()) {
-                                    if (!chat.isIsseen()) {
-                                        unReadCount++;
-                                    }
-                                    String lastMsg;
-                                    if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
-                                        lastMsg = Constant.IMAGE;
-                                    } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
-                                        lastMsg = Constant.DOCUMENT;
-                                    } else {
-                                        lastMsg = chat.getMessage();
-                                    }
-                                    String name = contactDao.getContactById(userid).getFullName();
-                                    chatingDao.insertChating(new Chating(userid, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unReadCount));
+                            if ((thisChating.size() > 0 && chat.getTime() >= thisChating.get(0).getTime_message()) || thisChating.size() == 0) {
+                                if (!chat.isIsseen()) {
+                                    unReadCount++;
                                 }
+                                String lastMsg;
+                                if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
+                                    lastMsg = Constant.IMAGE;
+                                } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
+                                    lastMsg = Constant.DOCUMENT;
+                                } else {
+                                    lastMsg = chat.getMessage();
+                                }
+                                String name = contactDao.getContactById(userid).getFullName();
+                                chatingDao.insertChating(new Chating(userid, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unReadCount));
                             }
                         }
                     }
