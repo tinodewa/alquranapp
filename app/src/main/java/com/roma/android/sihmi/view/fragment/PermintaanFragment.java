@@ -332,7 +332,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             if (level != 2) {
                                 sendNotif(contact.get_id(), status);
                             } else {
-                                sendNotif(contact.get_id(), "3");
+                                sendNotif(contact.get_id(), "4");
                             }
                             historyPengajuanDao.updateApprovePengajuan(id_pengajuan);
                         }

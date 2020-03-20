@@ -435,5 +435,10 @@
     <string name="jadikan_admin">Jadikan Admin</string>
     <string name="peringatan">Peringatan</string>
     <string name="kesalahan_data">Terjadi kesalahan saat mengakses data, silakan login kembali</string>
+    <string name="anggota_berakhir">Anggota Berakhir</string>
+    <string name="anggota_berakhir_desc">Anggota telah berakhir. Terimakasih telah menjadi anggota HMI</string>
+    <string name="tutup">Tutup</string>
+    <string name="pengajuan_ditolak_desc">Pengajuan Anda ditolak.</string>
+    <string name="pengajuan_ditolak">Maaf belum saatnya</string>
 
 </resources>
