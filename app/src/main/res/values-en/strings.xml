@@ -378,7 +378,7 @@
     <string name="jumlah">Total</string>
     <string name="kader">Kader</string>
     <string name="non_kader">Non Kader</string>
-    <string name="permintaan_admin_anggota">Admin/Member Request</string>
+    <string name="permintaan_admin_anggota">Request</string>
     <string name="anggota">Member</string>
     <string name="permintaan_anggota">Member Request</string>
     <string name="sampai_selesai">- Finish</string>

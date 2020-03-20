@@ -379,7 +379,7 @@
     <string name="kader">Kader</string>
     <string name="non_kader">Non Kader</string>
     <string name="permintaan_admin">Permintaan Admin</string>
-    <string name="permintaan_admin_anggota">Permintaan Admin/Anggota</string>
+    <string name="permintaan_admin_anggota">Permintaan</string>
     <string name="anggota">Anggota</string>
     <string name="permintaan_anggota">Permintaan Anggota</string>
     <string name="sampai_selesai">- Selesai</string>
