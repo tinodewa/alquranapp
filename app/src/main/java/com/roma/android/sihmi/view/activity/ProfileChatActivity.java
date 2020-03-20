@@ -2,6 +2,7 @@ package com.roma.android.sihmi.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
@@ -35,6 +38,7 @@ import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.adapter.PelatihanOtherUserAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
@@ -78,6 +82,7 @@ public class ProfileChatActivity extends AppCompatActivity {
     UserDao userDao;
     HistoryPengajuanDao historyPengajuanDao;
     LevelDao levelDao;
+    Boolean requestMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,8 +98,9 @@ public class ProfileChatActivity extends AppCompatActivity {
         levelDao = appDb.levelDao();
 
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
-
+        requestMode = getIntent().getBooleanExtra("MODE_REQUEST", false);
         idPengajuan = getIntent().getStringExtra("idpengajuan");
+
         if (idPengajuan != null && !idPengajuan.isEmpty()){
             filePdf = historyPengajuanDao.getFilePengajuanHistory(idPengajuan);
             if (filePdf != null && !filePdf.isEmpty()){
@@ -195,7 +201,7 @@ public class ProfileChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (Tools.isSuperAdmin()) {
+        if (requestMode) {
             getMenuInflater().inflate(R.menu.change_admin, menu);
         }
         return true;
@@ -206,80 +212,54 @@ public class ProfileChatActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_1:
-                showDialog();
+                Tools.showDialogCustom(ProfileChatActivity.this, "Batalkan Permintaan", "Apakah Anda yakin ingin membatalkan permintaan ini?", "batal", ket -> {
+                    rejectRequest(otherUser.get_id(), idPengajuan);
+                });
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void sendNotif(String user, String status) {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
-    private void showDialog(){
-//        String[] pilihan = {"Kelas Admin", "Pilihan Admin"};
-        String[] pilihan = {"Pilihan Admin"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.jadikan_admin))
-                .setItems(pilihan, (dialog1, which) -> {
-                    pilihan(which);
-                    dialog1.dismiss();
-                })
-                .setPositiveButton("Bismillah", (dialog, which) -> {
-                    dialog.dismiss();
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("from", userDao.getUser().get_id());
+        hashMap.put("to", user);
+        hashMap.put("status", status.trim());
+        hashMap.put("time", System.currentTimeMillis());
+        hashMap.put("isshow", false);
+        hashMap.put("type", "User");
+
+        databaseReference.child("Notification").push().setValue(hashMap);
     }
 
-    private void pilihan(int pil){
-        showDialogPilihan();
-//        if (pil == 0){
-//            // kelas admin
-//        } else {
-//            // pilihan admin
-//            showDialogPilihan();
-//        }
-    }
-
-    private void showDialogPilihan(){
-        String[] grpName = {"Admin PBHMI",  "Admin Cabang", "Admin Komisariat", "Admin BPL", "Admin Alumni", "Second Admin"};
-        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
-                .setSingleChoiceItems(grpName, -1, (dialog1, which) -> {
-                    int level;
-                    if (which == 0){
-                        level = Constant.USER_LOW_ADMIN_2;
-                    } else if (which == 1){
-                        level = Constant.USER_LOW_ADMIN_1;
-                    } else if (which == 2) {
-                        level = Constant.USER_ADMIN_1;
-                    } else if (which == 3) {
-                        level = Constant.USER_ADMIN_2;
-                    } else if (which == 4) {
-                        level = Constant.USER_ADMIN_3;
-                    } else {
-                        level = Constant.USER_SECOND_ADMIN;
-                    }
-                    changeAdmin(otherUser.get_id(), level);
-                    dialog1.dismiss();
-                })
-                .setCancelable(true)
-                .create();
-        dialog.show();
-    }
-
-    private void changeAdmin(String idUser, int level){
+    private void rejectRequest(String idUser, String id_pengajuan) {
+        String idRoles = otherUser.getId_roles();
+        int level = levelDao.getLevel(idRoles);
+        Tools.showProgressDialog(ProfileChatActivity.this, getString(R.string.membatalkan_permintaan));
         Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, level);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
-                if (response.isSuccessful()){
-                    Tools.showToast(ProfileChatActivity.this, getString(R.string.berhasil_ganti_admin));
+                Tools.dissmissProgressDialog();
+                if (response.isSuccessful()) {
+                    Log.d("halloo", "onResponse: " + idRoles);
+                    PengajuanHistory pengajuanHistory = new PengajuanHistory(id_pengajuan, idRoles, "", idUser, "", 0, 0, -1, "", level);
+                    pengajuanHistory.setNama(contactDao.getContactById(idUser).getNama_depan());
+                    historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+                    sendNotif(idUser, "-1");
+                    historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
+                    finish();
                 } else {
-                    Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_ganti_admin));
+                    Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
                 }
             }
 
             @Override
             public void onFailure(Call<GeneralResponse> call, Throwable t) {
-                Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_ganti_admin));
+                Tools.dissmissProgressDialog();
+                Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
             }
         });
     }

@@ -378,7 +378,7 @@
     <string name="jumlah">Total</string>
     <string name="kader">Kader</string>
     <string name="non_kader">Non Kader</string>
-    <string name="permintaan_admin_anggota">Admin/Member Request</string>
+    <string name="permintaan_admin_anggota">Request</string>
     <string name="anggota">Member</string>
     <string name="permintaan_anggota">Member Request</string>
     <string name="sampai_selesai">- Finish</string>
@@ -440,5 +440,8 @@
     <string name="tutup">Close</string>
     <string name="pengajuan_ditolak_desc">Your request has been rejected.</string>
     <string name="pengajuan_ditolak">Sorry, not the time.</string>
+    <string name="batalkan_permintaan">Reject this request</string>
+    <string name="gagal_membatalkan">Gagal membatalkan</string>
+    <string name="membatalkan_permintaan">Membatalkan permintaan...</string>
 
 </resources>

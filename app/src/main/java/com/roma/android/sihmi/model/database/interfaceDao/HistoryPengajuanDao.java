@@ -32,67 +32,67 @@ public interface HistoryPengajuanDao {
     @Query("SELECT * FROM PengajuanHistory WHERE _id = :id_pengajuan LIMIT 1")
     PengajuanHistory getPengajuanHistoryById(String id_pengajuan);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistory();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level != 2 AND level <=:level) ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level != 2 AND level <=:level) ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistory(int level);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level = 3 OR level = 4) ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level = 3 OR level = 4) ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryLA1();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 6 ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 6 ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryLA2();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryAdmin1(String dateNow);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 2 AND tanggal_lk1 NOT LIKE :dateNow ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND tanggal_lk1 NOT LIKE :dateNow ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryAdmin2(String dateNow);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 2 ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanAnggota();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistory();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level <= :level ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level <= :level ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistory(int level);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level = 3 OR level = 4) ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level = 3 OR level = 4) ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistoryLA1();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 6 ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 6 ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistoryLA2();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level == 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level == 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistoryAdmin1(String dateNow);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level == 2 AND tanggal_lk1 NOT LIKE :dateNow ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level == 2 AND tanggal_lk1 NOT LIKE :dateNow ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanHistoryAdmin2(String dateNow);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 2 ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 ORDER BY date_created DESC")
     List<PengajuanHistory> getAllListPengajuanAnggota();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistory(String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level != 2 AND level <= :level) AND nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level != 2 AND level <= :level) AND nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistory(int level, String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level = 3 OR level = 4) AND nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level = 3 OR level = 4) AND nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistoryLA1(String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND (level != 2 AND level = 6) AND nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND (level != 2 AND level = 6) AND nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistoryLA2(String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level == 2 AND tanggal_lk1 LIKE :dateNow AND nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level == 2 AND tanggal_lk1 LIKE :dateNow AND nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistoryAdmin1(String dateNow, String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level == 2 AND tanggal_lk1 NOT LIKE :dateNow AND  nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level == 2 AND tanggal_lk1 NOT LIKE :dateNow AND  nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllPengajuanHistoryAdmin2(String dateNow, String nama);
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0 OR status == -1) AND level = 2 AND  nama LIKE :nama ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND  nama LIKE :nama ORDER BY date_created DESC")
     List<PengajuanHistory> getSearchAllListPengajuanAnggota(String nama);
 
     @Query("SELECT level FROM PengajuanHistory WHERE _id = :id LIMIT 1")

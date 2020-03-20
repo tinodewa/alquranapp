@@ -292,7 +292,11 @@ public class PermintaanFragment extends Fragment implements Ifragment {
     private void initAdapter() {
         adapter = new PermintaanAdapter(getActivity(), list, (type, id_pengajuan, contact) -> {
             if (type.equals(Constant.LIHAT)) {
-                startActivity(new Intent(getActivity(), ProfileChatActivity.class).putExtra("iduser", contact.get_id()).putExtra("idpengajuan", id_pengajuan));
+                Intent profileChatIntent = new Intent(getActivity(), ProfileChatActivity.class);
+                profileChatIntent.putExtra("iduser", contact.get_id());
+                profileChatIntent.putExtra("idpengajuan", id_pengajuan);
+                profileChatIntent.putExtra("MODE_REQUEST", true);
+                startActivity(profileChatIntent);
             } else if (type.equals(Constant.UBAH)) {
                 approveUser(contact, id_pengajuan, "1");
             } else if (type.equals(Constant.DOCUMENT)) {

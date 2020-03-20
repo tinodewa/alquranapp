@@ -379,7 +379,7 @@
     <string name="kader">Kader</string>
     <string name="non_kader">Non Kader</string>
     <string name="permintaan_admin">Permintaan Admin</string>
-    <string name="permintaan_admin_anggota">Permintaan Admin/Anggota</string>
+    <string name="permintaan_admin_anggota">Permintaan</string>
     <string name="anggota">Anggota</string>
     <string name="permintaan_anggota">Permintaan Anggota</string>
     <string name="sampai_selesai">- Selesai</string>
@@ -440,5 +440,8 @@
     <string name="tutup">Tutup</string>
     <string name="pengajuan_ditolak_desc">Pengajuan Anda ditolak.</string>
     <string name="pengajuan_ditolak">Maaf belum saatnya</string>
+    <string name="batalkan_permintaan">Batalkan Permintaan</string>
+    <string name="gagal_membatalkan">Gagal membatalkan</string>
+    <string name="membatalkan_permintaan">Membatalkan permintaan...</string>
 
 </resources>
