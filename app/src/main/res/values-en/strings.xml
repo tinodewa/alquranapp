@@ -441,5 +441,7 @@
     <string name="pengajuan_ditolak_desc">Your request has been rejected.</string>
     <string name="pengajuan_ditolak">Sorry, not the time.</string>
     <string name="batalkan_permintaan">Reject this request</string>
+    <string name="gagal_membatalkan">Gagal membatalkan</string>
+    <string name="membatalkan_permintaan">Membatalkan permintaan...</string>
 
 </resources>
