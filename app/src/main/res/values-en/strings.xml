@@ -440,5 +440,6 @@
     <string name="tutup">Close</string>
     <string name="pengajuan_ditolak_desc">Your request has been rejected.</string>
     <string name="pengajuan_ditolak">Sorry, not the time.</string>
+    <string name="batalkan_permintaan">Reject this request</string>
 
 </resources>
