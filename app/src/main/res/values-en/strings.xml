@@ -435,5 +435,10 @@
     <string name="jadikan_admin">Make an Admin</string>
     <string name="peringatan">Warning</string>
     <string name="kesalahan_data">An error occurred while accessing data, please log in again</string>
+    <string name="anggota_berakhir">Member Has Been Ended</string>
+    <string name="anggota_berakhir_desc">Thank you for being member in HMI</string>
+    <string name="tutup">Close</string>
+    <string name="pengajuan_ditolak_desc">Your request has been rejected.</string>
+    <string name="pengajuan_ditolak">Sorry, not the time.</string>
 
 </resources>

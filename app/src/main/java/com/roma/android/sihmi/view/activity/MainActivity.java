@@ -686,11 +686,19 @@ public class MainActivity extends BaseActivity
                         if (!notification.isIsshow()) {
                             if (notification.getStatus().equals("1")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah));
-                            } else if (notification.getStatus().equals("2")) {
+                            }
+                            else if (notification.getStatus().equals("2")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah));
-                            } else if (notification.getStatus().equals("3")) {
+                            }
+                            else if (notification.getStatus().equals("3")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah));
+                            }
+                            else if (notification.getStatus().equals("4")) {
                                 // Approve LK 1
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa));
+                            }
+                            else if (notification.getStatus().equals("-1")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
                             }
                         }
 

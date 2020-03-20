@@ -133,7 +133,7 @@ public class AdminFragment extends Fragment {
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if (response.isSuccessful()){
                     String idRoles = levelDao.getIdRoles(1);
-                    sendNotif(idUser, "1");
+                    sendNotif(idUser, "2");
                     contactDao.updateRolesUser(idUser, idRoles);
                 } else {
                     Tools.showToast(getActivity(), getString(R.string.gagal_ganti_admin));
