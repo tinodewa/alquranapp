@@ -454,7 +454,7 @@ public class Tools {
 
     // dialog untuk super admin dan second admin
     public static void showDialogType(Context context, ListenerHelper listenerHelper){
-        String[] list = {"Cabang", "Komisariat"};
+        String[] list = {"Cabang", "Komisariat", "Nasional"};
         AlertDialog dialog = new AlertDialog.Builder(context)
                 .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
                     @Override
