@@ -453,30 +453,19 @@ public class Tools {
     }
 
     // dialog untuk super admin dan second admin
-    public static void showDialogType(Context context, EditText etType, EditText etNamaType){
-//        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context);
-//        String[] namaType = context.getResources().getStringArray(R.array.nama_type);
-//        builder.setItems(namaType, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                Constant.setTypeData(which);
-//                etType.setText(namaType[which]);
-//                String[] namaType;
-//                if (which == 0){
-//                    namaType = new String[1];
-//                    namaType[0] = "PB HMI";
-//                } else if (which == 1){
-//                    List<String> cabang = CoreApplication.get().getAppDb().interfaceDao().getMasterCabang();
-//                    namaType = cabang.toArray(new String[cabang.size()]);
-//                } else {
-//                    List<String> komisariat = CoreApplication.get().getAppDb().interfaceDao().getMasterKomisariat();
-//                    namaType = komisariat.toArray(new String[komisariat.size()]);
-//                }
-//                etNamaType.setText(namaType[0]);
-//            }
-//        });
-//        androidx.appcompat.app.AlertDialog dialog = builder.create();
-//        dialog.show();
+    public static void showDialogType(Context context, ListenerHelper listenerHelper){
+        String[] list = {"Cabang", "Komisariat", "Nasional"};
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(list[which]);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
     }
 
     // dialog tindakan
@@ -564,28 +553,18 @@ public class Tools {
         dialog.show();
     }
 
-    public static void showDialogNamaType(Context context, EditText etNamaType){
-//        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context);
-//        String[] namaType;
-//        int type = Constant.getTypeData();
-//        if (type == 0){
-//            namaType = new String[1];
-//            namaType[0] = "PB HMI";
-//        } else if (type == 1){
-//            List<String> cabang = CoreApplication.get().getAppDb().interfaceDao().getMasterCabang();
-//            namaType = cabang.toArray(new String[cabang.size()]);
-//        } else {
-//            List<String> komisariat = CoreApplication.get().getAppDb().interfaceDao().getMasterKomisariat();
-//            namaType = komisariat.toArray(new String[komisariat.size()]);
-//        }
-//        builder.setItems(namaType, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                etNamaType.setText(namaType[which]);
-//            }
-//        });
-//        androidx.appcompat.app.AlertDialog dialog = builder.create();
-//        dialog.show();
+    public static void showDialogNamaType(Context context, String[] list, ListenerHelper listenerHelper) {
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(list[which]);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
     }
 
     public static int getType(String text){

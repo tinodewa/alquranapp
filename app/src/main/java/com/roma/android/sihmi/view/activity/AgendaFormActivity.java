@@ -384,10 +384,41 @@ public class AgendaFormActivity extends BaseActivity implements EasyPermissions.
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_type:
-                Tools.showDialogType(this, etType, etNamaType);
+                if (Tools.isSuperAdmin()) {
+                    Tools.showDialogType(this, res -> {
+                        etType.setText(res);
+
+                        if (res.equalsIgnoreCase("nasional")) {
+                            etNamaType.setText("PB HMI");
+                        }
+                        else {
+                            etNamaType.setText(null);
+                        }
+                    });
+                }
                 break;
             case R.id.et_nama_type:
-                Tools.showDialogNamaType(this, etNamaType);
+                if (Tools.isSuperAdmin()) {
+                    String[] array;
+                    List<String> list;
+                    if (etType.getText().toString().equalsIgnoreCase("cabang")) {
+                        list = masterDao.getMasterCabang();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                    }
+                    else if (etType.getText().toString().equalsIgnoreCase("komisariat")) {
+                        list = masterDao.getMasterKomisariat();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                    }
+                    else {
+                        array = new String[1];
+                        array[0] = "PB HMI";
+                    }
+                    Tools.showDialogNamaType(this, array, res -> {
+                        etNamaType.setText(res);
+                    });
+                }
                 break;
         }
     }
