@@ -235,10 +235,18 @@ public class ProfileChatActivity extends AppCompatActivity {
     }
 
     private void rejectRequest(String idUser, String id_pengajuan) {
-        String idRoles = otherUser.getId_roles();
-        int level = levelDao.getLevel(idRoles);
+        PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
+        String idRoles = pengajuanHistory.getId_roles();
         Tools.showProgressDialog(ProfileChatActivity.this, getString(R.string.membatalkan_permintaan));
-        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, level);
+        int level = pengajuanHistory.getLevel();
+        Call<GeneralResponse> call;
+        if (level == 2) {
+            // Pengajuan LK1
+            call = service.updatePengajuanLK1(Constant.getToken(), id_pengajuan, "-1");
+        }
+        else {
+            call = service.updatePengajuanAdmin(Constant.getToken(), id_pengajuan, "-1");
+        }
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
@@ -252,6 +260,7 @@ public class ProfileChatActivity extends AppCompatActivity {
                     historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
                     finish();
                 } else {
+                    Log.d("PROFILE REJECT ERROR", "PROFILE REJECT ERROR" + response.message());
                     Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
                 }
             }
@@ -259,6 +268,7 @@ public class ProfileChatActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<GeneralResponse> call, Throwable t) {
                 Tools.dissmissProgressDialog();
+                Log.d("PROFILE REJECT ERROR", "PROFILE REJECT ERROR");
                 Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
             }
         });

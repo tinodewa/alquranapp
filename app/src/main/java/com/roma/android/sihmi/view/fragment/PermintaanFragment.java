@@ -187,8 +187,6 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                         listHistory.add(pengajuanHistory);
                                     }
                                 }
-//                                getOtherUser();
-//                                new Handler().postDelayed(() -> getOtherUser(), 500);
                             }
                         }
                     }
@@ -209,22 +207,6 @@ public class PermintaanFragment extends Fragment implements Ifragment {
             Tools.showToast(getActivity(), getString(R.string.tidak_ada_internet));
         }
     }
-
-//    private void getOtherUser() {
-//        List<Contact> contactList = contactDao.getAllListNonAdminUser();
-//        int size = contactList.size();
-//        for (int i = 0; i < size; i++) {
-//            Contact contact = contactList.get(i);
-//            if (historyPengajuanDao.getPengajuanHistory(contact.get_id()) == null) {
-//                int level = levelDao.getLevel(contact.getId_roles());
-//
-//                PengajuanHistory pengajuanHistory = new PengajuanHistory(String.valueOf(historyPengajuanDao.getAllPengajuanHistory().size()),
-//                        contact.getId_roles(), "", contact.get_id(), "", 0, 0, -1, "", level);
-//                pengajuanHistory.setNama(contact.getNama_depan());
-//                historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-//            }
-//        }
-//    }
 
     private boolean availableUser(Contact contact, List<PengajuanHistory> list) {
         boolean available = false;
@@ -261,6 +243,13 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                     long dateApproved = pengajuanAdmin.getDate_modified();
                                     int status = Integer.valueOf(statusString);
                                     Log.d("halllo", "onResponse: " + idPengajuan);
+
+                                    // begin log
+                                    if (contactDao.getContactById(createdBy).getNama_depan().equalsIgnoreCase("Rofiudin")) {
+                                        Log.d("REQUEST LOG", "TOKEN " + Constant.getToken());
+                                        Log.d("REQUEST LOG", "REQUEST LOG Rofiudin has status " + statusString + " has id_pengajuan " + idPengajuan);
+                                    }
+                                    // end log
 
                                     int level = levelDao.getLevel(idRoles);
 

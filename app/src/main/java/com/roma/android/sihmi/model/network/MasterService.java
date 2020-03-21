@@ -525,5 +525,5 @@ public interface MasterService {
     @PUT("pengajuanadmin")
     Call<GeneralResponse> updatePengajuanAdmin(@Header("access-token") String token,
                                              @Query("id_pengajuan") String id_pengajuan,
-                                             @Query("status") String status);
+                                             @Query("status_approve") String status);
 }
