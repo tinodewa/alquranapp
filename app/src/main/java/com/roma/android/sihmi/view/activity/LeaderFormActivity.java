@@ -217,10 +217,14 @@ public class LeaderFormActivity extends BaseActivity {
                 }
                 break;
             case R.id.et_type:
-                Tools.showDialogType(this, etType, etNamaType);
+                if (Tools.isSuperAdmin()) {
+                    Tools.showDialogType(this, res -> {});
+                }
                 break;
             case R.id.et_nama_type:
-                Tools.showDialogNamaType(this, etNamaType);
+                if (Tools.isSuperAdmin()) {
+                    Tools.showDialogNamaType(this, etNamaType);
+                }
                 break;
         }
     }
