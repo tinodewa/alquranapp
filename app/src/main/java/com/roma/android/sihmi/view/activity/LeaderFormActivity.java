@@ -217,13 +217,42 @@ public class LeaderFormActivity extends BaseActivity {
                 }
                 break;
             case R.id.et_type:
-                if (Tools.isSuperAdmin()) {
-                    Tools.showDialogType(this, res -> {});
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    Tools.showDialogType(this, res -> {
+                        etType.setText(res);
+
+                        if (res.equalsIgnoreCase("nasional")) {
+                            etNamaType.setText("PB HMI");
+                        }
+                        else {
+                            etNamaType.setText(null);
+                        }
+                    });
                 }
                 break;
             case R.id.et_nama_type:
-                if (Tools.isSuperAdmin()) {
-                    Tools.showDialogNamaType(this, etNamaType);
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    String[] array;
+                    List<String> list;
+                    if (etType.getText().toString().equalsIgnoreCase("cabang")) {
+                        list = masterDao.getMasterCabang();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                        Log.d("LEADER FORM", "LEADER FORM this is cabang and the length of list is " + array.length + " " + masterDao.getMasterCabang());
+                    }
+                    else if (etType.getText().toString().equalsIgnoreCase("komisariat")) {
+                        list = masterDao.getMasterKomisariat();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                        Log.d("LEADER FORM", "LEADER FORM this is komisariat and the length of list is " + array.length + " " + masterDao.getMasterKomisariat().size());
+                    }
+                    else {
+                        array = new String[1];
+                        array[0] = "PB HMI";
+                    }
+                    Tools.showDialogNamaType(this, array, res -> {
+                        etNamaType.setText(res);
+                    });
                 }
                 break;
         }
