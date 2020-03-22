@@ -232,7 +232,7 @@ public class KonstitusiFormActivity extends BaseActivity {
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_type:
-                if (Tools.isSecondAdmin()) {
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
                     Tools.showDialogType(this, res -> {
                         etType.setText(res);
 
@@ -246,7 +246,7 @@ public class KonstitusiFormActivity extends BaseActivity {
                 }
                 break;
             case R.id.et_nama_type:
-                if (Tools.isSuperAdmin()) {
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
                     String[] array;
                     List<String> list;
                     if (etType.getText().toString().equalsIgnoreCase("cabang")) {
