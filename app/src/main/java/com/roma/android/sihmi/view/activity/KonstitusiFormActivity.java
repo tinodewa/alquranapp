@@ -232,7 +232,7 @@ public class KonstitusiFormActivity extends BaseActivity {
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_type:
-                if (Tools.isSecondAdmin()) {
+                if (Tools.isSuperAdmin()) {
                     Tools.showDialogType(this, res -> {
                         etType.setText(res);
 
