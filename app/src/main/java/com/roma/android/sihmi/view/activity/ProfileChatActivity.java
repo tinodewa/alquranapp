@@ -236,9 +236,9 @@ public class ProfileChatActivity extends AppCompatActivity {
 
     private void rejectRequest(String idUser, String id_pengajuan) {
         PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
-        String idRoles = pengajuanHistory.getId_roles();
         Tools.showProgressDialog(ProfileChatActivity.this, getString(R.string.membatalkan_permintaan));
         int level = pengajuanHistory.getLevel();
+        int levelBefore = levelDao.getLevel(otherUser.getId_roles());
         Call<GeneralResponse> call;
         if (level == 2) {
             // Pengajuan LK1
@@ -252,13 +252,7 @@ public class ProfileChatActivity extends AppCompatActivity {
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 Tools.dissmissProgressDialog();
                 if (response.isSuccessful()) {
-                    Log.d("halloo", "onResponse: " + idRoles);
-                    PengajuanHistory pengajuanHistory = new PengajuanHistory(id_pengajuan, idRoles, "", idUser, "", 0, 0, -1, "", level);
-                    pengajuanHistory.setNama(contactDao.getContactById(idUser).getNama_depan());
-                    historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-                    sendNotif(idUser, "-1");
-                    historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
-                    finish();
+                    rollbackRole(idUser, levelBefore, id_pengajuan);
                 } else {
                     Log.d("PROFILE REJECT ERROR", "PROFILE REJECT ERROR" + response.message());
                     Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
@@ -269,6 +263,33 @@ public class ProfileChatActivity extends AppCompatActivity {
             public void onFailure(Call<GeneralResponse> call, Throwable t) {
                 Tools.dissmissProgressDialog();
                 Log.d("PROFILE REJECT ERROR", "PROFILE REJECT ERROR");
+                Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
+            }
+        });
+    }
+
+    private void rollbackRole(String idUser, int levelBefore, String id_pengajuan) {
+        PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
+        String idRoles = pengajuanHistory.getId_roles();
+        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, levelBefore);
+        call.enqueue(new Callback<GeneralResponse>() {
+            @Override
+            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                if (response.isSuccessful()) {
+                    PengajuanHistory pengajuanHistory = new PengajuanHistory(id_pengajuan, idRoles, "", idUser, "", 0, 0, -1, "", levelBefore);
+                    pengajuanHistory.setNama(contactDao.getContactById(idUser).getNama_depan());
+                    historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+                    sendNotif(idUser, "-1");
+                    historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
+                    finish();
+                }
+                else {
+                    Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeneralResponse> call, Throwable t) {
                 Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
             }
         });
