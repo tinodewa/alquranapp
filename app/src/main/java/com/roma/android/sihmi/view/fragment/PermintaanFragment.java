@@ -134,7 +134,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
         if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
             listLiveData = historyPengajuanDao.getAllPengajuanHistory();
         } else if (Tools.isAdmin1()) {
-            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin1("%" + Tools.dateNow());
+            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin1();
         } else if (Tools.isAdmin2()) {
             listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin2("%" + Tools.dateNow());
         } else if (Tools.isLA1()) {

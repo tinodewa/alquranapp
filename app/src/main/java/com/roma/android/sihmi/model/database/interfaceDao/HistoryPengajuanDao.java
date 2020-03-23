@@ -44,10 +44,10 @@ public interface HistoryPengajuanDao {
     @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 6 ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryLA2();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
-    LiveData<List<PengajuanHistory>> getAllPengajuanHistoryAdmin1(String dateNow);
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 ORDER BY date_created DESC")
+    LiveData<List<PengajuanHistory>> getAllPengajuanHistoryAdmin1();
 
-    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND tanggal_lk1 NOT LIKE :dateNow ORDER BY date_created DESC")
+    @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 AND tanggal_lk1 LIKE :dateNow ORDER BY date_created DESC")
     LiveData<List<PengajuanHistory>> getAllPengajuanHistoryAdmin2(String dateNow);
 
     @Query("SELECT * FROM PengajuanHistory WHERE (status == 0) AND level = 2 ORDER BY date_created DESC")
