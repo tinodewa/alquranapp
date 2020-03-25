@@ -84,7 +84,7 @@ public class Query {
         return "SELECT * FROM Contact WHERE id_level = 2";
     }
     public static String ReportSuperAdmin(int tahun){
-        return "SELECT * FROM Contact WHERE (id_level != 19 AND id_level !=20 and id_level != 1) AND tahun_daftar = '"+tahun+"'";
+        return "SELECT * FROM Contact WHERE id_roles = '" + Constant.LK_1 + "' AND tahun_daftar = '"+tahun+"'";
     }
     public static String ReportSuperAdminNonLK(int tahun){
         return "SELECT * FROM Contact WHERE id_level = 1  AND tahun_daftar = '"+tahun+"'";
@@ -94,7 +94,7 @@ public class Query {
     }
 
     public static String countReportSuperAdmin(int tahun){
-        return "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20 and id_level != 1) AND tahun_daftar = '"+tahun+"'";
+        return "SELECT COUNT (*) FROM Contact WHERE id_roles = '" + Constant.LK_1 + "' AND tahun_daftar = '"+tahun+"'";
     }
     public static String countReportSuperAdminNonLK(int tahun){
         return "SELECT COUNT (*) FROM Contact WHERE id_level = 1  AND tahun_daftar = '"+tahun+"'";
@@ -104,7 +104,7 @@ public class Query {
     }
 
     public static String countReportSuperAdmin(){
-        return "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20 and id_level != 1) ";
+        return "SELECT COUNT (*) FROM Contact WHERE id_roles = '" + Constant.LK_1 + "'";
     }
     public static String countReportSuperAdminNonLK(){
         return "SELECT COUNT (*) FROM Contact WHERE id_level = 1 ";
