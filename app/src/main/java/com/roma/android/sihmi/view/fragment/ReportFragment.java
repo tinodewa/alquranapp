@@ -319,7 +319,7 @@ public class ReportFragment extends Fragment {
     private void pelatihanKader(boolean slider) {
         List<DataKader> list = new ArrayList<>();
 
-        String query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        String query = "SELECT COUNT (*) FROM Training WHERE id_level = " + Constant.USER_LK_1 + " AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
         if (Tools.isAdmin1()) {
             query += " AND komisariat = '" + user.getKomisariat() + "' ";
         } else if (Tools.isAdmin2() || Tools.isLA1()) {

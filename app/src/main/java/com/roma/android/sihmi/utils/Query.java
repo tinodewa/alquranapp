@@ -8,23 +8,27 @@ public class Query {
     // count
     public static String countUserWithoutSecondnSuperAdmin = "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20)";
 
+    public static String reportTrainingAdmin1(String komisariat) {
+        return "SELECT * FROM Training WHERE id_level = '" + Constant.USER_LK_1 + "' AND komisariat = '" + komisariat + "'";
+    }
+
     public static String ReportKaderAdmin1(String komisariat){
-        return "SELECT * FROM Training WHERE (id_level != 19 AND id_level !=20) AND komisariat = '"+komisariat+"'";
+        return "SELECT * FROM Contact WHERE id_level = '" + Constant.USER_LK_1 + "' AND komisariat = '"+komisariat+"'";
     }
 
     public static String countReportKaderAdmin1(String komisariat){
-        return "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20) AND komisariat = '"+komisariat+"'";
+        return "SELECT COUNT (*) FROM Contact WHERE id_roles = '" + Constant.LK_1 + "' AND komisariat = '"+komisariat+"'";
     }
 
     public static String countReportKaderAdmin1L(String komisariat){
-        return "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20) AND komisariat = '"+komisariat+"' AND jenis_kelamin = '0'";
+        return "SELECT COUNT (*) FROM Contact WHERE id_roles = '" + Constant.LK_1 + "' AND komisariat = '"+komisariat+"' AND jenis_kelamin = '0'";
     }
     public static String countReportKaderAdmin1P(String komisariat){
-        return "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20) AND komisariat = '"+komisariat+"' AND jenis_kelamin = '1'";
+        return "SELECT COUNT (*) FROM Contact WHERE id_roles = '" + Constant.LK_1 + "' AND komisariat = '"+komisariat+"' AND jenis_kelamin = '1'";
     }
 
     public static String countPelatihanAdmin1(String komisariat){
-        return "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND komisariat = '"+komisariat+"' AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        return "SELECT COUNT (*) FROM Training WHERE id_level = " + Constant.USER_LK_1 + " AND komisariat = '"+komisariat+"' AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
     }
 
     // report kader admin 2 ini sama dengan LA1 dan Admin 3(namun di admin3 menggunakan domisili_cabang)
