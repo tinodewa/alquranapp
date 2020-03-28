@@ -106,7 +106,7 @@ public class DetailReportPelatihanActivity extends BaseActivity {
         if (Tools.isAdmin1()){
             query = Query.reportTrainingAdmin1(user.getKomisariat());
         } else if (Tools.isAdmin2() || Tools.isLA1()){
-            query = Query.ReportKaderAdmin2(user.getCabang());
+            query = Query.reportTrainingAdmin2(user.getCabang());
         } else {
             query = Query.ReportKaderLA2();
         }
