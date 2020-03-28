@@ -274,7 +274,8 @@ public class DetailReportActivity extends BaseActivity {
     private void initKaderAdapter(){
         kaderAdapter = new LaporanGrafikAdapter(this, getListKaderGender(), dataGrafik -> {
             if (dataGrafik.getJumlah() > 0) {
-                showDialogUser(getObjectQuery() + " AND tahun = '" + dataGrafik.getTahun() + "'");
+                Log.d("GET TAHUN", "GET TAHUN "+dataGrafik.getTahun());
+                showDialogUser(getObjectQuery() + " AND tahun_daftar = '" + dataGrafik.getTahun() + "'");
             } else {
                 Toast.makeText(this, getString(R.string.data_tidak_tersedia), Toast.LENGTH_SHORT).show();
             }
@@ -358,17 +359,17 @@ public class DetailReportActivity extends BaseActivity {
         return query;
     }
 
-    private List<String> listName(List<Training> list){
+    private List<String> listName(List<Contact> list){
         List<String> listName = new ArrayList<>();
-        for (Training t : list){
-            listName.add(contactDao.getContactById(t.getId_user()).getNama_depan());
+        for (Contact t : list){
+            listName.add(contactDao.getContactById(t.get_id()).getNama_depan());
         }
         return listName;
     }
 
     private void showDialogUser(String query){
-        List<Training> trainings = trainingDao.rawQueryTraining(new SimpleSQLiteQuery(query));
-        String[] user = listName(trainings).toArray(new String[listName(trainings).size()]);
+        List<Contact> contacts = contactDao.rawQueryContact(new SimpleSQLiteQuery(query));
+        String[] user = listName(contacts).toArray(new String[listName(contacts).size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setItems(user, (dialog1, which) -> {
                     String id_other_user = contactDao.getContactIdByName(user[which]);
