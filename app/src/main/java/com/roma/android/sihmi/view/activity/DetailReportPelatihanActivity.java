@@ -108,7 +108,7 @@ public class DetailReportPelatihanActivity extends BaseActivity {
         } else if (Tools.isAdmin2() || Tools.isLA1()){
             query = Query.reportTrainingAdmin2(user.getCabang());
         } else {
-            query = Query.ReportKaderLA2();
+            query = Query.reportPelatihanLA2();
         }
         return query;
     }
