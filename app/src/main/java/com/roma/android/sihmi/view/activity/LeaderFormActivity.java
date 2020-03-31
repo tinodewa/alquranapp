@@ -486,6 +486,13 @@ public class LeaderFormActivity extends BaseActivity {
     }
 
     private void dialogTahun(EditText editText, int tahunMulai){
+        int layoutHeight = (int)(Tools.getScreenHeight() * 0.6);
+        int layoutWidth = 250;
+
+        Log.d("LOG DIALOG TAHUN", "LOG DIALOG TAHUN height : " + layoutHeight);
+
+        if (layoutHeight > 800) layoutHeight = 800;
+
         String[] tahun = listTahun(tahunMulai).toArray(new String[listTahun(tahunMulai).size()]);
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.mydialog)
                 .setItems(tahun, (dialog1, which) -> {
@@ -494,7 +501,7 @@ public class LeaderFormActivity extends BaseActivity {
                 }).create();
         dialog.show();
         Window window = dialog.getWindow();
-        window.setLayout(250, 800);
+        window.setLayout(layoutWidth, layoutHeight);
         window.setGravity(Gravity.CENTER);
     }
 
