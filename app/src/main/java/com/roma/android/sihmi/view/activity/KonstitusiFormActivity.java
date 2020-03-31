@@ -239,6 +239,16 @@ public class KonstitusiFormActivity extends BaseActivity {
                         if (res.equalsIgnoreCase("nasional")) {
                             etNamaType.setText("PB HMI");
                         }
+                        else if (res.equalsIgnoreCase("cabang")) {
+                            List<String> listCabang = masterDao.getMasterCabang();
+                            if (listCabang.size() > 0)
+                                etNamaType.setText(listCabang.get(0));
+                        }
+                        else if (res.equalsIgnoreCase("komisariat")) {
+                            List<String> listKomisariat = masterDao.getMasterKomisariat();
+                            if (listKomisariat.size() > 0)
+                                etNamaType.setText(listKomisariat.get(0));
+                        }
                         else {
                             etNamaType.setText(null);
                         }
