@@ -22,7 +22,7 @@ public interface SejarahDao {
     @Query("SELECT * FROM Sejarah WHERE type LIKE '0-PB HMI'")
     LiveData<List<Sejarah>> getSejarahNasional();
 
-    @Query("SELECT * FROM Sejarah WHERE type LIKE :type")
+    @Query("SELECT * FROM Sejarah WHERE type LIKE :type ORDER BY date_created DESC")
     LiveData<List<Sejarah>> getSejarahByType(String type);
 
     @Query("SELECT * FROM Sejarah")
