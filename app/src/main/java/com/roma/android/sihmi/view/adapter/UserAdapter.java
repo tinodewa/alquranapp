@@ -105,9 +105,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 tvKet.setText("Mengajukan diri untuk "+ levelDao.getNamaLevel(level));
                 aSwitch.setChecked(false);
             } else if (tab == 3){
-                tvKet.setText(levelDao.getNamaLevel(contact.getId_roles())+".");
-                aSwitch.setChecked(true);
-//                aSwitch.setEnabled(false);
+                tvKet.setText(levelDao.getNamaLevel(contact.getId_roles()));
+                if (contact.getId_level() == Constant.USER_NON_LK) {
+                    aSwitch.setChecked(false);
+                    aSwitch.setEnabled(false);
+                }
+                else {
+                    aSwitch.setChecked(true);
+                }
             } else {
                 String ket;
                 if (contact.getId_level() == 5){

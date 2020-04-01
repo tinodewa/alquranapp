@@ -53,7 +53,7 @@ public interface ContactDao { @RawQuery
     @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAdmin();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 2 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 2 OR id_level == 1 ORDER BY id_level DESC, lower(nama_depan)")
     LiveData<List<Contact>> getLiveDataListAnggota();
 
     @Query("SELECT * FROM Contact WHERE id_level == 2 AND komisariat = :koms ORDER BY lower(nama_depan) ASC")
@@ -77,7 +77,7 @@ public interface ContactDao { @RawQuery
     @Query("SELECT * FROM Contact WHERE id_level == 17 OR id_level == 18 ORDER BY nama_depan ASC")
     List<Contact> getListPBHMI();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 2 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 2 OR id_level == 1 ORDER BY lower(nama_depan) ASC")
     List<Contact> getListAnggota();
 
     @Query("SELECT * FROM Contact WHERE id_level == 2 AND komisariat = :koms ORDER BY lower(nama_depan) ASC")

@@ -132,7 +132,9 @@ public class AnggotaFragment extends Fragment {
             @Override
             public void onItemClick(Contact contact) {
                 Log.d("halloo", "onItemClick: ");
-                changeRoles(contact.get_id());
+                if (contact.getId_level() != Constant.USER_NON_LK) {
+                    changeRoles(contact.get_id());
+                }
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext().getApplicationContext()));
