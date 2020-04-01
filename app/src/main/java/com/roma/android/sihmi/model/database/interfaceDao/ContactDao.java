@@ -47,10 +47,10 @@ public interface ContactDao { @RawQuery
     @Query("SELECT _id FROM Contact WHERE nama_depan LIKE :nama")
     String getContactIdByName(String nama);
 
-    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
     List<Contact> getListAdmin();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAdmin();
 
     @Query("SELECT * FROM Contact WHERE id_level == 2 OR id_level == 1 ORDER BY id_level DESC, lower(nama_depan)")

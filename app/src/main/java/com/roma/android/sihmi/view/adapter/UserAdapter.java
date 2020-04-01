@@ -125,6 +125,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     ket = "Cabang";
                 } else if (contact.getId_level() == 16){
                     ket = "PB HMI";
+                } else if (contact.getId_level() == Constant.USER_SECOND_ADMIN) {
+                    ket = "Nasional";
                 } else {
                     ket = "Admin";
                 }
