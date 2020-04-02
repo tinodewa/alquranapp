@@ -236,21 +236,21 @@ public class ProfileChatActivity extends AppCompatActivity {
     }
 
     private void showDialogPilihan(){
-        String[] grpName = {"Admin PBHMI",  "Admin Cabang", "Admin Komisariat", "Admin BPL", "Admin Alumni", "Second Admin"};
+        String[] grpName = {"Admin Komisariat", "Admin BPL", "Admin Alumni", "Admin Cabang", "Admin PBHMI", "Admin Nasional"};
         android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
                 .setSingleChoiceItems(grpName, -1, (dialog1, which) -> {
             int level;
             if (which == 0){
-                level = Constant.USER_LOW_ADMIN_2;
-                } else if (which == 1){
-                level = Constant.USER_LOW_ADMIN_1;
-                } else if (which == 2) {
                 level = Constant.USER_ADMIN_1;
-                } else if (which == 3) {
+            } else if (which == 1){
                 level = Constant.USER_ADMIN_2;
-                } else if (which == 4) {
+            } else if (which == 2) {
                 level = Constant.USER_ADMIN_3;
-                } else {
+            } else if (which == 3) {
+                level = Constant.USER_LOW_ADMIN_1;
+            } else if (which == 4) {
+                level = Constant.USER_LOW_ADMIN_2;
+            } else {
                 level = Constant.USER_SECOND_ADMIN;
             }
             changeRole(otherUser.get_id(), level, new Callback<GeneralResponse>() {
