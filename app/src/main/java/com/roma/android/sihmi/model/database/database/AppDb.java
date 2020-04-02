@@ -67,7 +67,7 @@ import com.roma.android.sihmi.utils.Constant;
                 Sejarah.class,
                 Training.class,
                 User.class },
-        version = 22,
+        version = 23,
         exportSchema = false)
 public abstract class AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
