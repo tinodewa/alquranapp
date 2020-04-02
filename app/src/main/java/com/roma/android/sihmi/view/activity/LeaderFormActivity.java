@@ -208,12 +208,12 @@ public class LeaderFormActivity extends BaseActivity {
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_periode:
-                dialogTahun(etPeriode, 0);
+                dialogTahun(etPeriode, 0, true);
                 break;
             case R.id.et_sampai:
                 if (!etPeriode.getText().toString().trim().isEmpty()) {
                     int tahunMulai = Integer.valueOf(etPeriode.getText().toString());
-                    dialogTahun(etSampai, tahunMulai);
+                    dialogTahun(etSampai, tahunMulai, false);
                 }
                 break;
             case R.id.et_type:
@@ -285,44 +285,6 @@ public class LeaderFormActivity extends BaseActivity {
             Tools.showToast(this, getString(R.string.field_mandatory));
         }
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == Constant.REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK){
-//            Uri uri = data.getData();
-//            String filePath = UploadFile.getRealPathFromURIPath(uri, LeaderFormActivity.this);
-//
-//            if (Tools.isOnline(this)) {
-//                Tools.showProgressDialog(LeaderFormActivity.this, "Mengungah Foto...");
-//                UploadFile.uploadFileToServer(Constant.IMAGE, filePath, new Callback<UploadFileResponse>() {
-//                    @Override
-//                    public void onResponse(Call<UploadFileResponse> call, Response<UploadFileResponse> response) {
-//                        if (response.isSuccessful()) {
-//                            if (response.body().getStatus().equalsIgnoreCase("ok")) {
-//                                if (response.body().getData().size() > 0) {
-//                                    urlImage = response.body().getData().get(0).getUrl();
-//
-//                                    Glide.with(LeaderFormActivity.this)
-//                                            .load(Uri.parse(urlImage))
-//                                            .into(imgFoto);
-//                                }
-//                            }
-//                        }
-//                        Tools.dissmissProgressDialog();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<UploadFileResponse> call, Throwable t) {
-//                        Tools.dissmissProgressDialog();
-//                    }
-//                });
-//            } else {
-//                Tools.showToast(LeaderFormActivity.this, getString(R.string.tidak_ada_internet));
-//            }
-//
-//        }
-//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -485,7 +447,7 @@ public class LeaderFormActivity extends BaseActivity {
 
     }
 
-    private void dialogTahun(EditText editText, int tahunMulai){
+    private void dialogTahun(EditText editText, int tahunMulai, boolean reset){
         int layoutHeight = (int)(Tools.getScreenHeight() * 0.6);
         int layoutWidth = 250;
 
@@ -497,6 +459,9 @@ public class LeaderFormActivity extends BaseActivity {
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.mydialog)
                 .setItems(tahun, (dialog1, which) -> {
                     editText.setText(tahun[which]);
+                    if (reset) {
+                        etSampai.setText(null);
+                    }
                     dialog1.dismiss();
                 }).create();
         dialog.show();
