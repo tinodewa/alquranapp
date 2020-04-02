@@ -98,6 +98,7 @@ public abstract class AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
+                        .addMigrations(MIGRATION_22_23)
                         .build();
             }
         }
@@ -107,7 +108,7 @@ public abstract class AppDb extends RoomDatabase {
     static final Migration MIGRATION_22_23 = new Migration(22, 23) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole INTEGER NOT NULL");
+            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole INTEGER NOT NULL DEFAULT CURRENT_DATE");
         }
     };
 
