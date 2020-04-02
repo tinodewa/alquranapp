@@ -99,11 +99,23 @@ public class AnggotaFragment extends Fragment {
 
         userFragment = ((UserFragment)AnggotaFragment.this.getParentFragment());
         if (Tools.isSuperAdmin()){
-            contacts = contactDao.getListAnggota();
-            contactLiveData = contactDao.getLiveDataListAnggota();
-        } else {
+            contacts = contactDao.getListAllAnggota();
+            contactLiveData = contactDao.getLiveDataListAllAnggota();
+        } else if (Tools.isAdmin1()) {
             contacts = contactDao.getListAnggotaByKomisariat(userDao.getUser().getKomisariat());
             contactLiveData = contactDao.getLiveDataListAnggotaByKomisariat(userDao.getUser().getKomisariat());
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()) {
+            contacts = contactDao.getListAnggotaByCabang(userDao.getUser().getCabang());
+            contactLiveData = contactDao.getListLiveDataAnggotaByCabang(userDao.getUser().getCabang());
+        }
+        else if (Tools.isLA2() || Tools.isSecondAdmin()) {
+            contacts = contactDao.getListAnggota();
+            contactLiveData = contactDao.getListLiveDataAnggota();
+        }
+        else if (Tools.isAdmin3()) {
+            contacts = contactDao.getListAnggotaByDomisiliCabang(userDao.getUser().getDomisili_cabang());
+            contactLiveData = contactDao.getListLiveDataAnggotaByDomisiliCabang(userDao.getUser().getDomisili_cabang());
         }
 
         contactLiveData.observe(getActivity(), contacts -> {
@@ -220,11 +232,7 @@ public class AnggotaFragment extends Fragment {
                                 contactDao.insertContact(c);
 
                             }
-                            if (Tools.isSuperAdmin()){
-                                contacts = contactDao.getListAnggota();
-                            } else {
-                                contacts = contactDao.getListAnggotaByKomisariat(userDao.getUser().getKomisariat());
-                            }
+
                             userFragment.updateTab(page, contacts.size());
                             adapter.updateData(contacts);
 //                            initAdapter();
@@ -277,15 +285,33 @@ public class AnggotaFragment extends Fragment {
                 public boolean onQueryTextChange(String newText) {
                     if (newText.isEmpty()){
                         if (Tools.isSuperAdmin()){
-                            contacts = contactDao.getListAnggota();
-                        } else {
+                            contacts = contactDao.getListAllAnggota();
+                        } else if (Tools.isAdmin1()) {
                             contacts = contactDao.getListAnggotaByKomisariat(userDao.getUser().getKomisariat());
+                        }
+                        else if (Tools.isAdmin2() || Tools.isLA1()) {
+                            contacts = contactDao.getListAnggotaByCabang(userDao.getUser().getCabang());
+                        }
+                        else if (Tools.isLA2() || Tools.isSecondAdmin()) {
+                            contacts = contactDao.getListAnggota();
+                        }
+                        else if (Tools.isAdmin3()) {
+                            contacts = contactDao.getListAnggotaByDomisiliCabang(userDao.getUser().getDomisili_cabang());
                         }
                     } else {
                         if (Tools.isSuperAdmin()){
-                            contacts = contactDao.getSearchListAnggota("%" + newText + "%");
-                        } else {
+                            contacts = contactDao.getSearchListAllAnggota("%" + newText + "%");
+                        } else if (Tools.isAdmin1()) {
                             contacts = contactDao.getSearchListAnggotaByKomisariat(userDao.getUser().getKomisariat(),"%" + newText + "%");
+                        }
+                        else if (Tools.isAdmin2() || Tools.isLA1()) {
+                            contacts = contactDao.getSearchListAnggotaByCabang(userDao.getUser().getCabang(), "%" + newText + "%");
+                        }
+                        else if (Tools.isLA2() || Tools.isSecondAdmin()) {
+                            contacts = contactDao.getSearchListAnggota("%" + newText + "%");
+                        }
+                        else if (Tools.isAdmin3()) {
+                            contacts = contactDao.getSearchListAnggotaByDomisiliCabang(userDao.getUser().getDomisili_cabang(), "%" + newText + "%");
                         }
                     }
                     adapter.updateData(contacts);
