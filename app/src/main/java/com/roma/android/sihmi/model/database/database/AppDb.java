@@ -3,10 +3,12 @@ package com.roma.android.sihmi.model.database.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.roma.android.sihmi.model.database.entity.AboutUs;
 import com.roma.android.sihmi.model.database.entity.Agenda;
@@ -101,5 +103,12 @@ public abstract class AppDb extends RoomDatabase {
         }
         return instance;
     }
+
+    static final Migration MIGRATION_22_23 = new Migration(22, 23) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole INTEGER NOT NULL");
+        }
+    };
 
 }
