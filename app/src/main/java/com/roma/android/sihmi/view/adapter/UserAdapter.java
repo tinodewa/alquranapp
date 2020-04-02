@@ -146,9 +146,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 ivInitial.setVisibility(View.VISIBLE);
             }
 
-            ivDetail.setOnClickListener(v -> itemView.getContext().startActivity(new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id())));
+            Intent profileChatIntent = new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id());
+            if (contact.getId_level() != Constant.USER_NON_LK && Tools.isSuperAdmin()) {
+                profileChatIntent.putExtra("MODE_ACCEPTED", true);
+            }
+            ivDetail.setOnClickListener(v -> itemView.getContext().startActivity(profileChatIntent));
 
-            itemView.setOnClickListener(v -> itemView.getContext().startActivity(new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id())));
+            itemView.setOnClickListener(v -> itemView.getContext().startActivity(profileChatIntent));
 
             aSwitch.setOnClickListener(v -> {
                 aSwitch.setChecked(true);
