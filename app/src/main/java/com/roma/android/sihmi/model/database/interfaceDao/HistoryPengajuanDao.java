@@ -103,6 +103,9 @@ public interface HistoryPengajuanDao {
 
     @Query("SELECT * FROM PengajuanHistory WHERE status = 1 AND created_by = :createBy ORDER BY date_modified DESC LIMIT 1")
     PengajuanHistory getSuccessPengajuan(String createBy);
+
+    @Query("SELECT * FROM PengajuanHistory WHERE status = 0 AND created_by = :createBy ORDER BY date_created DESC LIMIT 1")
+    PengajuanHistory getOnProgressPengajuan(String createBy);
 //
 //    @Query("SELECT * FROM PengajuanHistory WHERE status == 0 AND id_roles LIKE :idRoles")
 //    List<PengajuanHistory> getPengajuanHistoryNewByIdRoles(String idRoles);
