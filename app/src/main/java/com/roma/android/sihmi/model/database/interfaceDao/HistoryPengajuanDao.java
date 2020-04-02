@@ -98,8 +98,11 @@ public interface HistoryPengajuanDao {
     @Query("SELECT level FROM PengajuanHistory WHERE _id = :id LIMIT 1")
     int getLevelByIdPengajuanHistory(String id);
 
-    @Query("UPDATE PengajuanHistory SET status=1 WHERE _id = :id")
+    @Query("UPDATE PengajuanHistory SET status=1, date_modified=JULIANDAY('NOW') WHERE _id = :id")
     void updateApprovePengajuan(String id);
+
+    @Query("SELECT * FROM PengajuanHistory WHERE status = 1 AND created_by = :createBy ORDER BY date_modified DESC LIMIT 1")
+    PengajuanHistory getSuccessPengajuan(String createBy);
 //
 //    @Query("SELECT * FROM PengajuanHistory WHERE status == 0 AND id_roles LIKE :idRoles")
 //    List<PengajuanHistory> getPengajuanHistoryNewByIdRoles(String idRoles);

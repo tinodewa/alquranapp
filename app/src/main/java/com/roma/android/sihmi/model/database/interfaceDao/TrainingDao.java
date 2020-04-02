@@ -37,6 +37,9 @@ public interface TrainingDao {
     @Query("SELECT * FROM Training WHERE id_user = :idUser")
     List<Training> getListAllTrainingByUser(String idUser);
 
+    @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe = :type")
+    Training getListAllTrainingByUserType(String idUser, String type);
+
     @Query("SELECT * FROM Training WHERE id_user = :idUser")
     LiveData<List<Training>> getAllTrainingByUser(String idUser);
 

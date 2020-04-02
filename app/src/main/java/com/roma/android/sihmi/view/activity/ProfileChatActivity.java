@@ -82,7 +82,7 @@ public class ProfileChatActivity extends AppCompatActivity {
     UserDao userDao;
     HistoryPengajuanDao historyPengajuanDao;
     LevelDao levelDao;
-    Boolean requestMode;
+    Boolean requestMode, acceptedMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +99,7 @@ public class ProfileChatActivity extends AppCompatActivity {
 
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
         requestMode = getIntent().getBooleanExtra("MODE_REQUEST", false);
+        acceptedMode = getIntent().getBooleanExtra("MODE_ACCEPTED", false);
         idPengajuan = getIntent().getStringExtra("idpengajuan");
 
         if (idPengajuan != null && !idPengajuan.isEmpty()){
@@ -201,8 +202,17 @@ public class ProfileChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (requestMode) {
+        MenuItem menuItem;
+        if (requestMode || acceptedMode) {
             getMenuInflater().inflate(R.menu.change_admin, menu);
+
+            if (requestMode) {
+                menuItem = menu.findItem(R.id.action_2);
+            }
+            else {
+                menuItem = menu.findItem(R.id.action_1);
+            }
+            menuItem.setVisible(false);
         }
         return true;
     }
@@ -212,12 +222,61 @@ public class ProfileChatActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id){
             case R.id.action_1:
-                Tools.showDialogCustom(ProfileChatActivity.this, "Batalkan Permintaan", "Apakah Anda yakin ingin membatalkan permintaan ini?", "batal", ket -> {
+                Tools.showDialogCustom(this, "Batalkan Permintaan", "Apakah Anda yakin ingin membatalkan permintaan ini?", "batal", ket -> {
                     rejectRequest(otherUser.get_id(), idPengajuan);
+                });
+                break;
+            case R.id.action_2:
+                Tools.showDialogCustom(this, "Konfirmasi", getString(R.string.konfirm_akses_ket), Constant.LIHAT, ket -> {
+                    showDialogPilihan();
                 });
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showDialogPilihan(){
+        String[] grpName = {"Admin PBHMI",  "Admin Cabang", "Admin Komisariat", "Admin BPL", "Admin Alumni", "Second Admin"};
+        android.app.AlertDialog dialog = new android.app.AlertDialog.Builder(this)
+                .setSingleChoiceItems(grpName, -1, (dialog1, which) -> {
+            int level;
+            if (which == 0){
+                level = Constant.USER_LOW_ADMIN_2;
+                } else if (which == 1){
+                level = Constant.USER_LOW_ADMIN_1;
+                } else if (which == 2) {
+                level = Constant.USER_ADMIN_1;
+                } else if (which == 3) {
+                level = Constant.USER_ADMIN_2;
+                } else if (which == 4) {
+                level = Constant.USER_ADMIN_3;
+                } else {
+                level = Constant.USER_SECOND_ADMIN;
+            }
+            changeRole(otherUser.get_id(), level, new Callback<GeneralResponse>() {
+                @Override
+                public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                    if (response.isSuccessful()) {
+                        otherUser.setId_level(level);
+                        otherUser.setId_roles(levelDao.getIdRoles(level));
+                        contactDao.insertContact(otherUser);
+                        sendNotif(otherUser.get_id(), "-1");
+                        Tools.showToast(ProfileChatActivity.this, "Berhasil menjadikan admin");
+                        finish();
+                    }
+                    else {
+                        Tools.showToast(ProfileChatActivity.this, "Gagal menjadikan admin");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                    Tools.showToast(ProfileChatActivity.this, "Gagal menjadikan admin");
+                }
+            });
+            dialog1.dismiss();
+        }).setCancelable(true).create();
+        dialog.show();
     }
 
     private void sendNotif(String user, String status) {
@@ -252,7 +311,27 @@ public class ProfileChatActivity extends AppCompatActivity {
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 Tools.dissmissProgressDialog();
                 if (response.isSuccessful()) {
-                    rollbackRole(idUser, levelBefore, id_pengajuan);
+                    changeRole(idUser, levelBefore, new Callback<GeneralResponse>() {
+                        @Override
+                        public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                            if (response.isSuccessful()) {
+                                PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
+                                pengajuanHistory.setStatus(-1);
+                                historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+                                sendNotif(idUser, "-1");
+                                Tools.showToast(ProfileChatActivity.this, "Berhasil membatalkan");
+                                finish();
+                            }
+                            else {
+                                Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                            Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
+                        }
+                    });
                 } else {
                     Log.d("PROFILE REJECT ERROR", "PROFILE REJECT ERROR" + response.message());
                     Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
@@ -268,30 +347,9 @@ public class ProfileChatActivity extends AppCompatActivity {
         });
     }
 
-    private void rollbackRole(String idUser, int levelBefore, String id_pengajuan) {
-        PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
-        String idRoles = pengajuanHistory.getId_roles();
-        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, levelBefore);
-        call.enqueue(new Callback<GeneralResponse>() {
-            @Override
-            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
-                if (response.isSuccessful()) {
-                    PengajuanHistory pengajuanHistory = new PengajuanHistory(id_pengajuan, idRoles, "", idUser, "", 0, 0, -1, "", levelBefore);
-                    pengajuanHistory.setNama(contactDao.getContactById(idUser).getNama_depan());
-                    historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-                    sendNotif(idUser, "-1");
-                    historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
-                    finish();
-                }
-                else {
-                    Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<GeneralResponse> call, Throwable t) {
-                Tools.showToast(ProfileChatActivity.this, getString(R.string.gagal_membatalkan));
-            }
-        });
+    private void changeRole(String idUser, int level, Callback<GeneralResponse> callback) {
+        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, level);
+        call.enqueue(callback);
     }
+
 }

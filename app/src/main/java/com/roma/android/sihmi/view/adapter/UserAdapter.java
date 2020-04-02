@@ -16,12 +16,18 @@ import com.bumptech.glide.Glide;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
+import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.interfaceDao.HistoryPengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.ProfileChatActivity;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,6 +39,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
     int tab;
     itemClickListener listener;
     LevelDao levelDao;
+    HistoryPengajuanDao historyPengajuanDao;
 
 
     public UserAdapter(Context context, List<Contact> list, int tab) {
@@ -47,6 +54,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         this.tab = tab;
         this.listener = listener;
         levelDao = AppDb.getInstance(context).levelDao();
+        historyPengajuanDao = AppDb.getInstance(context).historyPengajuanDao();
     }
 
     public UserAdapter(Context context, int size, int tab) {
@@ -100,14 +108,40 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
         }
 
         void bindView(final Contact contact, int tab){
+            PengajuanHistory pengajuanHistory;
             if (tab == 1){
                 int level = levelDao.getLevel(contact.getId_roles())+1;
                 tvKet.setText("Mengajukan diri untuk "+ levelDao.getNamaLevel(level));
                 aSwitch.setChecked(false);
             } else if (tab == 3){
-                tvKet.setText(levelDao.getNamaLevel(contact.getId_roles())+".");
-                aSwitch.setChecked(true);
-//                aSwitch.setEnabled(false);
+                tvKet.setText(levelDao.getNamaLevel(contact.getId_roles()));
+                if (contact.getId_level() == Constant.USER_NON_LK) {
+                    aSwitch.setChecked(false);
+                    aSwitch.setEnabled(false);
+                }
+                else {
+                    aSwitch.setChecked(true);
+                    aSwitch.setEnabled(true);
+                }
+
+                if (contact.getTahun_lk1() != null && !contact.getTahun_lk1().isEmpty()) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    try {
+                        Date date = sdf.parse(contact.getTanggal_lk1());
+                        long dateLong = date.getTime();
+                        contact.setDateRole(dateLong);
+
+                        if (Integer.parseInt(Tools.getYearFromMillis(dateLong)) < 1970) {
+                            contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+                        }
+                    } catch (ParseException e) {
+                        contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+                }
             } else {
                 String ket;
                 if (contact.getId_level() == 5){
@@ -120,15 +154,30 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                     ket = "Cabang";
                 } else if (contact.getId_level() == 16){
                     ket = "PB HMI";
+                } else if (contact.getId_level() == Constant.USER_SECOND_ADMIN) {
+                    ket = "Nasional";
                 } else {
                     ket = "Admin";
                 }
 //                tvKet.setText(CoreApplication.get().getAppDb().interfaceDao().getNamaLevel(contact.getId_roles())+".");
                 tvKet.setText(ket);
                 aSwitch.setChecked(true);
+
+                pengajuanHistory = historyPengajuanDao.getSuccessPengajuan(contact.get_id());
+                if (pengajuanHistory != null) {
+                    if (pengajuanHistory.getDate_modified() != 0) {
+                        contact.setDateRole(pengajuanHistory.getDate_modified());
+                    }
+                    else {
+                        contact.setDateRole(pengajuanHistory.getDate_created());
+                    }
+                }
+                else {
+                    contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+                }
             }
             tvNama.setText(contact.getFullName());
-            tvDate.setText(Tools.getDateLaporanFromMillis(System.currentTimeMillis()));
+            tvDate.setText(Tools.getDateLaporanFromMillis(contact.getDateRole()));
             if (contact.getImage() != null && !contact.getImage().trim().isEmpty()){
                 ivPhoto.setVisibility(View.VISIBLE);
                 ivInitial.setVisibility(View.GONE);
@@ -139,9 +188,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 ivInitial.setVisibility(View.VISIBLE);
             }
 
-            ivDetail.setOnClickListener(v -> itemView.getContext().startActivity(new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id())));
+            Intent profileChatIntent = new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id());
+            if (contact.getId_level() != Constant.USER_NON_LK && Tools.isSuperAdmin()) {
+                profileChatIntent.putExtra("MODE_ACCEPTED", true);
+            }
+            ivDetail.setOnClickListener(v -> itemView.getContext().startActivity(profileChatIntent));
 
-            itemView.setOnClickListener(v -> itemView.getContext().startActivity(new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id())));
+            itemView.setOnClickListener(v -> itemView.getContext().startActivity(profileChatIntent));
 
             aSwitch.setOnClickListener(v -> {
                 aSwitch.setChecked(true);
