@@ -572,14 +572,9 @@ public class MainActivity extends BaseActivity
                         if (response.isSuccessful()) {
                             if (response.body().getStatus().equalsIgnoreCase("success")) {
                                 Toast.makeText(MainActivity.this, getString(R.string.logout_berhasil), Toast.LENGTH_SHORT).show();
-                                clearData();
-                            } else {
-                                clearData();
-
                             }
-                        } else {
-                            clearData();
                         }
+                        clearData();
                     }
 
                     @Override
@@ -684,18 +679,36 @@ public class MainActivity extends BaseActivity
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification.getTo().equals(user.get_id())) {
                         if (!notification.isIsshow()) {
+                            int level = levelDao.getLevel(user.getId_roles());
+
                             if (notification.getStatus().equals("1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah));
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), ket -> {
+                                    if (level <= Constant.USER_LK_3) {
+                                        logout();
+                                    }
+                                });
                             }
                             else if (notification.getStatus().equals("2")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah));
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), ket -> {
+                                    if (level > Constant.USER_LK_3) {
+                                        logout();
+                                    }
+                                });
                             }
                             else if (notification.getStatus().equals("3")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah));
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), ket -> {
+                                    if (level >= Constant.USER_LK_1 && level < Constant.USER_ADMIN_1) {
+                                        logout();
+                                    }
+                                });
                             }
                             else if (notification.getStatus().equals("4")) {
                                 // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa));
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), ket -> {
+                                    if (level == Constant.USER_NON_LK) {
+                                        logout();
+                                    }
+                                });
                             }
                             else if (notification.getStatus().equals("-1")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
