@@ -121,6 +121,7 @@ public class MainActivity extends BaseActivity
     NavigationView nav_view2;
 
     ImageView imageView;
+    ImageView ivInitial;
 
     User user;
     boolean doubleBackToExitPressedOnce = false;
@@ -187,6 +188,21 @@ public class MainActivity extends BaseActivity
         getNotif();
 
         requestPermission();
+
+        userDao.getImageLiveData(user.get_id()).observe(this, imageUrl -> {
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Tools.initial(ivInitial, user.getNama_depan());
+                ivInitial.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.GONE);
+            }
+            else {
+                Glide.with(MainActivity.this)
+                        .load(Uri.parse(imageUrl))
+                        .into(imageView);
+                ivInitial.setVisibility(View.GONE);
+                imageView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     public void setToolBar(String title) {
@@ -243,7 +259,7 @@ public class MainActivity extends BaseActivity
         TextView tv_admin = (TextView) headerView.findViewById(R.id.tv_admin);
         TextView tv_edit_profile = (TextView) headerView.findViewById(R.id.tv_edit_profile);
         imageView = (ImageView) headerView.findViewById(R.id.image_view);
-        ImageView ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
+        ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
         FloatingActionButton fabEdit = (FloatingActionButton) headerView.findViewById(R.id.fab_edit);
 
         if (user.getImage() != null && !user.getImage().isEmpty() && !user.getImage().equals(" ")) {

@@ -197,6 +197,7 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
         setText(etAlamatDomisili, user.getAlamat());
 
         urlImage = user.getImage();
+        Tools.initial(ivInitial, user.getNama_depan());
         if (user.getImage() != null && !user.getImage().isEmpty()  && !user.getImage().equals(" ")){
             Glide.with(ProfileActivity.this)
                     .load(Uri.parse(user.getImage()))
@@ -205,7 +206,6 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
             ivPhoto.setVisibility(View.VISIBLE);
             fabDel.setVisibility(View.VISIBLE);
         } else {
-            Tools.initial(ivInitial, user.getNama_depan());
             ivInitial.setVisibility(View.VISIBLE);
             ivPhoto.setVisibility(View.GONE);
             fabDel.setVisibility(View.GONE);
@@ -574,6 +574,8 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
                                         .load(Uri.parse(url))
                                         .into(ivPhoto);
                             }
+                            user.setImage(url);
+                            userDao.updatePhoto(user.get_id(), url);
                             setResult(Activity.RESULT_OK);
 
                         } else {
@@ -609,6 +611,7 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
                 if (response.isSuccessful()) {
                     if (response.body().getStatus().equalsIgnoreCase("ok")) {
                         userDao.updateProfile(user.get_id(), nama, nama_panggilan, jenis_kelamin, no_hp, alamat);
+                        userDao.updatePhoto(user.get_id(), user.getImage());
                         setResult(Activity.RESULT_OK);
                         finish();
                     } else {
