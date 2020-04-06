@@ -424,6 +424,26 @@ public class Tools {
         builder.create().show();
     }
 
+    public static void showDialogCustom(Context context, String title, String message, String positiveButton, String ket, ListenerHelper listenerHelper){
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(true)
+                .setPositiveButton(context.getString(R.string.ya), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(ket);
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton(context.getString(R.string.tidak), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.create().show();
+    }
+
     public static void showDialogCustom(Context context, String title, String message, String textButton){
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context)
                 .setTitle(title)
