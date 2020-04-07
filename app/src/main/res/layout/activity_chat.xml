@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#e6e6e6"
-    tools:context=".view.activity.ChatActivity">
+    tools:context=".view.activity.ChatActivity"
+    android:id="@+id/activity_chat">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -115,7 +116,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorBgWhite"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:id="@+id/chat_input_container">
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/fab_add"

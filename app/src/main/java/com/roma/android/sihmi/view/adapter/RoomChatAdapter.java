@@ -88,9 +88,15 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
                 viewHolder.tvMessageSendSticker.setVisibility(View.VISIBLE);
                 viewHolder.llSend.setBackgroundColor(Color.TRANSPARENT);
 //                viewHolder.tvMessageSendSticker.setTextSize(50);
-                viewHolder.tvMessageSendSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvSend.getTextSize(), Color.BLACK, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                if (Constant.loadNightModeState()) {
+                    viewHolder.tvMessageSendSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvSend.getTextSize(), Color.WHITE, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                    viewHolder.tvTimeSend.setTextColor(viewHolder.itemView.getResources().getColor(R.color.colorTextLight));
+                }
+                else {
+                    viewHolder.tvMessageSendSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvSend.getTextSize(), Color.BLACK, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                    viewHolder.tvTimeSend.setTextColor(Color.BLACK);
+                }
                 viewHolder.tvMessageSendSticker.setTypeface(britanic);
-                viewHolder.tvTimeSend.setTextColor(Color.BLACK);
 
             } else {
                 viewHolder.tvSend.setVisibility(View.GONE);
@@ -101,7 +107,7 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
 
             viewHolder.tvSend.setText(chat.getMessage());
             viewHolder.tvMessageSendSticker.setText(chat.getMessage().toUpperCase());
-            viewHolder.tvTimeSend.setText(Tools.getTimeAMPMFromMillis(chat.getTime()));
+            viewHolder.tvTimeSend.setText(Tools.getTimeFromMillis(chat.getTime()));
             if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
                 Glide.with(context).load(chat.getMessage()).into(viewHolder.imgSend);
             }
@@ -122,9 +128,15 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
                 viewHolder.tvMessageReceiveSticker.setVisibility(View.VISIBLE);
                 viewHolder.llReceive.setBackgroundColor(Color.TRANSPARENT);
 //                viewHolder.tvReceive.setTextSize(50);
-                viewHolder.tvMessageReceiveSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvReceive.getTextSize(), Color.BLACK, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                if (Constant.loadNightModeState()) {
+                    viewHolder.tvMessageReceiveSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvSend.getTextSize(), Color.WHITE, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                    viewHolder.tvTimeReceive.setTextColor(viewHolder.itemView.getResources().getColor(R.color.colorTextLight));
+                }
+                else {
+                    viewHolder.tvMessageReceiveSticker.getPaint().setShader(new LinearGradient(0f, 0f, 0f, viewHolder.tvSend.getTextSize(), Color.BLACK, viewHolder.itemView.getResources().getColor(R.color.colorGreen), Shader.TileMode.CLAMP));
+                    viewHolder.tvTimeReceive.setTextColor(Color.BLACK);
+                }
                 viewHolder.tvMessageReceiveSticker.setTypeface(britanic);
-                viewHolder.tvTimeReceive.setTextColor(Color.BLACK);
             } else {
                 viewHolder.tvReceive.setVisibility(View.GONE);
                 viewHolder.tvTimeReceive.setVisibility(View.GONE);
@@ -134,7 +146,7 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
 
             viewHolder.tvReceive.setText(chat.getMessage());
             viewHolder.tvMessageReceiveSticker.setText(chat.getMessage().toUpperCase());
-            viewHolder.tvTimeReceive.setText(Tools.getTimeAMPMFromMillis(chat.getTime()));
+            viewHolder.tvTimeReceive.setText(Tools.getTimeFromMillis(chat.getTime()));
             if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
                 Glide.with(context).load(chat.getMessage()).into(viewHolder.imgReceive);
             }

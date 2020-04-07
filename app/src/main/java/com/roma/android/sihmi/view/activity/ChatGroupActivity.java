@@ -83,6 +83,10 @@ public class ChatGroupActivity extends BaseActivity {
     RelativeLayout rlToolbar;
     @BindView(R.id.rv_stiker)
     RecyclerView rvStiker;
+    @BindView(R.id.activity_chat)
+    RelativeLayout rlChatActivity;
+    @BindView(R.id.chat_input_container)
+    RelativeLayout chatInputContainer;
 
     DatabaseReference databaseReference;
     ValueEventListener eventListener;
@@ -128,6 +132,11 @@ public class ChatGroupActivity extends BaseActivity {
             }
 
         });
+
+        if (Constant.loadNightModeState()) {
+            rlChatActivity.setBackgroundColor(getResources().getColor(R.color.colorDarkAccent));
+            chatInputContainer.setBackgroundColor(getResources().getColor(R.color.colorDark));
+        }
     }
 
     private boolean isKeyboardShown(View rootView) {
