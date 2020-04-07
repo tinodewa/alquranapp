@@ -108,7 +108,7 @@ public class LeaderFragment extends Fragment {
         }
         listLiveData.observe(getActivity(), leaders -> {
             try {
-                if (Tools.isSuperAdmin() || Tools.isSecondAdmin() || type == 1) {
+                if (!Tools.isSuperAdmin() && !Tools.isSecondAdmin() || type == 1) {
                     adapter.updateData(leaders);
                 } else {
                     adapterNonSuper.updateData(leaders);
@@ -130,7 +130,7 @@ public class LeaderFragment extends Fragment {
         }
 
 
-        if (Tools.isSuperAdmin() || Tools.isSecondAdmin() || type == 1){
+        if (!Tools.isSuperAdmin() && !Tools.isSecondAdmin() || type == 1){
             initAdapterSuper();
         } else {
             initAdapterNonSuper();
