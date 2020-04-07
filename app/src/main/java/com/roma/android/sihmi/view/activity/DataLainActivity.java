@@ -329,14 +329,13 @@ public class DataLainActivity extends BaseActivity {
         final EditText etTipe = dialogView.findViewById(R.id.etTipe);
         final Spinner spTipe = dialogView.findViewById(R.id.sp_training);
         final EditText etTahun = dialogView.findViewById(R.id.etTahun);
-        final EditText etNama = dialogView.findViewById(R.id.etNama);
         final EditText etLokasi = dialogView.findViewById(R.id.etLokasi);
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), etNama.getText().toString(), etLokasi.getText().toString());
+                        addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), spTipe.getSelectedItem().toString(), etLokasi.getText().toString());
 //                        trainings.add(new Training(trainings.size(), etTipe.getText().toString(), etTahun.getText().toString(), etNama.getText().toString(), etLokasi.getText().toString()));
 //                        Log.d("tessss", "onClick: "+trainings.get(0).getNama());
 //                        trainingAdapter.updateData(trainings);

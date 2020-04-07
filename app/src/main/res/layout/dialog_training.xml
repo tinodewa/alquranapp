@@ -47,13 +47,6 @@
 
     <EditText
         android:textColor="?attr/textcolor"
-        android:id="@+id/etNama"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/nama_training"/>
-
-    <EditText
-        android:textColor="?attr/textcolor"
         android:id="@+id/etLokasi"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
