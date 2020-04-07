@@ -107,7 +107,7 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
 
             viewHolder.tvSend.setText(chat.getMessage());
             viewHolder.tvMessageSendSticker.setText(chat.getMessage().toUpperCase());
-            viewHolder.tvTimeSend.setText(Tools.getTimeAMPMFromMillis(chat.getTime()));
+            viewHolder.tvTimeSend.setText(Tools.getTimeFromMillis(chat.getTime()));
             if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
                 Glide.with(context).load(chat.getMessage()).into(viewHolder.imgSend);
             }
@@ -146,7 +146,7 @@ public class RoomChatAdapter extends RecyclerView.Adapter<RoomChatAdapter.ViewHo
 
             viewHolder.tvReceive.setText(chat.getMessage());
             viewHolder.tvMessageReceiveSticker.setText(chat.getMessage().toUpperCase());
-            viewHolder.tvTimeReceive.setText(Tools.getTimeAMPMFromMillis(chat.getTime()));
+            viewHolder.tvTimeReceive.setText(Tools.getTimeFromMillis(chat.getTime()));
             if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
                 Glide.with(context).load(chat.getMessage()).into(viewHolder.imgReceive);
             }
