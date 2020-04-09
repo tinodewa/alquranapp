@@ -108,7 +108,7 @@ public abstract class AppDb extends RoomDatabase {
     static final Migration MIGRATION_22_23 = new Migration(22, 23) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
-            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole LONG NOT NULL DEFAULT " + System.currentTimeMillis());
+            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole LONG NOT NULL DEFAULT 0");
         }
     };
 
