@@ -704,21 +704,21 @@ public class MainActivity extends BaseActivity
                             int level = levelDao.getLevel(user.getId_roles());
 
                             if (notification.getStatus().equals("1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), ket -> {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
                                     if (level <= Constant.USER_LK_3) {
                                         logout();
                                     }
                                 });
                             }
                             else if (notification.getStatus().equals("2")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), ket -> {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
                                     if (level > Constant.USER_LK_3) {
                                         logout();
                                     }
                                 });
                             }
                             else if (notification.getStatus().equals("3")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), ket -> {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
                                     if (level >= Constant.USER_LK_1 && level < Constant.USER_ADMIN_1) {
                                         logout();
                                     }
@@ -726,7 +726,7 @@ public class MainActivity extends BaseActivity
                             }
                             else if (notification.getStatus().equals("4")) {
                                 // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), ket -> {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
                                     if (level == Constant.USER_NON_LK) {
                                         logout();
                                     }
