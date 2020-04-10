@@ -215,6 +215,11 @@ public class MainActivity extends BaseActivity
             finish();
             startActivity(getIntent());
         }
+
+        if (seenListener != null) {
+            databaseReference.removeEventListener(seenListener);
+            databaseReference.addValueEventListener(seenListener);
+        }
     }
 
 
@@ -589,11 +594,13 @@ public class MainActivity extends BaseActivity
                                 Toast.makeText(MainActivity.this, getString(R.string.logout_berhasil), Toast.LENGTH_SHORT).show();
                             }
                         }
+                        Constant.logout();
                         clearData();
                     }
 
                     @Override
                     public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                        Constant.logout();
                         clearData();
                     }
                 });
