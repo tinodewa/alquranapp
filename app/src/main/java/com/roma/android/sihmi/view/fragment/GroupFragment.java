@@ -172,7 +172,6 @@ public class GroupFragment extends Fragment {
             try {
                 for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
                     Chat chat = snapshot.getValue(Chat.class);
-                    Log.d("romaa", "onDataChangeeee: " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage() + " - " + userDao.getUser().get_id());
 
                     GroupChat groupChat = groupChatDao.getGroupChatByName(chat.getReceiver());
                     if (groupChat != null) {
@@ -193,7 +192,8 @@ public class GroupFragment extends Fragment {
                         }
                     }
                 }
-            } catch (IndexOutOfBoundsException e){
+            } catch (Exception e) {
+                e.printStackTrace();
                 return true;
             }
             return true;

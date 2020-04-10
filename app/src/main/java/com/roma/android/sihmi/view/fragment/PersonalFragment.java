@@ -286,7 +286,8 @@ public class PersonalFragment extends Fragment {
                     }
 
                 }
-            } catch (IndexOutOfBoundsException e){
+            } catch (Exception e){
+                e.printStackTrace();
                 return true;
             }
             return true;
