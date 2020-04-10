@@ -121,6 +121,7 @@ public class MainActivity extends BaseActivity
     NavigationView nav_view2;
 
     ImageView imageView;
+    ImageView ivInitial;
 
     User user;
     boolean doubleBackToExitPressedOnce = false;
@@ -169,7 +170,6 @@ public class MainActivity extends BaseActivity
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.setScrimColor(Color.TRANSPARENT);
         drawer.setDrawerElevation(0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -187,6 +187,21 @@ public class MainActivity extends BaseActivity
         getNotif();
 
         requestPermission();
+
+        userDao.getImageLiveData(user.get_id()).observe(this, imageUrl -> {
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Tools.initial(ivInitial, user.getNama_depan());
+                ivInitial.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.GONE);
+            }
+            else {
+                Glide.with(MainActivity.this)
+                        .load(Uri.parse(imageUrl))
+                        .into(imageView);
+                ivInitial.setVisibility(View.GONE);
+                imageView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     public void setToolBar(String title) {
@@ -199,6 +214,11 @@ public class MainActivity extends BaseActivity
         if (!language.equals(Constant.getLanguage())) {
             finish();
             startActivity(getIntent());
+        }
+
+        if (seenListener != null) {
+            databaseReference.removeEventListener(seenListener);
+            databaseReference.addValueEventListener(seenListener);
         }
     }
 
@@ -243,7 +263,7 @@ public class MainActivity extends BaseActivity
         TextView tv_admin = (TextView) headerView.findViewById(R.id.tv_admin);
         TextView tv_edit_profile = (TextView) headerView.findViewById(R.id.tv_edit_profile);
         imageView = (ImageView) headerView.findViewById(R.id.image_view);
-        ImageView ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
+        ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
         FloatingActionButton fabEdit = (FloatingActionButton) headerView.findViewById(R.id.fab_edit);
 
         if (user.getImage() != null && !user.getImage().isEmpty() && !user.getImage().equals(" ")) {
@@ -574,11 +594,13 @@ public class MainActivity extends BaseActivity
                                 Toast.makeText(MainActivity.this, getString(R.string.logout_berhasil), Toast.LENGTH_SHORT).show();
                             }
                         }
+                        Constant.logout();
                         clearData();
                     }
 
                     @Override
                     public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                        Constant.logout();
                         clearData();
                     }
                 });
