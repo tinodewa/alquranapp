@@ -11,6 +11,8 @@ import android.widget.TextView;
 
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
+import com.roma.android.sihmi.model.database.database.AppDb;
+import com.roma.android.sihmi.model.database.interfaceDao.LoadDataStateDao;
 import com.roma.android.sihmi.utils.Constant;
 
 import java.util.Locale;
@@ -21,12 +23,14 @@ import butterknife.ButterKnife;
 public class SplashActivity extends BaseActivity {
     @BindView(R.id.tv_splash)
     TextView tvSplash;
+    private LoadDataStateDao loadDataStateDao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         ButterKnife.bind(this);
+        loadDataStateDao = AppDb.getInstance(this).loadDataStateDao();
 
 //        CalligraphyUtils.applyFontToTextView(textView, TypefaceUtils.load(getAssets(), "fonts/my_font.ttf"));
         tvSplash.setTypeface(Typeface.createFromAsset(getAssets(),"fonts/buka_puasa_bersama_5.ttf"));
@@ -36,7 +40,12 @@ public class SplashActivity extends BaseActivity {
         new Handler().postDelayed(() -> {
             Log.d("Test", "runTOken: "+Constant.getToken());
             if (Constant.isLoggedIn()){
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                if (!loadDataStateDao.getIsLoaded()) {
+                    startActivity(new Intent(SplashActivity.this, LoadDataActivity.class));
+                }
+                else {
+                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                }
                 finish();
             } else {
                 if (Constant.getSizeAccount() > 0){

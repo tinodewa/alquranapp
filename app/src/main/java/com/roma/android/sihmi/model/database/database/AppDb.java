@@ -21,6 +21,7 @@ import com.roma.android.sihmi.model.database.entity.Job;
 import com.roma.android.sihmi.model.database.entity.Konstituisi;
 import com.roma.android.sihmi.model.database.entity.Leader;
 import com.roma.android.sihmi.model.database.entity.Level;
+import com.roma.android.sihmi.model.database.entity.LoadDataState;
 import com.roma.android.sihmi.model.database.entity.Master;
 import com.roma.android.sihmi.model.database.entity.Medsos;
 import com.roma.android.sihmi.model.database.entity.Pendidikan;
@@ -41,6 +42,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.InterfaceDao;
 import com.roma.android.sihmi.model.database.interfaceDao.KonstitusiDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LeaderDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
+import com.roma.android.sihmi.model.database.interfaceDao.LoadDataStateDao;
 import com.roma.android.sihmi.model.database.interfaceDao.MasterDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.SejarahDao;
@@ -68,10 +70,11 @@ import com.roma.android.sihmi.utils.Constant;
                 PengajuanHistory.class,
                 Sejarah.class,
                 Training.class,
-                User.class },
-        version = 23,
+                User.class,
+                LoadDataState.class},
+        version = 24,
         exportSchema = false)
-public abstract class AppDb extends RoomDatabase {
+public abstract class   AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
 
     public abstract AboutUsDao aboutUsDao();
@@ -91,6 +94,7 @@ public abstract class AppDb extends RoomDatabase {
     public abstract SejarahDao sejarahDao();
     public abstract TrainingDao trainingDao();
     public abstract UserDao userDao();
+    public abstract LoadDataStateDao loadDataStateDao();
 
     public static AppDb getInstance(Context context){
         if (instance == null){
@@ -98,17 +102,28 @@ public abstract class AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
-                        .addMigrations(MIGRATION_22_23)
+                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24)
                         .build();
             }
         }
         return instance;
     }
 
-    static final Migration MIGRATION_22_23 = new Migration(22, 23) {
+    private static final Migration MIGRATION_22_23 = new Migration(22, 23) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static final Migration MIGRATION_23_24 = new Migration(23, 24) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE LoadDataState (" +
+                        "id INTEGER PRIMARY KEY," +
+                        "isLoaded INTEGER DEFAULT 0," +
+                        "timeLoaded INTEGER DEFAULT 0" +
+                    ")");
         }
     };
 
