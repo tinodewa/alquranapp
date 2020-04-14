@@ -1,6 +1,5 @@
 package com.roma.android.sihmi.view.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -17,7 +16,7 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.ViewModel.LoadDataActivityViewModel;
 import com.roma.android.sihmi.utils.Constant;
 
-public class LoadDataActivity extends AppCompatActivity {
+public class LoadDataActivity extends BaseActivity {
     private LoadDataActivityViewModel loadDataActivityViewModel;
     @BindView(R.id.tv_load_data)
     TextView tvLoadData;
