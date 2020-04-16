@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey;
 @Entity
 public class LoadDataState {
     @PrimaryKey
-    @NonNull
     public int id;
     public boolean isLoaded;
     public long timeLoaded;

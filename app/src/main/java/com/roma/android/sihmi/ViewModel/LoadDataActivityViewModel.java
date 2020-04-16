@@ -114,6 +114,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     public void getData () {
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getData");
         loadDataError.setValue(false);
 
         Call<MasterResponse> call = service.getMaster(token, "0");
@@ -147,6 +148,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getLevel(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getLevel");
         Call<LevelResponse> call = service.getLevelLK();
         call.enqueue(new Callback<LevelResponse>() {
             @Override
@@ -208,6 +210,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getContact(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getContact");
         Call<ContactResponse> call = service.getContact(token);
         call.enqueue(new Callback<ContactResponse>() {
             @Override
@@ -268,6 +271,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void saveProfiletoContact(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on saveProfiletoContact");
         User user = userDao.getUser();
 
         int id_level = levelDao.getPengajuanLevel(user.getId_roles());
@@ -302,6 +306,8 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getListGroupChat(String namaKota, String namaUniv, String alumniCabang){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListGroupChat");
+
         // TODO: Fix group chat violation
         if (namaKota != null && !namaKota.trim().isEmpty()){
             if (groupChatDao.getGroupChatByName(namaKota) == null){
@@ -353,11 +359,11 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getGroupChat(GroupChatFirebase groupChatFirebase){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getGroupChat");
         DatabaseReference referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
         referenceChats.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("roma", "onDataChange: loginProcess 361");
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Chat chat = snapshot.getValue(Chat.class);
                     GroupChat groupChat = new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage());
@@ -377,6 +383,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void addGroupChat(String name){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on addGroupChat");
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -387,6 +394,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getTraining(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getTraining");
         Call<TrainingResponse> call = service.getTraining(token, "0");
         call.enqueue(new Callback<TrainingResponse>() {
             @Override
@@ -481,6 +489,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getPersonalChat() {
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getPersonalChat");
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chatlist").child(userDao.getUser().get_id());
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -515,6 +524,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void chatList(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on chatList");
         List<Contact> contactList = new ArrayList<>();
         List<Contact> contactList1 = this.contactDao.getAllListContact("%"+userDao.getUser().get_id()+"%");
 
@@ -531,6 +541,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getListChating(List<Contact> contactList) {
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListChating");
         DatabaseReference referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
         referenceChats.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -601,6 +612,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getGroupChatUnRead() {
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getGroupChatUnread");
         DatabaseReference referenceUsers = FirebaseDatabase.getInstance().getReference("Users");
         referenceUsers.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -638,6 +650,7 @@ public class LoadDataActivityViewModel extends ViewModel {
     }
 
     private void getGroupChat(){
+        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getGroupChat");
         DatabaseReference referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
         referenceChats.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
