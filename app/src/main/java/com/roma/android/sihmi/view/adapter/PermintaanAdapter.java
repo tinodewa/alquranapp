@@ -22,6 +22,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 
+import java.text.ParseException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -61,7 +62,19 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
         Contact c = contactDao.getContactById(pengajuanHistory.getCreated_by());
 
         viewHolder.tvNama.setText(c.getNama_depan());
-        viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(pengajuanHistory.getDate_created()));
+        if (pengajuanHistory.getTanggal_lk1().trim().isEmpty()) {
+            viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(pengajuanHistory.getDate_created()));
+        }
+        else {
+            long dateLong;
+            try {
+                dateLong = Tools.getMillisFromTimeStr(pengajuanHistory.getTanggal_lk1().trim(), "dd-MM-yyyy");
+            } catch (ParseException e) {
+                dateLong = System.currentTimeMillis();
+                e.printStackTrace();
+            }
+            viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(dateLong));
+        }
 //        viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(System.currentTimeMillis()));
         if (pengajuanHistory.getStatus() == 0) {
             viewHolder.tvKet.setText(levelDao.getNamaLevel(pengajuanHistory.getId_roles()));
