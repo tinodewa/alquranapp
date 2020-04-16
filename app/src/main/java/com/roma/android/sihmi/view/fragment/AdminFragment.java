@@ -127,12 +127,12 @@ public class AdminFragment extends Fragment {
     }
 
     private void changeRoles(String idUser){
-        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, 1);
+        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, Constant.LEVEL_LK);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if (response.isSuccessful()){
-                    String idRoles = levelDao.getIdRoles(1);
+                    String idRoles = levelDao.getIdRoles(Constant.LEVEL_LK);
                     sendNotif(idUser, "2");
                     contactDao.updateRolesUser(idUser, idRoles);
                 } else {
