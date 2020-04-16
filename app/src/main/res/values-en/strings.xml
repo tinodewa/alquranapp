@@ -447,5 +447,6 @@
     <string name="download_image">Download Image</string>
     <string name="coba_lagi">Try Again</string>
     <string name="gagal_memuat_data">Failed while loading data</string>
+    <string name="tanggal_lk1_over">LK1 date cannot be over current date</string>
 
 </resources>
