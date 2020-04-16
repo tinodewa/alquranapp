@@ -59,6 +59,12 @@ public class Tools {
         return df.format(currentDate);
     }
 
+    public static Long getMillisFromTimeStr(String dateStr, String format) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        Date date = sdf.parse(dateStr);
+        return date.getTime();
+    }
+
     public static String getTimeAMPMFromMillis(long currentDateTime) {
         Date currentDate = new Date(currentDateTime);
         @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("HH:mm a");

@@ -378,6 +378,7 @@
     <string name="download_image">Download Image</string>
     <string name="coba_lagi">Coba Lagi</string>
     <string name="gagal_memuat_data">Gagal memuat data</string>
+    <string name="tanggal_lk1_over">Tanggal LK1 tidak boleh lebih dari tanggal sekarang</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>

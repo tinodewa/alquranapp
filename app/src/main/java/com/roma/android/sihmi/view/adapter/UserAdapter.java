@@ -125,10 +125,22 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 }
 
                 if (contact.getTahun_lk1() != null && !contact.getTahun_lk1().isEmpty()) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+//                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+//                    try {
+//                        Date date = sdf.parse(contact.getTanggal_lk1());
+//                        long dateLong = date.getTime();
+//                        contact.setDateRole(dateLong);
+//
+//                        if (Integer.parseInt(Tools.getYearFromMillis(dateLong)) < 1970) {
+//                            contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+//                        }
+//                    } catch (ParseException e) {
+//                        contact.setDateRole(Long.parseLong(contact.getTanggal_daftar()));
+//                        e.printStackTrace();
+//                    }
+
                     try {
-                        Date date = sdf.parse(contact.getTanggal_lk1());
-                        long dateLong = date.getTime();
+                        long dateLong = Tools.getMillisFromTimeStr(contact.getTanggal_lk1(), "dd-MM-yyyy");
                         contact.setDateRole(dateLong);
 
                         if (Integer.parseInt(Tools.getYearFromMillis(dateLong)) < 1970) {

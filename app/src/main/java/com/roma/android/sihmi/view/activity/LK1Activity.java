@@ -27,6 +27,7 @@ import com.roma.android.sihmi.model.response.PengajuanLK1Response;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -170,7 +171,17 @@ public class LK1Activity extends BaseActivity {
         String komisariat = etKomisariat.getText().toString().trim();
         String tanggal = etTanggal.getText().toString().trim();
         if (!badko.isEmpty() && !cabang.isEmpty() && !korkom.isEmpty() && !komisariat.isEmpty() && !tanggal.isEmpty() && checkBox.isChecked()) {
-            if (Tools.isOnline(this)) {
+            long dateLong = -1;
+            try {
+                dateLong = Tools.getMillisFromTimeStr(tanggal, "dd-MM-yyyy");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (dateLong > System.currentTimeMillis()) {
+                Tools.showToast(this, getString(R.string.tanggal_lk1_over));
+            }
+            else if (Tools.isOnline(this)) {
                 pegajuan(badko, cabang, korkom, komisariat, tanggal);
             } else {
                 Tools.showToast(this, getString(R.string.tidak_ada_internet));
