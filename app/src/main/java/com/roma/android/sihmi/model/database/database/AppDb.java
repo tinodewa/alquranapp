@@ -120,9 +120,9 @@ public abstract class   AppDb extends RoomDatabase {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL("CREATE TABLE LoadDataState (" +
-                        "id INTEGER PRIMARY KEY," +
-                        "isLoaded INTEGER DEFAULT 0," +
-                        "timeLoaded INTEGER DEFAULT 0" +
+                    "id INTEGER PRIMARY KEY NOT NULL," +
+                    "isLoaded INTEGER DEFAULT 0 NOT NULL," +
+                    "timeLoaded INTEGER DEFAULT 0 NOT NULL" +
                     ")");
         }
     };
