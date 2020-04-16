@@ -27,6 +27,7 @@ import com.roma.android.sihmi.model.database.entity.Medsos;
 import com.roma.android.sihmi.model.database.entity.Pendidikan;
 import com.roma.android.sihmi.model.database.entity.Pengajuan;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.Sejarah;
 import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.entity.User;
@@ -45,6 +46,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LoadDataStateDao;
 import com.roma.android.sihmi.model.database.interfaceDao.MasterDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
 import com.roma.android.sihmi.model.database.interfaceDao.SejarahDao;
 import com.roma.android.sihmi.model.database.interfaceDao.TrainingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
@@ -52,27 +54,29 @@ import com.roma.android.sihmi.utils.Constant;
 
 @Database(
         entities = {
-                AboutUs.class,
-                Agenda.class,
-                Alamat.class,
-                Chating.class,
-                Contact.class,
-                File.class,
-                GroupChat.class,
-                Job.class,
-                Konstituisi.class,
-                Leader.class,
-                Level.class,
-                Master.class,
-                Medsos.class,
-                Pendidikan.class,
-                Pengajuan.class,
-                PengajuanHistory.class,
-                Sejarah.class,
-                Training.class,
-                User.class,
-                LoadDataState.class},
-        version = 24,
+            AboutUs.class,
+            Agenda.class,
+            Alamat.class,
+            Chating.class,
+            Contact.class,
+            File.class,
+            GroupChat.class,
+            Job.class,
+            Konstituisi.class,
+            Leader.class,
+            Level.class,
+            Master.class,
+            Medsos.class,
+            Pendidikan.class,
+            Pengajuan.class,
+            PengajuanHistory.class,
+            Sejarah.class,
+            Training.class,
+            User.class,
+            LoadDataState.class,
+            PengajuanLK1.class
+        },
+        version = 25,
         exportSchema = false)
 public abstract class   AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
@@ -95,6 +99,7 @@ public abstract class   AppDb extends RoomDatabase {
     public abstract TrainingDao trainingDao();
     public abstract UserDao userDao();
     public abstract LoadDataStateDao loadDataStateDao();
+    public abstract PengajuanLK1Dao pengajuanLK1Dao();
 
     public static AppDb getInstance(Context context){
         if (instance == null){
@@ -102,7 +107,7 @@ public abstract class   AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
-                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24)
+                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25)
                         .build();
             }
         }
@@ -127,4 +132,23 @@ public abstract class   AppDb extends RoomDatabase {
         }
     };
 
+    private static final Migration MIGRATION_24_25 = new Migration(24, 25) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE PengajuanLK1 (" +
+                    "_id TEXT PRIMARY KEY NOT NULL," +
+                    "badko TEXT," +
+                    "cabang TEXT," +
+                    "korkom TEXT," +
+                    "komisariat TEXT," +
+                    "tanggal_lk1 TEXT," +
+                    "tahun_lk1 TEXT," +
+                    "created_by TEXT," +
+                    "modified_by TEXT," +
+                    "date_created INTEGER NOT NULL DEFAULT 0," +
+                    "date_modified INTEGER NOT NULL DEFAULT 0," +
+                    "status INTEGER NOT NULL DEFAULT 0" +
+                    ")");
+        }
+    };
 }

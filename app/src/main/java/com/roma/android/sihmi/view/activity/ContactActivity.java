@@ -104,8 +104,6 @@ public class ContactActivity extends BaseActivity {
                                 }
                                 contactDao.insertContact(c);
                             }
-//                            CoreApplication.get().getAppDb().interfaceDao().insertContact(response.body().getData());
-//                        initAdapter(response.body().getData());
                         } else {
                             Toast.makeText(ContactActivity.this, "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
                         }

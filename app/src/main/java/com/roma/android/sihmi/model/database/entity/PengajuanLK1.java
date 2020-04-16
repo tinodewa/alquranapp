@@ -1,10 +1,32 @@
 package com.roma.android.sihmi.model.database.entity;
 
+import androidx.annotation.NonNull;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+
+@Entity
 public class PengajuanLK1 {
+    @PrimaryKey
+    @NonNull
     String _id;
     String badko, cabang, korkom, komisariat, tanggal_lk1, tahun_lk1, created_by, modified_by;
     long date_created, date_modified;
     int status;
+
+    public PengajuanLK1(@NonNull String _id, String badko, String cabang, String korkom, String komisariat, String tanggal_lk1, String tahun_lk1, String created_by, String modified_by, long date_created, long date_modified, int status) {
+        this._id = _id;
+        this.badko = badko;
+        this.cabang = cabang;
+        this.korkom = korkom;
+        this.komisariat = komisariat;
+        this.tanggal_lk1 = tanggal_lk1;
+        this.tahun_lk1 = tahun_lk1;
+        this.created_by = created_by;
+        this.modified_by = modified_by;
+        this.date_created = date_created;
+        this.date_modified = date_modified;
+        this.status = status;
+    }
 
     public String get_id() {
         return _id;

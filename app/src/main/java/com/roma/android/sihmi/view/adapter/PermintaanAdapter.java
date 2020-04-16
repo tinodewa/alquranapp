@@ -96,16 +96,16 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
 
         viewHolder.itemView.setOnClickListener(v -> {
             if (pengajuanHistory.getLevel() > 3) {
-                listener.onItemClick(Constant.DOCUMENT, pengajuanHistory.get_id()+"-"+pengajuanHistory.getFile(), c);
+                listener.onItemClick(Constant.DOCUMENT, pengajuanHistory.get_id()+"-"+pengajuanHistory.getFile(), c, pengajuanHistory);
             }
         });
 
         viewHolder.ivDetail.setOnClickListener(v -> {
-            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c);
+            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c, pengajuanHistory);
         });
 
         viewHolder.itemView.setOnClickListener(v -> {
-            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c);
+            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c, pengajuanHistory);
         });
 
         viewHolder.aSwitch.setOnClickListener(v -> {
@@ -113,12 +113,12 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
             if (pengajuanHistory.getLevel() != 1 && pengajuanHistory.getStatus() != -1) {
                 if (pengajuanHistory.getLevel() == 2 && pengajuanHistory.getStatus() == -1){
                     Tools.showDialogCustom(context, "Konfirmasi", context.getString(R.string.konfirm_akses_hapus_ket), Constant.LIHAT, ket -> {
-                        listener.onItemClick(Constant.HAPUS, pengajuanHistory.get_id(), c);
+                        listener.onItemClick(Constant.HAPUS, pengajuanHistory.get_id(), c, pengajuanHistory);
                         viewHolder.aSwitch.setChecked(false);
                     });
                 } else {
                     Tools.showDialogCustom(context, "Konfirmasi", context.getString(R.string.konfirm_akses_ket), Constant.LIHAT, ket -> {
-                        listener.onItemClick(Constant.UBAH, pengajuanHistory.get_id(), c);
+                        listener.onItemClick(Constant.UBAH, pengajuanHistory.get_id(), c, pengajuanHistory);
                     });
                 }
             }
@@ -154,6 +154,6 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
     }
 
     public interface itemClickListener{
-        void onItemClick(String type, String id_pengajuan, Contact contact);
+        void onItemClick(String type, String id_pengajuan, Contact contact, PengajuanHistory pengajuanHistory);
     }
 }

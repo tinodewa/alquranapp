@@ -24,10 +24,12 @@ import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.HistoryPengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
@@ -81,8 +83,10 @@ public class ProfileChatActivity extends AppCompatActivity {
     ContactDao contactDao;
     UserDao userDao;
     HistoryPengajuanDao historyPengajuanDao;
+    PengajuanLK1Dao pengajuanLK1Dao;
     LevelDao levelDao;
-    Boolean requestMode, acceptedMode;
+    Boolean requestMode, acceptedMode, isRequestKader;
+    public static final String requestKader = "REQUEST KADER";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +100,13 @@ public class ProfileChatActivity extends AppCompatActivity {
         userDao = appDb.userDao();
         historyPengajuanDao = appDb.historyPengajuanDao();
         levelDao = appDb.levelDao();
+        pengajuanLK1Dao = appDb.pengajuanLK1Dao();
 
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
         requestMode = getIntent().getBooleanExtra("MODE_REQUEST", false);
         acceptedMode = getIntent().getBooleanExtra("MODE_ACCEPTED", false);
         idPengajuan = getIntent().getStringExtra("idpengajuan");
+        isRequestKader = getIntent().getBooleanExtra(requestKader, false);
 
         if (idPengajuan != null && !idPengajuan.isEmpty()){
             filePdf = historyPengajuanDao.getFilePengajuanHistory(idPengajuan);
@@ -145,7 +151,15 @@ public class ProfileChatActivity extends AppCompatActivity {
     private void initView() {
         etFullname.setText(otherUser.getFullName());
         etJenisKelamin.setText(otherUser.getGender());
-        etKomisariat.setText(otherUser.getKomisariat());
+        if (isRequestKader) {
+            PengajuanLK1 pengajuanLK1 = pengajuanLK1Dao.getPengajuanLK1ById(idPengajuan);
+            if (pengajuanLK1 != null) {
+                etKomisariat.setText(pengajuanLK1.getKomisariat());
+            }
+        }
+        else {
+            etKomisariat.setText(otherUser.getKomisariat());
+        }
         if (otherUser.getImage() != null && !otherUser.getImage().trim().isEmpty()) {
             ivPhoto.setVisibility(View.VISIBLE);
             ivInitial.setVisibility(View.GONE);

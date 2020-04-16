@@ -34,6 +34,7 @@ import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.PengajuanAdmin;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
 import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
+import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.entity.notification.Data;
 import com.roma.android.sihmi.model.database.entity.notification.NotifResponse;
 import com.roma.android.sihmi.model.database.entity.notification.Sender;
@@ -42,16 +43,20 @@ import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.HistoryPengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
+import com.roma.android.sihmi.model.database.interfaceDao.TrainingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.network.NotifClient;
 import com.roma.android.sihmi.model.network.SendNotifService;
+import com.roma.android.sihmi.model.response.ContactResponse;
 import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.model.response.PengajuanAdminResponse;
 import com.roma.android.sihmi.model.response.PengajuanLK1Response;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
+import com.roma.android.sihmi.view.activity.ContactActivity;
 import com.roma.android.sihmi.view.activity.ProfileChatActivity;
 import com.roma.android.sihmi.view.adapter.PermintaanAdapter;
 
@@ -89,9 +94,11 @@ public class PermintaanFragment extends Fragment implements Ifragment {
 
     AppDb appDb;
     HistoryPengajuanDao historyPengajuanDao;
+    private PengajuanLK1Dao pengajuanLK1Dao;
     UserDao userDao;
     ContactDao contactDao;
     LevelDao levelDao;
+    private TrainingDao trainingDao;
 
     public PermintaanFragment() {
         // Required empty public constructor
@@ -115,19 +122,18 @@ public class PermintaanFragment extends Fragment implements Ifragment {
         userDao = appDb.userDao();
         contactDao = appDb.contactDao();
         levelDao = appDb.levelDao();
+        pengajuanLK1Dao = appDb.pengajuanLK1Dao();
+        trainingDao = appDb.trainingDao();
+
+        getContact();
 
         list = new ArrayList<>();
         initAdapter();
 
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
-            getPermintaanLK1();
-            getPermintaanAdmin();
+            getContact();
         });
-
-
-        getPermintaanLK1();
-        getPermintaanAdmin();
 
         Log.d("hallo", "onCreateView: " + Tools.dateNow());
 
@@ -150,6 +156,64 @@ public class PermintaanFragment extends Fragment implements Ifragment {
             Log.d("hallogesss", "onCreateView onchange: permintaanFragment " + pengajuanHistories.size());
         });
         return v;
+    }
+
+    private void getContact(){
+        Call<ContactResponse> call = service.getContact(Constant.getToken());
+        if (Tools.isOnline(getContext())) {
+            call.enqueue(new Callback<ContactResponse>() {
+                @Override
+                public void onResponse(Call<ContactResponse> call, Response<ContactResponse> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body().getStatus().equalsIgnoreCase("success")) {
+                            List<Contact> contacts = response.body().getData();
+                            for (int i = 0; i < contacts.size() ; i++) {
+                                Contact c = contacts.get(i);
+                                c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
+                                c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
+                                if (c.getTanggal_lk1() != null && !c.getTanggal_lk1().trim().isEmpty()){
+                                    String[] lk1 = c.getTanggal_lk1().split("-");
+                                    c.setTahun_lk1(lk1[2]);
+                                    Training training = new Training();
+                                    training.setId(c.get_id()+"-LK1 (Basic Training)");
+                                    training.setId_user(c.get_id());
+                                    training.setId_level(c.getId_level());
+                                    training.setTipe("LK1 (Basic Training)");
+                                    training.setTahun(lk1[2]);
+                                    training.setCabang(c.getCabang());
+                                    training.setKomisariat(c.getKomisariat());
+                                    training.setDomisili_cabang(c.getDomisili_cabang());
+                                    training.setJenis_kelamin(c.getJenis_kelamin());
+                                    if (trainingDao.checkTrainingAvailable(c.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
+                                        trainingDao.insertTraining(training);
+                                    }
+                                }
+                                contactDao.insertContact(c);
+                            }
+
+                            getPermintaanLK1();
+                            getPermintaanAdmin();
+                        } else {
+                            Toast.makeText(getActivity(), "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), "" + response.message(), Toast.LENGTH_SHORT).show();
+                    }
+
+                    if (refreshLayout.isRefreshing()) {
+                        refreshLayout.setRefreshing(false);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ContactResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Tools.dissmissProgressDialog();
+                }
+            });
+        } else{
+            Toast.makeText(getActivity(), "Tidak Ada Internet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void getPermintaanLK1() {
@@ -182,6 +246,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                     PengajuanHistory pengajuanHistory = new PengajuanHistory(idPengajuan, idRoles, "", createdBy, approvedBy, dateCreated, dateApproved, status, tgl_lk1, level);
                                     pengajuanHistory.setNama(contactDao.getContactById(createdBy).getNama_depan());
                                     historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+                                    pengajuanLK1Dao.insertPengajuan(pengajuanLK1);
 
                                     if (pengajuanLK1.getStatus() == 0) {
                                         listHistory.add(pengajuanHistory);
@@ -279,12 +344,15 @@ public class PermintaanFragment extends Fragment implements Ifragment {
     }
 
     private void initAdapter() {
-        adapter = new PermintaanAdapter(getActivity(), list, (type, id_pengajuan, contact) -> {
+        adapter = new PermintaanAdapter(getActivity(), list, (type, id_pengajuan, contact, pengajuanHistory) -> {
             if (type.equals(Constant.LIHAT)) {
-                Intent profileChatIntent = new Intent(getActivity(), ProfileChatActivity.class);
-                profileChatIntent.putExtra("iduser", contact.get_id());
-                profileChatIntent.putExtra("idpengajuan", id_pengajuan);
-                profileChatIntent.putExtra("MODE_REQUEST", true);
+                Intent profileChatIntent = new Intent(getActivity(), ProfileChatActivity.class)
+                        .putExtra("iduser", contact.get_id())
+                        .putExtra("idpengajuan", id_pengajuan)
+                        .putExtra("MODE_REQUEST", true);
+                if (!pengajuanHistory.getTanggal_lk1().trim().isEmpty()) {
+                    profileChatIntent.putExtra(ProfileChatActivity.requestKader, true);
+                }
                 startActivity(profileChatIntent);
             } else if (type.equals(Constant.UBAH)) {
                 approveUser(contact, id_pengajuan, "1");
