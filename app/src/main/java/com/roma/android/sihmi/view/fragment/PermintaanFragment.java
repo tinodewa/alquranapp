@@ -400,7 +400,6 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             String idRoles = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan).getId_roles();
                             int id_level = levelDao.getIdLevelByIdRole(idRoles);
                             contactDao.updateRolesUser(contact.get_id(), idRoles, id_level);
-                            Log.d("APPROVED USER", "APPROVED USER ID" + contact.get_id() + " role " + idRoles + " level " + id_level);
                             historyPengajuanDao.updateApprovePengajuan(id_pengajuan);
                         }
                     }

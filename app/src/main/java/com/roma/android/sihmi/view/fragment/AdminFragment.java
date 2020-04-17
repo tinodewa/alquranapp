@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -99,7 +100,20 @@ public class AdminFragment extends Fragment {
             getContact();
         });
 
-        contactDao.getLiveDataListAdmin().observe(getActivity(), contacts -> {
+        LiveData<List<Contact>> liveDataContact;
+        if (Tools.isLA1()) {
+            liveDataContact = contactDao.getLiveDataListAdminForLA1(userDao.getUser().getCabang());
+        }
+        else if (Tools.isLA2()) {
+            liveDataContact = contactDao.getLiveDataListAdminForLA2();
+        }
+        else if (Tools.isSecondAdmin()) {
+            liveDataContact = contactDao.getLiveDataListAdminForSecondAdmin();
+        }
+        else {
+            liveDataContact = contactDao.getLiveDataListAdmin();
+        }
+        liveDataContact.observe(getActivity(), contacts -> {
             adapter.updateData(contacts);
             userFragment.updateTab(page, contacts.size());
             Log.d("hallogesss", "onCreateView onchange: adminFragment "+contacts.size());
@@ -255,9 +269,31 @@ public class AdminFragment extends Fragment {
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     if (newText.isEmpty()){
-                        contacts = contactDao.getListAdmin();
+                        if (Tools.isLA1()) {
+                            contacts = contactDao.getListAdminForLA1(userDao.getUser().getCabang());
+                        }
+                        else if (Tools.isLA2()) {
+                            contacts = contactDao.getListAdminForLA2();
+                        }
+                        else if (Tools.isSecondAdmin()) {
+                            contacts = contactDao.getListAdminForSecondAdmin();
+                        }
+                        else {
+                            contacts = contactDao.getListAdmin();
+                        }
                     } else {
-                        contacts = contactDao.getSearchListAdmin("%" + newText + "%");
+                        if (Tools.isLA1()) {
+                            contacts = contactDao.getSearchListAdminForLA1(userDao.getUser().getCabang(), "%" + newText + "%");
+                        }
+                        else if (Tools.isLA2()) {
+                            contacts = contactDao.getSearchListAdminForLA2("%" + newText + "%");
+                        }
+                        else if (Tools.isSecondAdmin()) {
+                            contacts = contactDao.getSearchListAdminForSecondAdmin("%" + newText + "%");
+                        }
+                        else {
+                            contacts = contactDao.getSearchListAdmin("%" + newText + "%");
+                        }
                     }
                     adapter.updateData(contacts);
                     return true;

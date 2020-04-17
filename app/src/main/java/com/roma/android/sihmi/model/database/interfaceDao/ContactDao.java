@@ -53,14 +53,41 @@ public interface ContactDao { @RawQuery
     @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAdmin();
 
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
+    List<Contact> getSearchListAdmin(String name);
+
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8) AND cabang = :cabang ORDER BY lower(nama_depan) ASC")
+    List<Contact> getListAdminForLA1(String cabang);
+
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8) AND cabang = :cabang ORDER BY lower(nama_depan) ASC")
+    LiveData<List<Contact>> getLiveDataListAdminForLA1(String cabang);
+
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8) AND (nama_depan LIKE :name OR nama_belakang LIKE :name) AND cabang = :cabang ORDER BY lower(nama_depan) ASC")
+    List<Contact> getSearchListAdminForLA1(String cabang, String name);
+
+    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
+    List<Contact> getListAdminForLA2();
+
+    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
+    LiveData<List<Contact>> getLiveDataListAdminForLA2();
+
+    @Query("SELECT * FROM Contact WHERE id_level == 13 AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
+    List<Contact> getSearchListAdminForLA2(String name);
+
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
+    List<Contact> getListAdminForSecondAdmin();
+
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
+    LiveData<List<Contact>> getLiveDataListAdminForSecondAdmin();
+
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
+    List<Contact> getSearchListAdminForSecondAdmin(String name);
+
     @Query("SELECT * FROM Contact WHERE id_level == 2 OR id_level == 1 ORDER BY id_level DESC, lower(nama_depan)")
     LiveData<List<Contact>> getLiveDataListAllAnggota();
 
     @Query("SELECT * FROM Contact WHERE id_level == 2 AND komisariat = :koms ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAnggotaByKomisariat(String koms);
-
-    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 OR id_level == 20) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
-    List<Contact> getSearchListAdmin(String name);
 
     @Query("SELECT * FROM Contact WHERE (id_level == 2 OR id_level == 1) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
     List<Contact> getSearchListAllAnggota(String name);

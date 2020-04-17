@@ -189,7 +189,11 @@ public class Constant {
         contactDao = appDb.contactDao();
     }
 
-    public static boolean isLoggedIn() {
+    public static boolean isLoggedIn(Context context) {
+        UserDao userDao = AppDb.getInstance(context).userDao();
+        if (userDao.getUser() == null) {
+            Constant.logout();
+        }
         return pref.getBoolean("IS_LOGIN", false);
     }
 
