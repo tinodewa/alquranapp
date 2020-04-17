@@ -17,6 +17,7 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanHistoryJoin;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.utils.Constant;
@@ -30,13 +31,13 @@ import butterknife.ButterKnife;
 
 public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.ViewHolder> {
     Context context;
-    List<PengajuanHistory> list;
+    List<PengajuanHistoryJoin> list;
     itemClickListener listener;
     AppDb appDb;
     ContactDao contactDao;
     LevelDao levelDao;
 
-    public PermintaanAdapter(Context context, List<PengajuanHistory> list, itemClickListener listener) {
+    public PermintaanAdapter(Context context, List<PengajuanHistoryJoin> list, itemClickListener listener) {
         this.context = context;
         this.list = list;
         this.listener = listener;
@@ -45,7 +46,7 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
         levelDao = appDb.levelDao();
     }
 
-    public void updateData(List<PengajuanHistory> list){
+    public void updateData(List<PengajuanHistoryJoin> list){
         this.list = list;
         notifyDataSetChanged();
     }
