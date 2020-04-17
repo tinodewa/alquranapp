@@ -100,7 +100,6 @@ public class AdminFragment extends Fragment {
         });
 
         contactDao.getLiveDataListAdmin().observe(getActivity(), contacts -> {
-//            getContact();
             adapter.updateData(contacts);
             userFragment.updateTab(page, contacts.size());
             Log.d("hallogesss", "onCreateView onchange: adminFragment "+contacts.size());
@@ -134,7 +133,7 @@ public class AdminFragment extends Fragment {
                 if (response.isSuccessful()){
                     String idRoles = levelDao.getIdRoles(Constant.LEVEL_LK);
                     sendNotif(idUser, "2");
-                    contactDao.updateRolesUser(idUser, idRoles);
+                    contactDao.updateRolesUser(idUser, idRoles, Constant.LEVEL_LK);
                 } else {
                     Tools.showToast(getActivity(), getString(R.string.gagal_ganti_admin));
                 }

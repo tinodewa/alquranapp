@@ -113,6 +113,6 @@ public interface ContactDao { @RawQuery
     @Query("UPDATE Contact SET bisukan=:bisukan WHERE _id = :id")
     void updateBisukan(String id, boolean bisukan);
 
-    @Query("UPDATE Contact SET id_roles= :idRoles, id_level = 2 WHERE _id = :id")
-    void updateRolesUser(String id, String idRoles);
+    @Query("UPDATE Contact SET id_roles= :idRoles, id_level = :id_level WHERE _id = :id")
+    void updateRolesUser(String id, String idRoles, int id_level);
 }

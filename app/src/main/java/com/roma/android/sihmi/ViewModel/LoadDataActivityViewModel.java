@@ -179,7 +179,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                                 } else if (level.getId() == 20){
                                     level.setNewName("Super Admin");
                                 }
-                                levelDao.insertLevel(response.body().getData().get(i));
+                                levelDao.insertLevel(level);
                             }
                         }
                         new Handler().postDelayed(() -> {
