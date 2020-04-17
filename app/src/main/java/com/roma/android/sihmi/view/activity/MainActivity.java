@@ -705,21 +705,21 @@ public class MainActivity extends BaseActivity
 
                             if (notification.getStatus().equals("1")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
-                                    if (level <= Constant.USER_LK_3) {
+                                    if (level <= Constant.LEVEL_LK) {
                                         logout();
                                     }
                                 });
                             }
                             else if (notification.getStatus().equals("2")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level > Constant.USER_LK_3) {
+                                    if (level > Constant.LEVEL_LK) {
                                         logout();
                                     }
                                 });
                             }
                             else if (notification.getStatus().equals("3")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level >= Constant.USER_LK_1 && level < Constant.USER_ADMIN_1) {
+                                    if (level == Constant.LEVEL_LK) {
                                         logout();
                                     }
                                 });

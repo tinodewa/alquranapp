@@ -119,10 +119,8 @@ public class AnggotaFragment extends Fragment {
         }
 
         contactLiveData.observe(getActivity(), contacts -> {
-//            getContact();
             adapter.updateData(contacts);
             userFragment.updateTab(page, contacts.size());
-            Log.d("hallogesss", "onCreateView onchange: anggotaFragment "+contacts.size());
         });
         contacts = new ArrayList<>();
         initAdapter();
@@ -161,7 +159,7 @@ public class AnggotaFragment extends Fragment {
                 if (response.isSuccessful()){
                     String idRoles = levelDao.getIdRoles(1);
                     sendNotif(idUser, "3");
-                    contactDao.updateRolesUser(idUser, idRoles);
+                    contactDao.updateRolesUser(idUser, idRoles, Constant.LEVEL_NON_LK);
                 } else {
                     Tools.showToast(getActivity(), getString(R.string.gagal_ganti_admin));
                 }

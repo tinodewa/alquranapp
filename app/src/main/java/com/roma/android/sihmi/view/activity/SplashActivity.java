@@ -39,7 +39,7 @@ public class SplashActivity extends BaseActivity {
 
         new Handler().postDelayed(() -> {
             Log.d("Test", "runTOken: "+Constant.getToken());
-            if (Constant.isLoggedIn()){
+            if (Constant.isLoggedIn(this)){
                 if (!loadDataStateDao.getIsLoaded()) {
                     startActivity(new Intent(SplashActivity.this, LoadDataActivity.class));
                 }
