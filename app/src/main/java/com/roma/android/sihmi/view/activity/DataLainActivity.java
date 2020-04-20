@@ -225,8 +225,6 @@ public class DataLainActivity extends BaseActivity {
         final EditText etTahun = dialogView.findViewById(R.id.et_thn_masuk);
         final EditText etJenjang = dialogView.findViewById(R.id.et_jenjang);
         final Spinner spJenjang = dialogView.findViewById(R.id.sp_jenjang);
-//        final Spinner spUniversitas = dialogView.findViewById(R.id.sp_universitas);
-//        final Spinner spFakultas = dialogView.findViewById(R.id.sp_fakultas);
         final EditText etNama = dialogView.findViewById(R.id.et_nama);
         final EditText etFakultas = dialogView.findViewById(R.id.et_fakultas);
 
@@ -310,7 +308,6 @@ public class DataLainActivity extends BaseActivity {
                             training.setJenis_kelamin(user.getJenis_kelamin());
                             trainingDao.insertTraining(training);
                         }
-//                        trainingAdapter.updateData(response.body().getData());
                     }
                 } else {
 
