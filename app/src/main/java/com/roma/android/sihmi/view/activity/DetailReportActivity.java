@@ -173,7 +173,7 @@ public class DetailReportActivity extends BaseActivity {
 
         ArrayList member = new ArrayList();
         for (int i = batas_tahun; i <= now; i++) {
-            String query2 = query+" AND tahun_daftar ='"+i+"';";
+            String query2 = query+" AND tahun_lk1 ='"+i+"';";
             int count = contactDao.countRawQueryContact(new SimpleSQLiteQuery(query2));
             member.add(new Entry(i, (float) count));
         }
@@ -262,9 +262,9 @@ public class DetailReportActivity extends BaseActivity {
         for (int i = now; i >= 1947 ; i--) {
             int tahun = i;
             int l = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND tahun_daftar = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND tahun_lk1 = '"+i+"';"));
             int p = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND tahun_daftar = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND tahun_lk1 = '"+i+"';"));
             int total = l+p;
             list.add(new DataGrafik(tahun, total, p, l));
         }
@@ -275,7 +275,7 @@ public class DetailReportActivity extends BaseActivity {
         kaderAdapter = new LaporanGrafikAdapter(this, getListKaderGender(), dataGrafik -> {
             if (dataGrafik.getJumlah() > 0) {
                 Log.d("GET TAHUN", "GET TAHUN "+dataGrafik.getTahun());
-                showDialogUser(getObjectQuery() + " AND tahun_daftar = '" + dataGrafik.getTahun() + "'");
+                showDialogUser(getObjectQuery() + " AND tahun_lk1 = '" + dataGrafik.getTahun() + "'");
             } else {
                 Toast.makeText(this, getString(R.string.data_tidak_tersedia), Toast.LENGTH_SHORT).show();
             }

@@ -203,7 +203,9 @@ public class AdminFragment extends Fragment {
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
                                 if (c.getTanggal_lk1() != null && !c.getTanggal_lk1().trim().isEmpty()){
                                     String[] lk1 = c.getTanggal_lk1().split("-");
-                                    c.setTahun_lk1(lk1[2]);
+                                    if (c.getTahun_lk1() == null || c.getTahun_lk1().trim().isEmpty()) {
+                                        c.setTahun_lk1(lk1[2]);
+                                    }
                                     Training training = new Training();
                                     training.setId(c.get_id()+"-LK1 (Basic Training)");
                                     training.setId_user(c.get_id());

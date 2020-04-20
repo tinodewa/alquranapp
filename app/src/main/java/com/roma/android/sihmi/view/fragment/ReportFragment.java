@@ -120,7 +120,7 @@ public class ReportFragment extends Fragment {
         return v;
     }
 
-    void initModule() {
+    private void initModule() {
         service = ApiClient.getInstance().getApi();
         appDb = AppDb.getInstance(getContext());
         userDao = appDb.userDao();
@@ -129,11 +129,11 @@ public class ReportFragment extends Fragment {
         trainingDao = appDb.trainingDao();
 
         user = userDao.getUser();
-        now = Integer.valueOf(Tools.getYearFromMillis(System.currentTimeMillis()));
+        now = Integer.parseInt(Tools.getYearFromMillis(System.currentTimeMillis()));
         batas_tahun = now - 4;
     }
 
-    void initView() {
+    private void initView() {
         boolean isSlider;
         if (Tools.isAdmin1()) {
             visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.VISIBLE, View.GONE);
@@ -205,7 +205,7 @@ public class ReportFragment extends Fragment {
                                 contactDao.insertContact(contact);
 
 
-                                training.setId(training.getId_user() + "-" + training.getTipe());
+                                training.setId(training.getId());
                                 training.setId_user(training.getId_user());
                                 training.setId_level(contact.getId_level());
                                 training.setCabang(contact.getCabang());
@@ -282,7 +282,7 @@ public class ReportFragment extends Fragment {
 
         ArrayList meber = new ArrayList();
         for (int i = batas_tahun; i <= now; i++) {
-            int count = contactDao.countRawQueryContact(new SimpleSQLiteQuery(query + " AND tahun_daftar = '" + i + "';"));
+            int count = contactDao.countRawQueryContact(new SimpleSQLiteQuery(query + " AND tahun_lk1 = '" + i + "';"));
             meber.add(new Entry((float) i, (float) count));
         }
 
