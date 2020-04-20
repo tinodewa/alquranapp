@@ -193,7 +193,12 @@ public class LK1Activity extends BaseActivity {
 
     private void pegajuan(String badko, String cabang, String korkom, String komisariat, String tgl){
         Tools.showProgressDialog(this, getString(R.string.pengajuan));
-        Call<GeneralResponse> call = service.addPengajuanLK1(Constant.getToken(), badko, cabang, korkom, komisariat, tgl, "");
+        String tahunLk1 = "";
+        String[] tanggalLk1Split = tgl.split("-");
+        if (tanggalLk1Split.length == 3) {
+            tahunLk1 = tanggalLk1Split[2];
+        }
+        Call<GeneralResponse> call = service.addPengajuanLK1(Constant.getToken(), badko, cabang, korkom, komisariat, tgl, tahunLk1);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {

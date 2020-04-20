@@ -54,7 +54,9 @@ import com.roma.android.sihmi.model.database.entity.User;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
+import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
+import com.roma.android.sihmi.model.response.ProfileResponse;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
 import com.roma.android.sihmi.utils.Constant;
@@ -91,6 +93,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, DrawerLayout.DrawerListener {
@@ -133,6 +136,7 @@ public class MainActivity extends BaseActivity
     AppDb appDb;
     UserDao userDao;
     LevelDao levelDao;
+    MasterService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,6 +155,7 @@ public class MainActivity extends BaseActivity
 
         user = userDao.getUser();
         language = Constant.getLanguage();
+        service = ApiClient.getInstance().getApi();
 
         try {
             if (Tools.isNonLK()) {
@@ -726,20 +731,18 @@ public class MainActivity extends BaseActivity
                             }
                             else if (notification.getStatus().equals("4")) {
                                 // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
-                                    if (level == Constant.USER_NON_LK) {
-                                        logout();
-                                    }
-                                });
+                                getProfile(snapshot, 1);
                             }
                             else if (notification.getStatus().equals("-1")) {
                                 Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
                             }
                         }
 
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("isshow", true);
-                        snapshot.getRef().updateChildren(hashMap);
+                        if (!notification.getStatus().equals("4")) {
+                            HashMap<String, Object> hashMap = new HashMap<>();
+                            hashMap.put("isshow", true);
+                            snapshot.getRef().updateChildren(hashMap);
+                        }
                     }
                 }
             }
@@ -747,6 +750,88 @@ public class MainActivity extends BaseActivity
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    private void getProfile(DataSnapshot dataSnapshot, int tryCount){
+        Call<ProfileResponse> call = service.getProfile(Constant.getToken());
+        call.enqueue(new Callback<ProfileResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                if (response.isSuccessful()){
+                    assert response.body() != null;
+                    if (response.body().getStatus().equalsIgnoreCase("ok")){
+                        User user = response.body().getData();
+                        String tahunLk1 = user.getTahun_lk1();
+                        if (tahunLk1 == null || tahunLk1.trim().isEmpty()) {
+                            String[] tanggalLk1Split = user.getTanggal_lk1().split("-");
+                            if (tanggalLk1Split.length == 3) {
+                                tahunLk1 = tanggalLk1Split[2];
+                            }
+                        }
+                        addDataTraining(Constant.TRAINING_LK1, tahunLk1, Constant.TRAINING_LK1, user.getCabang(), dataSnapshot, 1);
+                    } else {
+                        //error
+                        if (tryCount < 3) {
+                            getProfile(dataSnapshot, tryCount + 1);
+                        }
+                    }
+                } else {
+                    //error
+                    if (tryCount < 3) {
+                        getProfile(dataSnapshot, tryCount + 1);
+                    }
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                //error
+                if (tryCount < 3) {
+                    getProfile(dataSnapshot, tryCount + 1);
+                }
+            }
+        });
+    }
+
+    private void addDataTraining(String tipe, String tahun, String nama, String lokasi, DataSnapshot dataSnapshot, int tryCount){
+        Call<GeneralResponse> call = service.addTraining(Constant.getToken(), tipe, tahun, nama, lokasi);
+        call.enqueue(new Callback<GeneralResponse>() {
+            @Override
+            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getStatus().equalsIgnoreCase("success")) {
+                        Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
+                            if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("isshow", true);
+                                dataSnapshot.getRef().updateChildren(hashMap);
+                                logout();
+                            }
+                        });
+                    } else {
+                        //error
+                        if (tryCount < 3) {
+                            addDataTraining(tipe, tahun, nama, lokasi, dataSnapshot, tryCount+1);
+                        }
+                    }
+                } else {
+                    //error
+                    if (tryCount < 3) {
+                        addDataTraining(tipe, tahun, nama, lokasi, dataSnapshot, tryCount+1);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                //error
+                if (tryCount < 3) {
+                    addDataTraining(tipe, tahun, nama, lokasi, dataSnapshot, tryCount+1);
+                }
             }
         });
     }
