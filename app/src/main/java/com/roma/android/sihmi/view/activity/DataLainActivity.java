@@ -300,7 +300,7 @@ public class DataLainActivity extends BaseActivity {
                         List<Training> trainingList = response.body().getData();
                         for (int i = 0; i < trainingList.size(); i++) {
                             Training training = trainingList.get(i);
-                            training.setId(training.getId_user()+training.getNama());
+                            training.setId(training.getId());
                             training.setId_user(training.getId_user());
                             training.setCabang(user.getCabang());
                             training.setKomisariat(user.getKomisariat());

@@ -228,7 +228,9 @@ public class LoadDataActivityViewModel extends ViewModel {
                             // TODO: Fix this training data with DataLainActivity and Via API Database
                             if (c.getTanggal_lk1() != null && !c.getTanggal_lk1().trim().isEmpty()){
                                 String[] lk1 = c.getTanggal_lk1().split("-");
-                                c.setTahun_lk1(lk1[2]);
+                                if (c.getTahun_lk1() == null || c.getTahun_lk1().trim().isEmpty()) {
+                                    c.setTahun_lk1(lk1[2]);
+                                }
                                 c.setLk1("LK1 (Basic Training)");
                                 Training training = new Training();
                                 training.setId(c.get_id()+"-LK1 (Basic Training)");
@@ -423,7 +425,7 @@ public class LoadDataActivityViewModel extends ViewModel {
 
                                 contactDao.insertContact(contact);
 
-                                training.setId(training.getId_user()+"-"+training.getTipe());
+                                training.setId(training.getId());
                                 training.setId_user(training.getId_user());
                                 training.setId_level(contact.getId_level());
                                 training.setCabang(contact.getCabang());

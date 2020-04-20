@@ -466,7 +466,7 @@ public class LaporanNonSuperAdminFragment extends Fragment {
                                 contactDao.insertContact(contact);
 
 
-                                training.setId(training.getId_user()+"-"+training.getTipe());
+                                training.setId(training.getId());
                                 training.setId_user(training.getId_user());
                                 training.setId_level(contact.getId_level());
                                 training.setCabang(contact.getCabang());
