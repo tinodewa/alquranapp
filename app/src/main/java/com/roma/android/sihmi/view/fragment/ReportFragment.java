@@ -50,6 +50,7 @@ import com.roma.android.sihmi.view.adapter.LaporanDataPelatihanAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -103,6 +104,19 @@ public class ReportFragment extends Fragment {
     User user;
     int now, batas_tahun;
 
+    static final String SUPERADMIN_KOMISARIAT = "__superadmin_komisariat_mode__";
+    static final String SUPERADMIN_CABANG = "__superadmin_cabang_mode__";
+    static final String SUPERADMIN_ALUMNI = "__superadmin_alumni_mode__";
+    static final String KOMISARIAT_NAME = "__komisariat_name__";
+    static final String CABANG_NAME = "__cabang_name__";
+
+    private boolean isSuperadminKomisariat = false;
+    private boolean isSuperadminCabang = false;
+    private boolean isSuperadminAlumni = false;
+
+    private String komisariatName, cabangName;
+
+
     public ReportFragment() {
         // Required empty public constructor
     }
@@ -114,9 +128,48 @@ public class ReportFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_report, container, false);
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
-        ((MainActivity) getActivity()).setToolBar(getString(R.string.laporan));
+
+        Bundle arguments = getArguments();
+        if (arguments != null) {
+            isSuperadminKomisariat = arguments.getBoolean(ReportFragment.SUPERADMIN_KOMISARIAT, false);
+            isSuperadminCabang = arguments.getBoolean(ReportFragment.SUPERADMIN_CABANG, false);
+            isSuperadminAlumni = arguments.getBoolean(ReportFragment.SUPERADMIN_ALUMNI, false);
+
+            if (isSuperadminKomisariat) {
+                komisariatName = arguments.getString(ReportFragment.KOMISARIAT_NAME);
+
+                if (komisariatName == null) {
+                    ((MainActivity) getActivity()).backToPreviousFragment();
+                }
+            }
+            else if (isSuperadminCabang || isSuperadminAlumni) {
+                cabangName = arguments.getString(ReportFragment.CABANG_NAME);
+
+                if (cabangName == null) {
+                    ((MainActivity) getActivity()).backToPreviousFragment();
+                }
+            }
+        }
+        else if (Tools.isSuperAdmin() && !isSuperadminKomisariat && !isSuperadminCabang && !isSuperadminAlumni) {
+            ((MainActivity) getActivity()).backToPreviousFragment();
+        }
+
+        if (isSuperadminKomisariat) {
+            ((MainActivity) Objects.requireNonNull(getActivity())).setToolBar(getString(R.string.laporan) + " " + komisariatName);
+        }
+        else if (isSuperadminCabang) {
+            ((MainActivity) Objects.requireNonNull(getActivity())).setToolBar(getString(R.string.laporan) + " " + cabangName);
+        }
+        else if (isSuperadminAlumni) {
+            ((MainActivity) Objects.requireNonNull(getActivity())).setToolBar(getString(R.string.laporan) + " " + "Alumni " + cabangName);
+        }
+        else {
+            ((MainActivity) Objects.requireNonNull(getActivity())).setToolBar(getString(R.string.laporan));
+        }
+
         initModule();
         initView();
+
         return v;
     }
 
@@ -135,42 +188,46 @@ public class ReportFragment extends Fragment {
 
     private void initView() {
         boolean isSlider;
-        if (Tools.isAdmin1()) {
-            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.VISIBLE, View.GONE);
+        if (Tools.isAdmin1() || isSuperadminKomisariat) {
+            // grafikKaderisasi, pelatihan, gender
+            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.GONE);
             isSlider = true;
-        } else if (Tools.isAdmin2()) {
-            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.GONE, View.GONE);
+        } else if (Tools.isAdmin2() || isSuperadminCabang) {
+            // grafikKaderisasi, pelatihan
+            visibilityView(View.GONE, View.VISIBLE, View.GONE, View.GONE);
             isSlider = false;
-        } else if (Tools.isAdmin3()) {
-            visibilityView(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.VISIBLE);
+        } else if (Tools.isAdmin3() || isSuperadminAlumni) {
+            // grafikAlumni, grafikKaderisasi, dataKader
+            visibilityView(View.VISIBLE, View.GONE, View.GONE, View.VISIBLE);
             tvDetailKaderisasi.setVisibility(View.GONE);
             isSlider = true;
         } else if (Tools.isLA1()) {
-            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.VISIBLE, View.GONE);
+            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.GONE);
             isSlider = true;
         } else if (Tools.isLA2()) {
-            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.VISIBLE, View.GONE);
+            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.GONE);
             isSlider = true;
         } else {
-            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.VISIBLE, View.GONE);
+            visibilityView(View.GONE, View.VISIBLE, View.VISIBLE, View.GONE);
             isSlider = true;
         }
         getTraining(isSlider);
     }
 
 
-    private void visibilityView(int grafikAlumni, int grafikKaderisasi, int pelatihan, int gender, int dataKader) {
+    private void visibilityView(int grafikAlumni, int pelatihan, int gender, int dataKader) {
         llGrafikAlumni.setVisibility(grafikAlumni);
-        llGrafikKaderisasi.setVisibility(grafikKaderisasi);
+        llGrafikKaderisasi.setVisibility(View.VISIBLE);
         llPelatihan.setVisibility(pelatihan);
         llGender.setVisibility(gender);
         llDataKader.setVisibility(dataKader);
 
-        if (grafikAlumni == View.VISIBLE)
-            grafikAlumni();
+        grafikKaderisasi();
 
-        if (grafikKaderisasi == View.VISIBLE)
-            grafikKaderisasi();
+        if (grafikAlumni == View.VISIBLE) {
+            grafikAlumni();
+        }
+
 
         if (gender == View.VISIBLE)
             gender();
@@ -233,7 +290,13 @@ public class ReportFragment extends Fragment {
     }
 
     private void grafikAlumni() {
-        String domisiliCabang = user.getDomisili_cabang() != null ? user.getDomisili_cabang() : "";
+        String domisiliCabang;
+        if (isSuperadminAlumni) {
+            domisiliCabang = cabangName;
+        }
+        else {
+            domisiliCabang = user.getDomisili_cabang() != null ? user.getDomisili_cabang() : "";
+        }
         ArrayList alumni = new ArrayList();
         for (int i = batas_tahun; i <= now; i++) {
             String query = Query.countReportAlumniAdmin3(domisiliCabang) + " AND tahun_daftar ='" + i + "'";
@@ -272,11 +335,23 @@ public class ReportFragment extends Fragment {
 
         if (Tools.isAdmin1()) {
             query = Query.countReportKaderAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()) {
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.countReportKaderAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()) {
             query = Query.countReportKaderAdmin2(user.getCabang());
-        } else if (Tools.isAdmin3()) {
+        }
+        else if (isSuperadminCabang) {
+            query = Query.countReportKaderAdmin2(cabangName);
+        }
+        else if (Tools.isAdmin3()) {
             query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
-        } else {
+        }
+        else if (isSuperadminAlumni) {
+            query = Query.countReportAlumniAdmin3(cabangName);
+        }
+        else {
             query = Query.countReportKaderLA2();
         }
 
@@ -322,9 +397,17 @@ public class ReportFragment extends Fragment {
         String query = "SELECT COUNT (*) FROM Training WHERE (id_level != " + Constant.USER_SECOND_ADMIN + " AND id_level != " + Constant.USER_SUPER_ADMIN + ") AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
         if (Tools.isAdmin1()) {
             query += " AND komisariat = '" + user.getKomisariat() + "' ";
-        } else if (Tools.isAdmin2() || Tools.isLA1()) {
+        }
+        else if (isSuperadminKomisariat) {
+            query += " AND komisariat = '" + komisariatName + "' ";
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()) {
             query += " AND cabang = '" + user.getCabang() + "' ";
-        } else if (Tools.isAdmin3()) {
+        }
+        else if (isSuperadminCabang || isSuperadminAlumni) {
+            query += " AND cabang = '" + cabangName + "' ";
+        }
+        else if (Tools.isAdmin3()) {
             query += " AND cabang = '" + user.getDomisili_cabang() + "' ";
         }
 
@@ -349,7 +432,12 @@ public class ReportFragment extends Fragment {
         list.add(new DataKader("TID (Training Instruktur Dasar)", tid));
         LaporanDataPelatihanAdapter adapter = new LaporanDataPelatihanAdapter(getActivity(), slider, list, dataKader -> {
             Log.d("hallo", "pelatihanKader: " + dataKader.getNama());
-            startActivity(new Intent(getActivity(), DetailReportActivity.class).putExtra(TYPE_DETAIL, Constant.PELATIHAN).putExtra(VALUE_DETAIL, dataKader.getNama()));
+
+            Intent intent = new Intent(getActivity(), DetailReportActivity.class);
+            if (Tools.isSuperAdmin()) {
+                putExtraForSuperadmin(intent);
+            }
+            startActivity(intent.putExtra(TYPE_DETAIL, Constant.PELATIHAN).putExtra(VALUE_DETAIL, dataKader.getNama()));
         });
         RecyclerView.LayoutManager llm;
         if (slider) {
@@ -368,7 +456,12 @@ public class ReportFragment extends Fragment {
         if (Tools.isAdmin1()) {
             queryL = Query.countReportKaderAdmin1L(user.getKomisariat());
             queryP = Query.countReportKaderAdmin1P(user.getKomisariat());
-        } else if (Tools.isLA1()) {
+        }
+        else if (isSuperadminKomisariat) {
+            queryL = Query.countReportKaderAdmin1L(komisariatName);
+            queryP = Query.countReportKaderAdmin1P(komisariatName);
+        }
+        else if (Tools.isLA1()) {
             queryL = Query.countReportKaderAdmin2L(user.getCabang());
             queryP = Query.countReportKaderAdmin2P(user.getCabang());
         } else {
@@ -398,10 +491,15 @@ public class ReportFragment extends Fragment {
     }
 
     private void dataKader() {
-//        String query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
-//        String query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND cabang = '" + user.getDomisili_cabang() + "' ";
-        String query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND domisili_cabang = '" + user.getDomisili_cabang() + "' AND " +
-                "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        String query;
+        if (isSuperadminAlumni) {
+            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND domisili_cabang = '" + cabangName + "' AND " +
+                    "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        }
+        else {
+            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND domisili_cabang = '" + user.getDomisili_cabang() + "' AND " +
+                    "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        }
 
         List<DataKader> list = new ArrayList<>();
         for (int i = now; i >= 1947; i--) {
@@ -439,12 +537,38 @@ public class ReportFragment extends Fragment {
         } else {
             type = Constant.PELATIHAN;
         }
-        startActivity(new Intent(getActivity(), DetailReportActivity.class).putExtra(TYPE_DETAIL, type));
+
+        Intent intent = new Intent(getActivity(), DetailReportActivity.class);
+        if (Tools.isSuperAdmin()) {
+            putExtraForSuperadmin(intent);
+        }
+        startActivity(intent.putExtra(TYPE_DETAIL, type));
     }
 
     @OnClick(R.id.btn_detail)
     public void click() {
-        startActivity(new Intent(getActivity(), DetailReportActivity.class).putExtra(TYPE_DETAIL, Constant.KADERISASI));
+        Intent intent = new Intent(getActivity(), DetailReportActivity.class);
+        if (Tools.isSuperAdmin()) {
+            putExtraForSuperadmin(intent);
+        }
+        startActivity(intent.putExtra(TYPE_DETAIL, Constant.KADERISASI));
+    }
+
+    private void putExtraForSuperadmin(Intent intent) {
+        if (isSuperadminKomisariat) {
+            intent.putExtra(DetailReportActivity.SUPERADMIN_KOMISARIAT, true)
+                    .putExtra(DetailReportActivity.KOMISARIAT_NAME, komisariatName);
+        }
+        else if (isSuperadminAlumni || isSuperadminCabang) {
+            if (isSuperadminAlumni) {
+                intent.putExtra(DetailReportActivity.SUPERADMIN_ALUMNI, true);
+            }
+            else {
+                intent.putExtra(DetailReportActivity.SUPERADMIN_CABANG, true);
+            }
+
+            intent.putExtra(DetailReportActivity.CABANG_NAME, cabangName);
+        }
     }
 
 }
