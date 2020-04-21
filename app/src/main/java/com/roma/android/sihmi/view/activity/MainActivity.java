@@ -816,11 +816,12 @@ public class MainActivity extends BaseActivity
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if (response.isSuccessful()) {
                     if (response.body().getStatus().equalsIgnoreCase("success")) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("isshow", true);
+                        dataSnapshot.getRef().updateChildren(hashMap);
+
                         Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
                             if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
-                                HashMap<String, Object> hashMap = new HashMap<>();
-                                hashMap.put("isshow", true);
-                                dataSnapshot.getRef().updateChildren(hashMap);
                                 logout();
                             }
                         });
