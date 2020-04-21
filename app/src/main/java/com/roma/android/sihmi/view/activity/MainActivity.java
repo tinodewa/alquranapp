@@ -30,6 +30,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.bumptech.glide.Glide;
@@ -434,6 +435,11 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    public void replaceFragment(Fragment fragment, Bundle arguments) {
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frameContent, fragment).addToBackStack(null).commit();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -499,6 +505,12 @@ public class MainActivity extends BaseActivity
                     doubleBackToExitPressedOnce = false;
                 }
             }, 2000);
+        }
+    }
+
+    public void backToPreviousFragment() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
         }
     }
 
