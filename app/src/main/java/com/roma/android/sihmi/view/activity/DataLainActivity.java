@@ -233,11 +233,20 @@ public class DataLainActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (!etNama.getText().toString().trim().isEmpty() && !etFakultas.getText().toString().trim().isEmpty()) {
-                            addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etFakultas.getText().toString());
-//                        addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etJurusan.getText().toString());
-                        } else {
+                        String tahun = etTahun.getText().toString();
+                        int tahunInt = Integer.parseInt(tahun);
+                        String curYear = Tools.getYearFromMillis(System.currentTimeMillis());
+                        int curYearInt = Integer.parseInt(curYear);
+                        if (tahun.length() > 4) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
+                        }
+                        else if (tahunInt > curYearInt) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.tahun_overload));
+                        }
+                        else if (etNama.getText().toString().trim().isEmpty() || etFakultas.getText().toString().trim().isEmpty()) {
                             Tools.showToast(getApplicationContext(), getString(R.string.field_mandatory));
+                        } else {
+                            addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etFakultas.getText().toString());
                         }
                     }
                 })
@@ -332,10 +341,29 @@ public class DataLainActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), spTipe.getSelectedItem().toString(), etLokasi.getText().toString());
-//                        trainings.add(new Training(trainings.size(), etTipe.getText().toString(), etTahun.getText().toString(), etNama.getText().toString(), etLokasi.getText().toString()));
-//                        Log.d("tessss", "onClick: "+trainings.get(0).getNama());
-//                        trainingAdapter.updateData(trainings);
+                        String tahun = etTahun.getText().toString();
+                        int tahunInt = Integer.parseInt(tahun);
+                        String curYear = Tools.getYearFromMillis(System.currentTimeMillis());
+                        int curYearInt = Integer.parseInt(curYear);
+                        Training trainingSame = trainingDao.getTrainingUserByType(spTipe.getSelectedItem().toString(), user.get_id());
+
+                        if (tahun.trim().length() > 4) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
+                        }
+                        else if (tahunInt > curYearInt) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.tahun_overload));
+                        }
+                        else if (trainingSame != null) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.same_training_type));
+                        }
+                        else if (spTipe.getSelectedItem().toString().trim().isEmpty()
+                                || etTahun.getText().toString().trim().isEmpty()
+                                || etLokasi.getText().toString().trim().isEmpty()) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.field_mandatory));
+                        }
+                        else {
+                            addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), spTipe.getSelectedItem().toString(), etLokasi.getText().toString());
+                        }
                         dialog.dismiss();
                     }
                 })
