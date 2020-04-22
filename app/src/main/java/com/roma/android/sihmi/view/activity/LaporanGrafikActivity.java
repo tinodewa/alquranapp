@@ -1,5 +1,6 @@
 package com.roma.android.sihmi.view.activity;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -8,8 +9,10 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -344,6 +347,14 @@ public class LaporanGrafikActivity extends BaseActivity {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(quarters));
+
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = this.getTheme();
+        theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+        @ColorInt int textColor = typedValue.data;
+        yAxis.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        data.setValueTextColor(textColor);
 
         pelatihanChart.setData(data);
         pelatihanChart.getDescription().setEnabled(false);

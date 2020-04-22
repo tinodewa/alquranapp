@@ -1,5 +1,6 @@
 package com.roma.android.sihmi.view.activity;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -7,11 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
@@ -386,6 +391,22 @@ public class DataLainActivity extends BaseActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),  android.R.layout.simple_spinner_dropdown_item, strings);
         adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item);
         spTipe.setAdapter(adapter);
+
+        spTipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TypedValue typedValue = new TypedValue();
+                Resources.Theme theme = DataLainActivity.this.getTheme();
+                theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+                @ColorInt int textColor = typedValue.data;
+                ((TextView) parent.getChildAt(0)).setTextColor(textColor);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
     }
 

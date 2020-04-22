@@ -13,16 +13,18 @@
         android:id="@+id/linear_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@color/transparent">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="@color/transparent">
 
             <ImageView
                 android:id="@+id/iv_image"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="180dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 android:src="@drawable/agenda_img" />
@@ -67,12 +69,6 @@
                 </RelativeLayout>
 
             </RelativeLayout>
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/relative_layout"
-                android:background="@android:color/white" />
 
             <androidx.core.widget.NestedScrollView
                 android:id="@+id/nestedScroll"

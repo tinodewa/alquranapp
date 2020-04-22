@@ -40,7 +40,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
                         android:text="@string/grafik"
-                        android:textColor="@android:color/black"
+                        android:textColor="?attr/textcolor"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -70,7 +70,7 @@
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
                     android:text="@string/data_pelatihan"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -99,28 +99,28 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/tahun"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/jumlah"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/l"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/p"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                         </LinearLayout>
 
@@ -136,42 +136,42 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/tahun"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK1"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK2"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK3"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="SC"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="TID"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                         </LinearLayout>
 

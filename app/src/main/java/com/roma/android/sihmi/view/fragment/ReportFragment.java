@@ -1,8 +1,10 @@
 package com.roma.android.sihmi.view.fragment;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +12,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -324,6 +327,14 @@ public class ReportFragment extends Fragment {
         xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(quarters));
 
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getContext().getTheme();
+        theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+        @ColorInt int textColor = typedValue.data;
+        yAxis.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        data.setValueTextColor(textColor);
+
         chartAlumni.setData(data);
         chartAlumni.getDescription().setEnabled(false);
         chartAlumni.getLegend().setEnabled(false);
@@ -384,6 +395,14 @@ public class ReportFragment extends Fragment {
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
         xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(quarters));
+
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = getContext().getTheme();
+        theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+        @ColorInt int textColor = typedValue.data;
+        yAxis.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        data.setValueTextColor(textColor);
 
         chartKaderisasi.setData(data);
         chartKaderisasi.getDescription().setEnabled(false);

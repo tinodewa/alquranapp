@@ -211,6 +211,12 @@ public class AnggotaFragment extends Fragment {
                                 c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
 
+                                String tanggalLk1 = c.getTanggal_lk1();
+                                if (tanggalLk1 != null) {
+                                    String tahunLk1 = tanggalLk1.split("-")[2];
+                                    c.setTahun_lk1(tahunLk1);
+                                }
+
                                 contactDao.insertContact(c);
 
                             }
