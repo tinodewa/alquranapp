@@ -201,25 +201,7 @@ public class AdminFragment extends Fragment {
                                 Contact c = contacts.get(i);
                                 c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
-                                if (c.getTanggal_lk1() != null && !c.getTanggal_lk1().trim().isEmpty()){
-                                    String[] lk1 = c.getTanggal_lk1().split("-");
-                                    if (c.getTahun_lk1() == null || c.getTahun_lk1().trim().isEmpty()) {
-                                        c.setTahun_lk1(lk1[2]);
-                                    }
-                                    Training training = new Training();
-                                    training.setId(c.get_id()+"-LK1 (Basic Training)");
-                                    training.setId_user(c.get_id());
-                                    training.setId_level(c.getId_level());
-                                    training.setTipe("LK1 (Basic Training)");
-                                    training.setTahun(lk1[2]);
-                                    training.setCabang(c.getCabang());
-                                    training.setKomisariat(c.getKomisariat());
-                                    training.setDomisili_cabang(c.getDomisili_cabang());
-                                    training.setJenis_kelamin(c.getJenis_kelamin());
-                                    if (trainingDao.checkTrainingAvailable(c.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
-                                        trainingDao.insertTraining(training);
-                                    }
-                                }
+
                                 contactDao.insertContact(c);
                             }
 //                            initAdapter();
