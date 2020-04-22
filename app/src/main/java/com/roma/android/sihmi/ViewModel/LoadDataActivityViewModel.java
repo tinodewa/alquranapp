@@ -522,9 +522,9 @@ public class LoadDataActivityViewModel extends ViewModel {
                                 }
                             }
 
-                            if (!foundSame) {
+                            if (!foundSame && tanggalLk1 != null) {
                                 String tahunLk1 = me.getTahun_lk1();
-                                if (tahunLk1 == null || tahunLk1.trim().isEmpty()) {
+                                if (tahunLk1 == null || !tahunLk1.trim().isEmpty()) {
                                     tanggalLk1Split = tanggalLk1.split("-");
                                     if (tanggalLk1Split.length == 3) {
                                         tahunLk1 = tanggalLk1Split[2];
