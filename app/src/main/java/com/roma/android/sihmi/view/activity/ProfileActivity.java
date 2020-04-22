@@ -525,24 +525,6 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
         contact.setTanggal_lk1(user.getTanggal_lk1());
         contact.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(contact.getTanggal_daftar())));
 
-        if (contact.getTanggal_lk1() != null && !contact.getTanggal_lk1().trim().isEmpty()){
-            String[] lk1 = contact.getTanggal_lk1().split("-");
-            contact.setTahun_lk1(lk1[2]);
-            Training training = new Training();
-            training.setId(contact.get_id()+"-LK1 (Basic Training)");
-            training.setId_user(contact.get_id());
-            training.setId_level(contact.getId_level());
-            training.setTipe("LK1 (Basic Training)");
-            training.setTahun(lk1[2]);
-            training.setCabang(contact.getCabang());
-            training.setKomisariat(contact.getKomisariat());
-            training.setDomisili_cabang(contact.getDomisili_cabang());
-            training.setJenis_kelamin(contact.getJenis_kelamin());
-            if (trainingDao.checkTrainingAvailable(contact.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
-                trainingDao.insertTraining(training);
-            }
-        }
-
         contactDao.insertContact(contact);
     }
 

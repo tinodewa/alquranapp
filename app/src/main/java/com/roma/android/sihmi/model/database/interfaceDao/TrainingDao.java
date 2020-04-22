@@ -40,6 +40,9 @@ public interface TrainingDao {
     @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe LIKE 'LK1%'")
     List<Training> getListAllTrainingLK1ByUser(String idUser);
 
+    @Query("SELECT * FROM Training WHERE id = :id")
+    Training getTraining(String id);
+
     @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe = :type")
     Training getListAllTrainingByUserType(String idUser, String type);
 

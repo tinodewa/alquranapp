@@ -263,25 +263,9 @@ public class LoadDataActivityViewModel extends ViewModel {
         contact.setDomisili_cabang(user.getDomisili_cabang());
         contact.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(contact.getTanggal_daftar())));
 
-        if (contact.getTanggal_lk1() != null && !contact.getTanggal_lk1().trim().isEmpty()){
-            String[] lk1 = contact.getTanggal_lk1().split("-");
-            contact.setTahun_lk1(lk1[2]);
-            contact.setLk1("LK1 (Basic Training)");
+        contact.setTahun_lk1(user.getTahun_lk1());
+        contact.setTanggal_lk1(user.getTanggal_lk1());
 
-            Training training = new Training();
-            training.setId(contact.get_id()+"-LK1 (Basic Training)");
-            training.setId_user(contact.get_id());
-            training.setId_level(contact.getId_level());
-            training.setTipe("LK1 (Basic Training)");
-            training.setTahun(lk1[2]);
-            training.setCabang(contact.getCabang());
-            training.setKomisariat(contact.getKomisariat());
-            training.setDomisili_cabang(contact.getDomisili_cabang());
-            training.setJenis_kelamin(contact.getJenis_kelamin());
-            if (trainingDao.checkTrainingAvailable(contact.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
-                trainingDao.insertTraining(training);
-            }
-        }
         contactDao.insertContact(contact);
     }
 
@@ -373,6 +357,84 @@ public class LoadDataActivityViewModel extends ViewModel {
         databaseReference.child("ChatGroup_v2").child(name).setValue(hashMap);
     }
 
+    private void deleteTraining(String idTraining) {
+        Call<GeneralResponse> call = service.deleteTraining(Constant.getToken(), idTraining);
+
+        call.enqueue(new Callback<GeneralResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                if (response.isSuccessful()) {
+                    assert response.body() != null;
+                    if (response.body().getStatus().equalsIgnoreCase("success")) {
+                        Log.d("DELETE TRAINING", "DELETE TRAINING success " + idTraining);
+                    }
+                    else {
+                        // error
+                        Log.d("DELETE TRAINING", "DELETE TRAINING failed " + response.body().getMessage() + " " + idTraining);
+                    }
+                }
+                else {
+                    // error
+                    assert response.body() != null;
+                    Log.d("DELETE TRAINING", "DELETE TRAINING failed " + response.body().getMessage() + " " + idTraining);
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                // error
+                Log.d("DELETE TRAINING", "DELETE TRAINING failed " + t.getMessage() + " " + idTraining);
+            }
+        });
+    }
+
+    private void addDataTraining(String tipe, String tahun, String nama, String lokasi, int tryCount){
+        Call<GeneralResponse> call = service.addTraining(Constant.getToken(), tipe, tahun, nama, lokasi);
+        call.enqueue(new Callback<GeneralResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                if (response.isSuccessful()) {
+                    assert response.body() != null;
+                    if (response.body().getStatus().equalsIgnoreCase("success")) {
+                        Log.d("ADD TRAINING", "ADD TRAINING succeeded");
+                    } else {
+                        //error
+                        if (tryCount < 3) {
+                            addDataTraining(tipe, tahun, nama, lokasi, tryCount+1);
+                        }
+                        else {
+                            Log.d("ADD TRAINING", "ADD TRAINING failed " + response.body().getMessage());
+                        }
+                    }
+                } else {
+                    //error
+                    if (tryCount < 3) {
+                        addDataTraining(tipe, tahun, nama, lokasi, tryCount+1);
+                    }
+                    else {
+                        assert response.body() != null;
+                        Log.d("ADD TRAINING", "ADD TRAINING failed " + response.body().getMessage());
+                    }
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                //error
+                if (tryCount < 3) {
+                    addDataTraining(tipe, tahun, nama, lokasi, tryCount+1);
+                }
+                else {
+                    Log.d("ADD TRAINING", "ADD TRAINING failed " + t.getMessage() + " ");
+                }
+            }
+        });
+    }
+
     private void getTraining(){
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getTraining");
         Call<TrainingResponse> call = service.getTraining(token, "0");
@@ -384,36 +446,93 @@ public class LoadDataActivityViewModel extends ViewModel {
                     assert response.body() != null;
                     if (response.body().getStatus().equalsIgnoreCase("success")) {
                         int size = response.body().getData().size();
+                        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training size " + size);
                         if (size > 0) {
+                            boolean foundSame = false;
+                            Contact me = contactDao.getContactById(userDao.getUser().get_id());
+                            String tanggalLk1 = me.getTanggal_lk1();
+                            String[] tanggalLk1Split;
+                            String tahun_lk1;
+
                             for (int i = 0; i < size ; i++) {
                                 Training training = response.body().getData().get(i);
                                 Contact contact = contactDao.getContactById(training.getId_user());
+
+                                boolean insert = true;
                                 if (training.getNama_training().contains("LK1")) {
+                                    Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
                                     contact.setLk1(training.getNama_training());
-                                    contact.setTahun_lk1(training.getTahun());
+
+                                    if (training.getId_user().equals(me.get_id())) {
+                                        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 FOUND ME " + tanggalLk1);
+                                        if (tanggalLk1 != null && !tanggalLk1.isEmpty()) {
+                                            tanggalLk1Split = tanggalLk1.split("-");
+
+                                            if (tanggalLk1Split.length == 3) {
+                                                tahun_lk1 = tanggalLk1Split[2];
+
+                                                if (!foundSame && training.getTahun().equals(tahun_lk1) && training.getTempat().equalsIgnoreCase(me.getCabang())) {
+                                                    foundSame = true;
+                                                    Log.d("FOUND SAME", "FOUND SAME " + training.getTahun() + " " + training.getTempat());
+                                                }
+                                                else {
+                                                    // delete training
+                                                    Log.d("FOUND SAME", "NOT SAME " + training.getTahun() + " " + training.getTempat());
+                                                    deleteTraining(training.getId());
+                                                    insert = false;
+                                                }
+                                            }
+                                        }
+                                        else {
+                                            foundSame = true;
+                                        }
+                                    }
+                                    else {
+                                        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS not me " + contact.getFullName());
+                                        contact.setTahun_lk1(training.getTahun());
+                                    }
                                 } else if (training.getNama_training().contains("LK2")) {
+                                    Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK2 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
                                     contact.setLk2(training.getNama_training());
                                 } else if (training.getNama_training().contains("LK3")) {
+                                    Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
                                     contact.setLk3(training.getNama_training());
                                 } else if (training.getNama_training().contains("SC")) {
+                                    Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
                                     contact.setSc(training.getNama_training());
                                 } else if (training.getNama_training().contains("TID")) {
+                                    Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
                                     contact.setTid(training.getNama_training());
                                 }
 
-                                contactDao.insertContact(contact);
+                                if (insert) {
+                                    contactDao.insertContact(contact);
 
-                                training.setId(training.getId());
-                                training.setId_user(training.getId_user());
-                                training.setId_level(contact.getId_level());
-                                training.setCabang(contact.getCabang());
-                                training.setKomisariat(contact.getKomisariat());
-                                training.setDomisili_cabang(contact.getDomisili_cabang());
-                                training.setJenis_kelamin(contact.getJenis_kelamin());
+                                    training.setId(training.getId());
+                                    training.setId_user(training.getId_user());
+                                    training.setId_level(contact.getId_level());
+                                    training.setCabang(contact.getCabang());
+                                    training.setKomisariat(contact.getKomisariat());
+                                    training.setDomisili_cabang(contact.getDomisili_cabang());
+                                    training.setJenis_kelamin(contact.getJenis_kelamin());
 
-                                if (trainingDao.checkTrainingAvailable(training.getId_user(), training.getTipe(), training.getTahun()) == null){
-                                    trainingDao.insertTraining(training);
+                                    if (trainingDao.checkTrainingAvailable(training.getId_user(), training.getTipe(), training.getTahun()) == null){
+                                        trainingDao.insertTraining(training);
+                                    }
                                 }
+                            }
+
+                            if (!foundSame) {
+                                String tahunLk1 = me.getTahun_lk1();
+                                if (tahunLk1 == null || tahunLk1.trim().isEmpty()) {
+                                    tanggalLk1Split = tanggalLk1.split("-");
+                                    if (tanggalLk1Split.length == 3) {
+                                        tahunLk1 = tanggalLk1Split[2];
+                                    }
+                                }
+
+                                Log.d("ADD TRAINING", "ADD TRAINING");
+                                addDataTraining(Constant.TRAINING_LK1, tahunLk1, Constant.TRAINING_LK1, me.getCabang(), 1);
                             }
                         }
 
