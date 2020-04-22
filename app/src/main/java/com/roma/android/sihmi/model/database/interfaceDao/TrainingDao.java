@@ -51,4 +51,7 @@ public interface TrainingDao {
 
     @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe = :tipe AND tahun = :tahun")
     Training checkTrainingAvailable(String idUser, String tipe, String tahun);
+
+    @Query("SELECT * FROM Training WHERE tipe = :type AND id_user = :idUser LIMIT 1")
+    Training getTrainingUserByType(String type, String idUser);
 }

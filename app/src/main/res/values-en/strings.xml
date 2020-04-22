@@ -448,5 +448,8 @@
     <string name="coba_lagi">Try Again</string>
     <string name="gagal_memuat_data">Failed while loading data</string>
     <string name="tanggal_lk1_over">LK1 date cannot be over current date</string>
+    <string name="tahun_overload">Year field can not be more than current year</string>
+    <string name="same_training_type">Can not add training data with same type</string>
+    <string name="invalid_year_format">Invalid year format</string>
 
 </resources>

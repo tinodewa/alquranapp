@@ -81,6 +81,10 @@ public class LK1Activity extends BaseActivity {
         user = userDao.getUser();
         levelDao = appDb.levelDao();
         historyPengajuanDao = appDb.historyPengajuanDao();
+
+        btnSimpan.setVisibility(View.GONE);
+        checkBox.setVisibility(View.GONE);
+
         getPermintaanLK1();
         initView();
 
@@ -107,16 +111,9 @@ public class LK1Activity extends BaseActivity {
             etKorkom.setEnabled(false);
             etKomisariat.setEnabled(false);
             etTanggal.setEnabled(false);
-
-            if (Tools.isNonLK()) {
-                tvKet.setVisibility(View.VISIBLE);
-                checkBox.setVisibility(View.VISIBLE);
-                btnSimpan.setVisibility(View.VISIBLE);
-            } else {
-                tvKet.setVisibility(View.GONE);
-                checkBox.setVisibility(View.GONE);
-                btnSimpan.setVisibility(View.GONE);
-            }
+            tvKet.setVisibility(View.GONE);
+            btnSimpan.setVisibility(View.GONE);
+            checkBox.setVisibility(View.GONE);
         } else {
             etBadko.setEnabled(true);
             etCabang.setEnabled(true);
