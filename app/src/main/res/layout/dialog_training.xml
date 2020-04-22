@@ -21,11 +21,13 @@
         android:orientation="horizontal">
 
         <Spinner
+            android:textColor="?attr/textcolor"
             android:id="@+id/sp_training"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="4dp"/>
+
         <EditText
             android:textColor="?attr/textcolor"
             android:id="@+id/etTipe"

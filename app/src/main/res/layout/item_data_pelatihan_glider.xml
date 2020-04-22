@@ -20,10 +20,10 @@
             android:layout_height="wrap_content"
             android:textSize="18sp"
             android:text="Basic Training (LK1)"
-            android:textColor="@android:color/black"/>
+            android:textColor="?attr/textcolor"/>
 
         <TextView
-            android:textColor="@android:color/black"
+            android:textColor="?attr/textcolor"
             android:id="@+id/tv_total"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

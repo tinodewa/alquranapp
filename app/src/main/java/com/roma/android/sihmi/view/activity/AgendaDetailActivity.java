@@ -118,6 +118,7 @@ public class AgendaDetailActivity extends BaseActivity {
         if (agenda.getImage() != null && !agenda.getImage().isEmpty()) {
             Glide.with(AgendaDetailActivity.this)
                     .load(Uri.parse(agenda.getImage()))
+                    .centerCrop()
                     .into(ivImage);
             url = agenda.getImage();
         }

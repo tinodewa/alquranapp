@@ -19,23 +19,23 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_margin="4dp">
+                android:layout_margin="4dp"
+                android:orientation="vertical">
 
 
                 <LinearLayout
                     android:id="@+id/ll_pengguna"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/pengguna_sihmi"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"/>
+                        android:textColor="?attr/textcolor"
+                        android:textSize="16sp" />
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
@@ -57,17 +57,17 @@
                                 android:orientation="horizontal">
 
                                 <TextView
-                                    android:textColor="@android:color/black"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginRight="4dp"
                                     android:text="Kader\nNon Kader "
-                                    android:layout_marginRight="4dp"/>
+                                    android:textColor="@android:color/black" />
 
                                 <TextView
                                     android:id="@+id/tv_total_kader"
-                                    android:textColor="@android:color/black"
                                     android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"/>
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@android:color/black" />
 
                             </LinearLayout>
 
@@ -81,28 +81,28 @@
                                 android:orientation="vertical">
 
                                 <TextView
-                                    android:textColor="@android:color/black"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:text="@string/jumlah"
                                     android:textAlignment="textEnd"
-                                    android:text="@string/jumlah"/>
+                                    android:textColor="@android:color/black" />
 
                                 <TextView
                                     android:id="@+id/tv_total_all"
-                                    android:textColor="@android:color/black"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:textAlignment="textEnd"
                                     android:text="107"
-                                    android:textSize="32sp"/>
+                                    android:textAlignment="textEnd"
+                                    android:textColor="@android:color/black"
+                                    android:textSize="32sp" />
 
                                 <TextView
                                     android:id="@+id/tv_detail"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
+                                    android:text="@string/detail"
                                     android:textAlignment="textEnd"
-                                    android:textColor="@color/colorDarkAccent2"
-                                    android:text="@string/detail"/>
+                                    android:textColor="@color/colorDarkAccent2" />
 
                             </LinearLayout>
 
@@ -112,54 +112,12 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/data_organigram"
-                    android:textColor="@android:color/black"
-                    android:textSize="16sp"/>
-
                 <LinearLayout
                     android:id="@+id/ll_badko"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
-                        app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginRight="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_margin="8dp">
-
-                            <TextView
-                                android:textColor="@android:color/black"
-                                android:id="@+id/tv_total_badko"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="52sp"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:text="20"/>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textColor="@color/colornotif"
-                                android:textAlignment="center"
-                                android:text="@string/badko"/>
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -167,55 +125,55 @@
                         android:text="@string/data_badko"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginRight="8dp"
+                        app:cardCornerRadius="6dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_total_badko"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="20"
+                                android:textAlignment="center"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="52sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/badko"
+                                android:textAlignment="center"
+                                android:textColor="@color/colornotif"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_badko"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_cabang"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
-                        app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginRight="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_margin="8dp">
-
-                            <TextView
-                                android:textColor="@android:color/black"
-                                android:id="@+id/tv_total_cabang"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="52sp"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:text="20"/>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textColor="@color/colornotif"
-                                android:textAlignment="center"
-                                android:text="@string/cabang"/>
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -223,55 +181,55 @@
                         android:text="@string/data_cabang"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginRight="8dp"
+                        app:cardCornerRadius="6dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_total_cabang"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="20"
+                                android:textAlignment="center"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="52sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/cabang"
+                                android:textAlignment="center"
+                                android:textColor="@color/colornotif"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_cabang"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_korkom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
-                        app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginRight="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_margin="8dp">
-
-                            <TextView
-                                android:textColor="@android:color/black"
-                                android:id="@+id/tv_total_korkom"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="52sp"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:text="20"/>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textColor="@color/colornotif"
-                                android:textAlignment="center"
-                                android:text="@string/korkom"/>
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -279,55 +237,55 @@
                         android:text="@string/data_korkom"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginRight="8dp"
+                        app:cardCornerRadius="6dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_total_korkom"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="20"
+                                android:textAlignment="center"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="52sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/korkom"
+                                android:textAlignment="center"
+                                android:textColor="@color/colornotif"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_korkom"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_komisariat"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
-                        app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginRight="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_margin="8dp">
-
-                            <TextView
-                                android:textColor="@android:color/black"
-                                android:id="@+id/tv_total_komisariat"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="52sp"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:text="20"/>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textColor="@color/colornotif"
-                                android:textAlignment="center"
-                                android:text="@string/komisariat"/>
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -335,55 +293,54 @@
                         android:text="@string/data_komisariat"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginRight="8dp"
+                        app:cardCornerRadius="6dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_total_komisariat"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="20"
+                                android:textAlignment="center"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="52sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="@string/komisariat"
+                                android:textAlignment="center"
+                                android:textColor="@color/colornotif"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_komisariat"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_alumni"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:layout_marginTop="8dp">
-
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="150dp"
-                        android:layout_height="150dp"
-                        app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp"
-                        android:layout_marginRight="8dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:layout_margin="8dp">
-
-                            <TextView
-                                android:textColor="@android:color/black"
-                                android:id="@+id/tv_total_alumni"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="52sp"
-                                android:textStyle="bold"
-                                android:textAlignment="center"
-                                android:text="20"/>
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textColor="@color/colornotif"
-                                android:textAlignment="center"
-                                android:text="Alumni"/>
-
-                        </LinearLayout>
-
-                    </androidx.cardview.widget.CardView>
 
                     <TextView
                         android:layout_width="match_parent"
@@ -391,33 +348,75 @@
                         android:text="@string/data_alumni"
                         android:textColor="@android:color/black"
                         android:textSize="16sp"
-                        android:visibility="gone"/>
+                        android:visibility="gone" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="150dp"
+                        android:layout_height="150dp"
+                        android:layout_marginRight="8dp"
+                        app:cardCornerRadius="6dp"
+                        app:cardElevation="0dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="8dp"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tv_total_alumni"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="20"
+                                android:textAlignment="center"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="52sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Alumni"
+                                android:textAlignment="center"
+                                android:textColor="@color/colornotif"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_alumni"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/ll_training"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="8dp"
+                    android:orientation="vertical">
 
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/data_training"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"/>
+                        android:textColor="?attr/textcolor"
+                        android:textSize="16sp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/rv_training"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content" />
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_organigram"
+                    android:textColor="?attr/textcolor"
+                    android:textSize="16sp" />
 
 
                 <androidx.cardview.widget.CardView
@@ -441,65 +440,66 @@
                                 android:id="@+id/tv_vm_aktivitas_pengguna"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_aktivitas_pengguna"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/data_aktivitas"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_aktivitas_pengguna"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/data_aktivitas"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
                             app:cardBackgroundColor="@android:color/darker_gray"
                             app:cardCornerRadius="4dp"
-                            app:cardUseCompatPadding="true"
-                            android:layout_marginTop="8dp">
+                            app:cardUseCompatPadding="true">
+
                             <LinearLayout
-                                android:orientation="horizontal"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
+                                android:layout_margin="4dp"
                                 android:gravity="center_vertical"
-                                android:layout_margin="4dp">
+                                android:orientation="horizontal">
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_marginRight="2dp"
                                     android:layout_weight="1"
                                     android:text="@string/nama"
-                                    android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
-                                    android:layout_marginRight="2dp"
-                                    android:layout_marginLeft="4dp"/>
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginLeft="2dp"
+                                    android:layout_marginRight="2dp"
                                     android:layout_weight="1"
                                     android:text="@string/tgl_daftar"
-                                    android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
-                                    android:layout_marginRight="2dp"
-                                    android:layout_marginLeft="2dp"/>
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginLeft="2dp"
+                                    android:layout_marginRight="2dp"
                                     android:layout_weight="1"
                                     android:text="@string/waktu_login"
-                                    android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
-                                    android:layout_marginRight="2dp"
-                                    android:layout_marginLeft="2dp"/>
+                                    android:textStyle="bold" />
 
                             </LinearLayout>
 
@@ -508,7 +508,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_aktivitas_pengguna"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -533,55 +533,56 @@
                                 android:id="@+id/tv_vm_media_pengguna"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_media_pengguna"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/data_media"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_media_pengguna"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/data_media"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
                             app:cardBackgroundColor="@android:color/darker_gray"
                             app:cardCornerRadius="4dp"
-                            app:cardUseCompatPadding="true"
-                            android:layout_marginTop="8dp">
+                            app:cardUseCompatPadding="true">
+
                             <LinearLayout
-                                android:orientation="horizontal"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
+                                android:layout_margin="4dp"
                                 android:gravity="center_vertical"
-                                android:layout_margin="4dp">
+                                android:orientation="horizontal">
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginLeft="4dp"
+                                    android:layout_marginRight="2dp"
                                     android:layout_weight="1"
                                     android:text="@string/nama"
-                                    android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
-                                    android:layout_marginRight="2dp"
-                                    android:layout_marginLeft="4dp"/>
+                                    android:textStyle="bold" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:layout_marginLeft="2dp"
+                                    android:layout_marginRight="2dp"
                                     android:layout_weight="1"
                                     android:text="@string/device"
-                                    android:textStyle="bold"
                                     android:textColor="?attr/colorPrimary"
-                                    android:layout_marginRight="2dp"
-                                    android:layout_marginLeft="2dp"/>
+                                    android:textStyle="bold" />
                             </LinearLayout>
 
                         </androidx.cardview.widget.CardView>
@@ -589,7 +590,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_media_pengguna"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -597,9 +598,9 @@
                     android:id="@+id/cv_approval_user"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardCornerRadius="8dp"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="gone">
+                    app:cardUseCompatPadding="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -615,34 +616,35 @@
                                 android:id="@+id/tv_vm_approval_user"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/statistik_data_approval_user"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_approval_user"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/statistik_data_approval_user"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
                             app:cardBackgroundColor="@android:color/darker_gray"
                             app:cardCornerRadius="4dp"
-                            app:cardUseCompatPadding="true"
-                            android:layout_marginTop="8dp">
+                            app:cardUseCompatPadding="true">
+
                             <LinearLayout
-                                android:orientation="horizontal"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
+                                android:layout_margin="4dp"
                                 android:gravity="center_vertical"
-                                android:layout_margin="4dp">
+                                android:orientation="horizontal">
 
                                 <TextView
                                     android:layout_width="0dp"
@@ -670,7 +672,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_approval_user"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -695,20 +697,20 @@
                                 android:id="@+id/tv_vm_admin"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_admin"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/data_admin_aktif"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_admin"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/data_admin_aktif"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
@@ -763,7 +765,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_admin"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -771,9 +773,9 @@
                     android:id="@+id/cv_data_admin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardCornerRadius="8dp"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="gone">
+                    app:cardUseCompatPadding="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -789,27 +791,27 @@
                                 android:id="@+id/tv_vm_data_admin"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_marginBottom="8dp"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_marginBottom="8dp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/laporan_data_admin"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
-                                android:layout_toLeftOf="@id/tv_vm_data_admin"
                                 android:layout_marginRight="4dp"
-                                android:layout_marginBottom="8dp"/>
+                                android:layout_marginBottom="8dp"
+                                android:layout_toLeftOf="@id/tv_vm_data_admin"
+                                android:text="@string/laporan_data_admin"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_data_admin"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -817,9 +819,9 @@
                     android:id="@+id/cv_copywriter_agenda"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="gone"
                     app:cardCornerRadius="8dp"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="gone">
+                    app:cardUseCompatPadding="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -835,20 +837,20 @@
                                 android:id="@+id/tv_vm_copywriter_agenda"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_copywriter_agenda"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/statistik_admin_pembuat_agenda"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_copywriter_agenda"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/statistik_admin_pembuat_agenda"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
@@ -892,7 +894,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_copywriter_agenda"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -900,9 +902,9 @@
                     android:id="@+id/cv_copywriter_tentang_kami"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="visible"
                     app:cardCornerRadius="8dp"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="visible">
+                    app:cardUseCompatPadding="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -918,20 +920,20 @@
                                 android:id="@+id/tv_vm_copywriter_tentang_kami"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_copywriter_tentang_kami"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/konten_tentang_kami"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_copywriter_tentang_kami"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/konten_tentang_kami"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
@@ -974,7 +976,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_copywriter_tentang_kami"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -982,9 +984,9 @@
                     android:id="@+id/cv_copywriter_konstitusi"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:visibility="visible"
                     app:cardCornerRadius="8dp"
-                    app:cardUseCompatPadding="true"
-                    android:visibility="visible">
+                    app:cardUseCompatPadding="true">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -1000,20 +1002,20 @@
                                 android:id="@+id/tv_vm_copywriter_konstitusi"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
                                 android:text="@string/view_more"
                                 android:textColor="?attr/colorPrimary"
-                                android:textSize="16sp"
-                                android:layout_alignParentRight="true"/>
+                                android:textSize="16sp" />
 
                             <TextView
                                 android:id="@+id/tv_copywriter_konstitusi"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/konten_konstitusi"
-                                android:textColor="@android:color/black"
-                                android:textSize="16sp"
+                                android:layout_marginRight="4dp"
                                 android:layout_toLeftOf="@id/tv_vm_copywriter_konstitusi"
-                                android:layout_marginRight="4dp"/>
+                                android:text="@string/konten_konstitusi"
+                                android:textColor="?attr/textcolor"
+                                android:textSize="16sp" />
                         </RelativeLayout>
 
                         <androidx.cardview.widget.CardView
@@ -1057,7 +1059,7 @@
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/rv_copywriter_konstitusi"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content" />
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
