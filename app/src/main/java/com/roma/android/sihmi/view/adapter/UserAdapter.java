@@ -173,7 +173,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
                 }
 //                tvKet.setText(CoreApplication.get().getAppDb().interfaceDao().getNamaLevel(contact.getId_roles())+".");
                 tvKet.setText(ket);
-                aSwitch.setChecked(true);
+
+                if (Tools.isSuperAdmin()) {
+                    aSwitch.setVisibility(View.VISIBLE);
+                    aSwitch.setChecked(true);
+                }
+                else {
+                    aSwitch.setVisibility(View.GONE);
+                }
 
                 pengajuanHistory = historyPengajuanDao.getSuccessPengajuan(contact.get_id());
                 if (pengajuanHistory != null) {
