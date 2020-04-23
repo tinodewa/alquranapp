@@ -242,7 +242,8 @@ public class DataLainActivity extends BaseActivity {
                         int tahunInt = Integer.parseInt(tahun);
                         String curYear = Tools.getYearFromMillis(System.currentTimeMillis());
                         int curYearInt = Integer.parseInt(curYear);
-                        if (tahun.length() > 4) {
+
+                        if (tahun.length() > 4 || tahunInt < 1947) {
                             Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
                         }
                         else if (tahunInt > curYearInt) {
@@ -352,7 +353,7 @@ public class DataLainActivity extends BaseActivity {
                         int curYearInt = Integer.parseInt(curYear);
                         Training trainingSame = trainingDao.getTrainingUserByType(spTipe.getSelectedItem().toString(), user.get_id());
 
-                        if (tahun.trim().length() > 4) {
+                        if (tahun.trim().length() > 4 || tahunInt < 1947) {
                             Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
                         }
                         else if (tahunInt > curYearInt) {
