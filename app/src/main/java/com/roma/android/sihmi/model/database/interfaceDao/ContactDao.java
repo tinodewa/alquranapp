@@ -65,13 +65,13 @@ public interface ContactDao { @RawQuery
     @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8) AND (nama_depan LIKE :name OR nama_belakang LIKE :name) AND cabang = :cabang ORDER BY lower(nama_depan) ASC")
     List<Contact> getSearchListAdminForLA1(String cabang, String name);
 
-    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 13 ORDER BY lower(nama_depan) ASC")
     List<Contact> getListAdminForLA2();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 13 ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAdminForLA2();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 13 AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8 OR id_level == 13) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
     List<Contact> getSearchListAdminForLA2(String name);
 
     @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
