@@ -128,7 +128,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                         User user = userDao.getUser();
                         String alumni_cabang = user.getDomisili_cabang() != null ? user.getDomisili_cabang() : "";
                         masterDao.insertMaster(response.body().getData());
-                        getListGroupChat(user.getCabang(), user.getKomisariat(), alumni_cabang);
+                        getListGroupChat();
                         new Handler().postDelayed(() -> getLevel(), 1000);
                     }
                 }
@@ -275,27 +275,8 @@ public class LoadDataActivityViewModel extends ViewModel {
         contactDao.insertContact(contact);
     }
 
-    private void getListGroupChat(String namaKota, String namaUniv, String alumniCabang){
+    private void getListGroupChat(){
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListGroupChat");
-
-        // TODO: Fix group chat violation
-        if (namaKota != null && !namaKota.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName(namaKota) == null){
-                addGroupChat(namaKota);
-            }
-        }
-
-        if (namaUniv != null && !namaUniv.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName(namaUniv) == null){
-                addGroupChat(namaUniv);
-            }
-        }
-
-        if (alumniCabang != null && !alumniCabang.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName("Alumni "+alumniCabang) == null){
-                addGroupChat("Alumni "+alumniCabang);
-            }
-        }
 
         final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatGroup_v2");
 
@@ -307,17 +288,11 @@ public class LoadDataActivityViewModel extends ViewModel {
                     assert groupChatFirebase != null;
                     groupChatDao.insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
                     getGroupChat(groupChatFirebase);
+                }
 
-//                    if (Tools.isSecondAdmin() || Tools.isSuperAdmin()){
-//                        CoreApplication.get().getAppDb().interfaceDao().insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
-//                        getGroupChat(groupChatFirebase);
-//                    } else {
-//                        if ((groupChatFirebase.getNama().equalsIgnoreCase(namaKota)) || (groupChatFirebase.getNama().equalsIgnoreCase(namaUniv) || groupChatFirebase.getNama().equalsIgnoreCase("nasional"))
-//                                || (groupChatFirebase.getNama().equalsIgnoreCase("alumni "+alumniCabang))){
-//                            CoreApplication.get().getAppDb().interfaceDao().insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
-//                            getGroupChat(groupChatFirebase);
-//                        }
-//                    }
+                if (!Tools.isNonLK()) {
+                    User user = userDao.getUser();
+                    checkGroup(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
                 }
             }
 
@@ -326,6 +301,26 @@ public class LoadDataActivityViewModel extends ViewModel {
 
             }
         });
+    }
+
+    private void checkGroup(String cabang, String komisariat, String alumniCabang) {
+        if (cabang != null && !cabang.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName(cabang) == null && masterDao.getMasterCabang().contains(cabang)){
+                addGroupChat(cabang);
+            }
+        }
+
+        if (komisariat != null && !komisariat.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName(komisariat) == null && masterDao.getMasterKomisariat().contains(komisariat)){
+                addGroupChat(komisariat);
+            }
+        }
+
+        if (alumniCabang != null && !alumniCabang.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName("Alumni "+alumniCabang) == null && masterDao.getMasterCabang().contains(alumniCabang)){
+                addGroupChat("Alumni "+alumniCabang);
+            }
+        }
     }
 
     private void getGroupChat(GroupChatFirebase groupChatFirebase){
