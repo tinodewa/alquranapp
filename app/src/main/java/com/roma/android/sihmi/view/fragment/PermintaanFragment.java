@@ -139,7 +139,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
 
         Log.d("hallo", "onCreateView: " + Tools.dateNow());
 
-        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+        if (Tools.isSuperAdmin()){
             listLiveData = historyPengajuanDao.getAllPengajuanHistory();
         } else if (Tools.isAdmin1()) {
             listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin1(userDao.getUser().getKomisariat());
@@ -149,6 +149,8 @@ public class PermintaanFragment extends Fragment implements Ifragment {
             listLiveData = historyPengajuanDao.getAllPengajuanHistoryLA1(userDao.getUser().getCabang());
         } else if (Tools.isLA2()) {
             listLiveData = historyPengajuanDao.getAllPengajuanHistoryLA2();
+        } else if (Tools.isSecondAdmin()) {
+            listLiveData = historyPengajuanDao.getAllPengajuanHistorySecondAdmin();
         } else {
             listLiveData = historyPengajuanDao.getAllPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()));
         }
@@ -532,7 +534,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                 public boolean onQueryTextChange(String newText) {
                     List<PengajuanHistoryJoin> list;
                     if (newText.isEmpty()) {
-                        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+                        if (Tools.isSuperAdmin()){
                             list = historyPengajuanDao.getAllListPengajuanHistory();
                         } else if (Tools.isLA1()){
                             list = historyPengajuanDao.getAllListPengajuanHistoryLA1(userDao.getUser().getCabang());
@@ -542,11 +544,13 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             list = historyPengajuanDao.getAllListPengajuanHistoryAdmin1(userDao.getUser().getKomisariat());
                         } else if (Tools.isAdmin2()) {
                             list = historyPengajuanDao.getAllListPengajuanHistoryAdmin2(userDao.getUser().getCabang(), "%" + Tools.dateNow());
+                        } else if (Tools.isSecondAdmin()) {
+                            list = historyPengajuanDao.getAllListPengajuanHistorySecondAdmin();
                         } else {
                             list = historyPengajuanDao.getAllListPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()));
                         }
                     } else {
-                        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+                        if (Tools.isSuperAdmin()){
                             list = historyPengajuanDao.getSearchAllPengajuanHistory("%" + newText + "%");
                         } else if (Tools.isLA1()){
                             list = historyPengajuanDao.getSearchAllPengajuanHistoryLA1(userDao.getUser().getCabang(), "%" + newText + "%");
@@ -556,6 +560,8 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin1(userDao.getUser().getKomisariat(), "%" + newText + "%");
                         } else if (Tools.isAdmin2()) {
                             list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin2(userDao.getUser().getCabang(), "%" + Tools.dateNow(), "%" + newText + "%");
+                        } else if (Tools.isSecondAdmin()) {
+                            list = historyPengajuanDao.getSearchAllPengajuanHistorySecondAdmin("%" + newText + "%");
                         } else {
                             list = historyPengajuanDao.getSearchAllPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()), "%" + newText + "%");
                         }

@@ -208,7 +208,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.ViewHolder> {
             }
 
             Intent profileChatIntent = new Intent(itemView.getContext(), ProfileChatActivity.class).putExtra("iduser", contact.get_id());
-            if (contact.getId_level() != Constant.USER_NON_LK && Tools.isSuperAdmin()) {
+            if (contact.getId_level() != Constant.USER_NON_LK && (Tools.isSuperAdmin() || Tools.isSecondAdmin())) {
                 profileChatIntent.putExtra("MODE_ACCEPTED", true);
             }
             ivDetail.setOnClickListener(v -> itemView.getContext().startActivity(profileChatIntent));
