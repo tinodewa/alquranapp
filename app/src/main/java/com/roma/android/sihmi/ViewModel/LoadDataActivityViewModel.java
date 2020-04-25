@@ -128,7 +128,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                         User user = userDao.getUser();
                         String alumni_cabang = user.getDomisili_cabang() != null ? user.getDomisili_cabang() : "";
                         masterDao.insertMaster(response.body().getData());
-                        getListGroupChat(user.getCabang(), user.getKomisariat(), alumni_cabang);
+                        getListGroupChat();
                         new Handler().postDelayed(() -> getLevel(), 1000);
                     }
                 }
@@ -275,27 +275,8 @@ public class LoadDataActivityViewModel extends ViewModel {
         contactDao.insertContact(contact);
     }
 
-    private void getListGroupChat(String namaKota, String namaUniv, String alumniCabang){
+    private void getListGroupChat(){
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListGroupChat");
-
-        // TODO: Fix group chat violation
-        if (namaKota != null && !namaKota.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName(namaKota) == null){
-                addGroupChat(namaKota);
-            }
-        }
-
-        if (namaUniv != null && !namaUniv.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName(namaUniv) == null){
-                addGroupChat(namaUniv);
-            }
-        }
-
-        if (alumniCabang != null && !alumniCabang.trim().isEmpty()){
-            if (groupChatDao.getGroupChatByName("Alumni "+alumniCabang) == null){
-                addGroupChat("Alumni "+alumniCabang);
-            }
-        }
 
         final DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("ChatGroup_v2");
 
@@ -307,17 +288,11 @@ public class LoadDataActivityViewModel extends ViewModel {
                     assert groupChatFirebase != null;
                     groupChatDao.insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
                     getGroupChat(groupChatFirebase);
+                }
 
-//                    if (Tools.isSecondAdmin() || Tools.isSuperAdmin()){
-//                        CoreApplication.get().getAppDb().interfaceDao().insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
-//                        getGroupChat(groupChatFirebase);
-//                    } else {
-//                        if ((groupChatFirebase.getNama().equalsIgnoreCase(namaKota)) || (groupChatFirebase.getNama().equalsIgnoreCase(namaUniv) || groupChatFirebase.getNama().equalsIgnoreCase("nasional"))
-//                                || (groupChatFirebase.getNama().equalsIgnoreCase("alumni "+alumniCabang))){
-//                            CoreApplication.get().getAppDb().interfaceDao().insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
-//                            getGroupChat(groupChatFirebase);
-//                        }
-//                    }
+                if (!Tools.isNonLK()) {
+                    User user = userDao.getUser();
+                    checkGroup(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
                 }
             }
 
@@ -326,6 +301,26 @@ public class LoadDataActivityViewModel extends ViewModel {
 
             }
         });
+    }
+
+    private void checkGroup(String cabang, String komisariat, String alumniCabang) {
+        if (cabang != null && !cabang.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName(cabang) == null && masterDao.getMasterCabang().contains(cabang)){
+                addGroupChat(cabang);
+            }
+        }
+
+        if (komisariat != null && !komisariat.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName(komisariat) == null && masterDao.getMasterKomisariat().contains(komisariat)){
+                addGroupChat(komisariat);
+            }
+        }
+
+        if (alumniCabang != null && !alumniCabang.trim().isEmpty()){
+            if (groupChatDao.getGroupChatByName("Alumni "+alumniCabang) == null && masterDao.getMasterCabang().contains(alumniCabang)){
+                addGroupChat("Alumni "+alumniCabang);
+            }
+        }
     }
 
     private void getGroupChat(GroupChatFirebase groupChatFirebase){
@@ -467,48 +462,84 @@ public class LoadDataActivityViewModel extends ViewModel {
                                 boolean insert = true;
                                 if (training.getNama_training().contains("LK1")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
-                                    contact.setLk1(training.getNama_training());
 
                                     if (training.getId_user().equals(me.get_id())) {
-                                        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 FOUND ME " + tanggalLk1);
-                                        if (tanggalLk1 != null && !tanggalLk1.isEmpty()) {
-                                            tanggalLk1Split = tanggalLk1.split("-");
-
-                                            if (tanggalLk1Split.length == 3) {
-                                                tahun_lk1 = tanggalLk1Split[2];
-
-                                                if (!foundSame && training.getTahun().equals(tahun_lk1) && training.getTempat().equalsIgnoreCase(me.getCabang())) {
-                                                    foundSame = true;
-                                                    Log.d("FOUND SAME", "FOUND SAME " + training.getTahun() + " " + training.getTempat());
-                                                }
-                                                else {
-                                                    // delete training
-                                                    Log.d("FOUND SAME", "NOT SAME " + training.getTahun() + " " + training.getTempat());
-                                                    deleteTraining(training.getId());
-                                                    insert = false;
-                                                }
-                                            }
+                                        if (Tools.isNonLK()) {
+                                            deleteTraining(training.getId());
+                                            insert = false;
+                                            foundSame = true;
                                         }
                                         else {
-                                            foundSame = true;
+                                            Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 FOUND ME " + tanggalLk1);
+                                            contact.setLk1(training.getNama_training());
+                                            if (tanggalLk1 != null && !tanggalLk1.isEmpty()) {
+                                                tanggalLk1Split = tanggalLk1.split("-");
+
+                                                if (tanggalLk1Split.length == 3) {
+                                                    tahun_lk1 = tanggalLk1Split[2];
+
+                                                    if (!foundSame && training.getTahun().equals(tahun_lk1) && training.getTempat().equalsIgnoreCase(me.getCabang())) {
+                                                        foundSame = true;
+                                                        Log.d("FOUND SAME", "FOUND SAME " + training.getTahun() + " " + training.getTempat());
+                                                    }
+                                                    else {
+                                                        // delete training
+                                                        Log.d("FOUND SAME", "NOT SAME " + training.getTahun() + " " + training.getTempat());
+                                                        deleteTraining(training.getId());
+                                                        insert = false;
+                                                    }
+                                                }
+                                            }
+                                            else {
+                                                foundSame = true;
+                                            }
                                         }
                                     }
                                     else {
                                         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS not me " + contact.getFullName());
+                                        contact.setLk1(training.getNama_training());
                                         contact.setTahun_lk1(training.getTahun());
                                     }
                                 } else if (training.getNama_training().contains("LK2")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK2 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
-                                    contact.setLk2(training.getNama_training());
+
+                                    if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
+                                        deleteTraining(training.getId());
+                                        insert = false;
+                                    }
+                                    else {
+                                        contact.setLk2(training.getNama_training());
+                                    }
                                 } else if (training.getNama_training().contains("LK3")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
-                                    contact.setLk3(training.getNama_training());
+
+                                    if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
+                                        deleteTraining(training.getId());
+                                        insert = false;
+                                    }
+                                    else {
+                                        contact.setLk3(training.getNama_training());
+                                    }
                                 } else if (training.getNama_training().contains("SC")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
-                                    contact.setSc(training.getNama_training());
+
+                                    if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
+                                        deleteTraining(training.getId());
+                                        insert = false;
+                                    }
+                                    else {
+                                        contact.setSc(training.getNama_training());
+                                    }
                                 } else if (training.getNama_training().contains("TID")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
-                                    contact.setTid(training.getNama_training());
+
+                                    if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
+                                        deleteTraining(training.getId());
+                                        insert = false;
+                                    }
+                                    else {
+                                        contact.setTid(training.getNama_training());
+                                    }
                                 }
 
                                 if (insert) {
