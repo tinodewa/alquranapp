@@ -66,6 +66,15 @@ public interface HistoryPengajuanDao {
     @Query("SELECT ph.*, plk.cabang, plk.komisariat FROM PengajuanHistory AS ph LEFT JOIN PengajuanLK1 AS plk on ph._id = plk._id WHERE ph.status = 0 ORDER BY ph.date_created DESC")
     List<PengajuanHistoryJoin> getAllListPengajuanHistory();
 
+    @Query("SELECT ph.*, plk.cabang, plk.komisariat FROM PengajuanHistory AS ph LEFT JOIN PengajuanLK1 AS plk on ph._id = plk._id WHERE ph.status = 0 AND ph.level != 2 ORDER BY ph.date_created DESC")
+    LiveData<List<PengajuanHistoryJoin>> getAllPengajuanHistorySecondAdmin();
+
+    @Query("SELECT ph.*, plk.cabang, plk.komisariat FROM PengajuanHistory AS ph LEFT JOIN PengajuanLK1 AS plk on ph._id = plk._id WHERE ph.status = 0 AND ph.level != 2 AND nama LIKE :nama ORDER BY ph.date_created DESC")
+    List<PengajuanHistoryJoin> getSearchAllPengajuanHistorySecondAdmin(String nama);
+
+    @Query("SELECT ph.*, plk.cabang, plk.komisariat FROM PengajuanHistory AS ph LEFT JOIN PengajuanLK1 AS plk on ph._id = plk._id WHERE ph.status = 0 AND ph.level != 2 ORDER BY ph.date_created DESC")
+    List<PengajuanHistoryJoin> getAllListPengajuanHistorySecondAdmin();
+
     @Query("SELECT ph.*, plk.cabang, plk.komisariat FROM PengajuanHistory AS ph LEFT JOIN PengajuanLK1 AS plk on ph._id = plk._id WHERE ph.status = 0 AND ph.level <= :level ORDER BY ph.date_created DESC")
     List<PengajuanHistoryJoin> getAllListPengajuanHistory(int level);
 
