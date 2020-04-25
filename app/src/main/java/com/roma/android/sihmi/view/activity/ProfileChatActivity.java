@@ -272,7 +272,7 @@ public class ProfileChatActivity extends BaseActivity {
                         otherUser.setId_level(level);
                         otherUser.setId_roles(levelDao.getIdRoles(level));
                         contactDao.insertContact(otherUser);
-                        sendNotif(otherUser.get_id(), "-1");
+                        sendNotif(otherUser.get_id(), "1");
                         Tools.showToast(ProfileChatActivity.this, "Berhasil menjadikan admin");
                         finish();
                     }

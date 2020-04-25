@@ -216,12 +216,9 @@ public class DetailReportActivity extends BaseActivity {
         }
         else if (Tools.isAdmin3()){
             query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
-
-            whereClause = "tahun_daftar";
         }
         else if (isSuperadminAlumni) {
             query = Query.countReportAlumniAdmin3(cabangName);
-            whereClause = "tahun_daftar";
         }
         else {
             query = Query.countReportKaderLA2();
@@ -329,13 +326,15 @@ public class DetailReportActivity extends BaseActivity {
     private List<DataGrafik> getListKaderGender(){
         String query = getQuery();
 
+        String whereClause = "tahun_lk1";
+
         List<DataGrafik> list = new ArrayList<>();
         for (int i = now; i >= 1947 ; i--) {
             int tahun = i;
             int l = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND tahun_lk1 = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND "+ whereClause +" = '"+i+"';"));
             int p = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND tahun_lk1 = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND "+ whereClause +" = '"+i+"';"));
             int total = l+p;
             list.add(new DataGrafik(tahun, total, p, l));
         }
@@ -346,9 +345,6 @@ public class DetailReportActivity extends BaseActivity {
         kaderAdapter = new LaporanGrafikAdapter(this, getListKaderGender(), dataGrafik -> {
             if (dataGrafik.getJumlah() > 0) {
                 String whereClause = "tahun_lk1";
-                if (isSuperadminAlumni || Tools.isAdmin3()) {
-                    whereClause = "tahun_daftar";
-                }
 
                 Log.d("GET TAHUN", "GET TAHUN "+dataGrafik.getTahun());
                 showDialogUser(getObjectQuery() + " AND " + whereClause + " = '" + dataGrafik.getTahun() + "'");
