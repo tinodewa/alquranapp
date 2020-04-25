@@ -384,9 +384,24 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                 sendNotif(contact.get_id(), "4");
                             }
 
-                            String idRoles = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan).getId_roles();
+                            PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
+                            String idRoles = pengajuanHistory.getId_roles();
                             int id_level = levelDao.getIdLevelByIdRole(idRoles);
-                            contactDao.updateRolesUser(contact.get_id(), idRoles, id_level);
+
+                            contact.setId_roles(idRoles);
+                            contact.setId_level(id_level);
+
+                            if (level == 2) {
+                                // update tanggalLk1 and tahunLk1 after approving kader
+                                String tanggalLk1 = pengajuanHistory.getTanggal_lk1();
+                                String tahunLk1 = tanggalLk1.split("-")[2];
+
+                                contact.setTanggal_lk1(tanggalLk1);
+                                contact.setTahun_lk1(tahunLk1);
+                            }
+
+                            contactDao.insertContact(contact);
+
                             historyPengajuanDao.updateApprovePengajuan(id_pengajuan);
                         }
                     }

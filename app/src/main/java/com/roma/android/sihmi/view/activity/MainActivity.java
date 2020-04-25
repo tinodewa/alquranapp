@@ -667,7 +667,7 @@ public class MainActivity extends BaseActivity
         updatePhoto();
 
         Constant.logout();
-        appDb.clearAllTables();
+        new Handler().postDelayed(() -> appDb.clearAllTables(), 1000);
         if (Constant.getSizeAccount() > 0) {
             startActivity(new Intent(MainActivity.this, SwitchAccountActivity.class));
         } else {

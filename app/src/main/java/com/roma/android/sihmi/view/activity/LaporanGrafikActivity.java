@@ -203,32 +203,6 @@ public class LaporanGrafikActivity extends BaseActivity {
             String queryNonLkTahun = Query.countReportSuperAdminNonLK(i);
             String queryLkTahun = Query.countReportSuperAdmin(i);
 
-//            if (type.equals(Constant.M_CABANG)) {
-//                if (!value.contains(getString(R.string.semua))) {
-//                    queryNonLk += "AND cabang = '" + value + "' ";
-//                    queryLk += "AND cabang = '" + value + "' ";
-//                } else {
-//                    queryNonLk += "AND cabang IS NOT NULL   AND   cabang NOT LIKE ''   AND   cabang NOT LIKE ' ' ";
-//                    queryLk += "AND cabang IS NOT NULL   AND   cabang NOT LIKE ''   AND   cabang NOT LIKE ' ' ";
-//                }
-//            } else if (type.equals(Constant.M_KOMISARIAT)) {
-//                if (!value.contains(getString(R.string.semua))) {
-//                    queryNonLk += "AND komisariat = '" + value + "' ";
-//                    queryLk += "AND komisariat = '" + value + "' ";
-//                } else {
-//                    queryNonLk += "AND komisariat IS NOT NULL   AND   komisariat NOT LIKE ''   AND   komisariat NOT LIKE ' ' ";
-//                    queryLk += "AND komisariat IS NOT NULL   AND   komisariat NOT LIKE ''   AND   komisariat NOT LIKE ' ' ";
-//                }
-//            } else if (type.equals(Constant.M_ALUMNI)) {
-//                if (!value.contains(getString(R.string.semua))) {
-//                    queryNonLk += "AND domisili_cabang = '" + value + "' ";
-//                    queryLk += "AND domisili_cabang = '" + value + "' ";
-//                } else {
-//                    queryNonLk += "AND domisili_cabang IS NOT NULL   AND   domisili_cabang NOT LIKE ''   AND   domisili_cabang NOT LIKE ' ' ";
-//                    queryLk += "AND domisili_cabang IS NOT NULL   AND   domisili_cabang NOT LIKE ''   AND   domisili_cabang NOT LIKE ' '";
-//                }
-//            }
-
             if (!value.contains(getString(R.string.semua))) {
                 if (type.equals(Constant.M_CABANG)) {
                     queryNonLkTahun += "AND cabang = '" + value + "' ";
@@ -240,8 +214,6 @@ public class LaporanGrafikActivity extends BaseActivity {
                     queryNonLkTahun += "AND domisili_cabang = '" + value + "' ";
                     queryLkTahun += "AND domisili_cabang = '" + value + "' ";
                 }
-            } else {
-
             }
 
             int NonLK = contactDao.countRawQueryContact(new SimpleSQLiteQuery(queryNonLkTahun));
@@ -287,10 +259,6 @@ public class LaporanGrafikActivity extends BaseActivity {
     }
 
     private void initPieChart(int total1, int total2, String ket1, String ket2) {
-
-//        double total =  totLk+totNonLk;
-//        double percentNon = ((double) totNonLk / total) * 100;
-//        double percentLk = 100 - percentNon;
         double total = total1 + total2;
         double percent2 = ((double) total2 / total) * 100;
         double percent1 = 100 - percent2;
@@ -395,45 +363,6 @@ public class LaporanGrafikActivity extends BaseActivity {
         rvDataPelatihan.setLayoutManager(new LinearLayoutManager(this));
         rvDataPelatihan.setAdapter(pelatihanAdapter);
 
-    }
-
-    private List<DataGrafik> getListGrafik(int type) {
-        grafikList = new ArrayList<>();
-        String query = "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20) ";
-        if (type == 1) { // Admin Alumni
-//            query += " AND domisili_cabang = '"+user.getDomisili_cabang()+"' ";
-            query += " AND domisili_cabang != '' ";
-        } else if (type == 2) {  // Admin Komisariat
-            query += " AND komisariat = '" + user.getKomisariat() + "' ";
-        } else if (type == 3) { // Admin Cabang -> LA1
-            query += " AND cabang = '" + user.getCabang() + "' ";
-        }
-
-        for (int i = now; i >= batas_tahun; i--) {
-            int tahun = i;
-            int l = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query + " AND jenis_kelamin = '0' AND tahun_daftar = '" + i + "';"));
-            int p = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query + " AND jenis_kelamin = '1' AND tahun_daftar = '" + i + "';"));
-            int total = l + p;
-            grafikList.add(new DataGrafik(tahun, total, p, l));
-        }
-        return grafikList;
-    }
-
-    private List<DataGrafik> getListPelatihanGender() {
-        List<DataGrafik> list = new ArrayList<>();
-        String query = "SELECT COUNT (*) FROM Contact WHERE (id_level != 19 AND id_level !=20) AND (lk1 != '' OR lk2 != '' OR lk3 != '' OR sc != '' OR tid != '') ";
-        for (int i = now; i >= batas_tahun; i--) {
-            int tahun = i;
-            int l = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query + " AND jenis_kelamin = '0' AND tahun_daftar = '" + i + "';"));
-            int p = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query + " AND jenis_kelamin = '1' AND tahun_daftar = '" + i + "';"));
-            int total = l + p;
-            list.add(new DataGrafik(tahun, total, p, l));
-        }
-        return list;
     }
 
 }

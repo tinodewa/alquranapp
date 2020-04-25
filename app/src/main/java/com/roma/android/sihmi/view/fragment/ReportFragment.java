@@ -302,7 +302,7 @@ public class ReportFragment extends Fragment {
         }
         ArrayList alumni = new ArrayList();
         for (int i = batas_tahun; i <= now; i++) {
-            String query = Query.countReportAlumniAdmin3(domisiliCabang) + " AND tahun_daftar ='" + i + "'";
+            String query = Query.countReportAlumniAdmin3(domisiliCabang) + " AND tahun_lk1 ='" + i + "'";
             int count = contactDao.countRawQueryContact(new SimpleSQLiteQuery(query));
             alumni.add(new Entry(i, (float) count));
         }
@@ -357,10 +357,10 @@ public class ReportFragment extends Fragment {
             query = Query.countReportKaderAdmin2(cabangName);
         }
         else if (Tools.isAdmin3()) {
-            query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
+            query = Query.countReportKaderAdmin3(user.getDomisili_cabang());
         }
         else if (isSuperadminAlumni) {
-            query = Query.countReportAlumniAdmin3(cabangName);
+            query = Query.countReportKaderAdmin3(cabangName);
         }
         else {
             query = Query.countReportKaderLA2();
@@ -413,21 +413,24 @@ public class ReportFragment extends Fragment {
     private void pelatihanKader(boolean slider) {
         List<DataKader> list = new ArrayList<>();
 
-        String query = "SELECT COUNT (*) FROM Training WHERE (id_level != " + Constant.USER_SECOND_ADMIN + " AND id_level != " + Constant.USER_SUPER_ADMIN + ") AND (tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        String query;
         if (Tools.isAdmin1()) {
-            query += " AND komisariat = '" + user.getKomisariat() + "' ";
+            query = Query.countPelatihanAdmin1(user.getKomisariat());
         }
         else if (isSuperadminKomisariat) {
-            query += " AND komisariat = '" + komisariatName + "' ";
+            query = Query.countPelatihanAdmin1(komisariatName);
         }
         else if (Tools.isAdmin2() || Tools.isLA1()) {
-            query += " AND cabang = '" + user.getCabang() + "' ";
+            query = Query.countPelatihanAdmin2(user.getCabang());
         }
         else if (isSuperadminCabang || isSuperadminAlumni) {
-            query += " AND cabang = '" + cabangName + "' ";
+            query = Query.countPelatihanAdmin2(cabangName);
         }
         else if (Tools.isAdmin3()) {
-            query += " AND cabang = '" + user.getDomisili_cabang() + "' ";
+            query = Query.countPelatihanAdmin2(user.getDomisili_cabang());
+        }
+        else {
+            query = Query.countPelatihanLA2();
         }
 
         int lk1 = trainingDao.countRawQueryTraining(
@@ -512,11 +515,11 @@ public class ReportFragment extends Fragment {
     private void dataKader() {
         String query;
         if (isSuperadminAlumni) {
-            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND domisili_cabang = '" + cabangName + "' AND " +
+            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 1 AND id_level != 19 AND id_level !=20) AND domisili_cabang = '" + cabangName + "' AND " +
                     "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
         }
         else {
-            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 19 AND id_level !=20) AND domisili_cabang = '" + user.getDomisili_cabang() + "' AND " +
+            query = "SELECT COUNT (*) FROM Training WHERE (id_level != 1 AND id_level != 19 AND id_level !=20) AND domisili_cabang = '" + user.getDomisili_cabang() + "' AND " +
                     "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
         }
 
