@@ -460,7 +460,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                                 Contact contact = contactDao.getContactById(training.getId_user());
 
                                 boolean insert = true;
-                                if (training.getNama_training().contains("LK1")) {
+                                if (training.getTipe().contains("LK1")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
 
                                     if (training.getId_user().equals(me.get_id())) {
@@ -471,7 +471,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                                         }
                                         else {
                                             Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK1 FOUND ME " + tanggalLk1);
-                                            contact.setLk1(training.getNama_training());
+                                            contact.setLk1(training.getTipe());
                                             if (tanggalLk1 != null && !tanggalLk1.isEmpty()) {
                                                 tanggalLk1Split = tanggalLk1.split("-");
 
@@ -497,10 +497,10 @@ public class LoadDataActivityViewModel extends ViewModel {
                                     }
                                     else {
                                         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS not me " + contact.getFullName());
-                                        contact.setLk1(training.getNama_training());
+                                        contact.setLk1(training.getTipe());
                                         contact.setTahun_lk1(training.getTahun());
                                     }
-                                } else if (training.getNama_training().contains("LK2")) {
+                                } else if (training.getTipe().contains("LK2")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK2 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
 
                                     if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
@@ -508,9 +508,9 @@ public class LoadDataActivityViewModel extends ViewModel {
                                         insert = false;
                                     }
                                     else {
-                                        contact.setLk2(training.getNama_training());
+                                        contact.setLk2(training.getTipe());
                                     }
-                                } else if (training.getNama_training().contains("LK3")) {
+                                } else if (training.getTipe().contains("LK3")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
 
                                     if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
@@ -518,9 +518,9 @@ public class LoadDataActivityViewModel extends ViewModel {
                                         insert = false;
                                     }
                                     else {
-                                        contact.setLk3(training.getNama_training());
+                                        contact.setLk3(training.getTipe());
                                     }
-                                } else if (training.getNama_training().contains("SC")) {
+                                } else if (training.getTipe().contains("SC")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
 
                                     if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
@@ -528,9 +528,9 @@ public class LoadDataActivityViewModel extends ViewModel {
                                         insert = false;
                                     }
                                     else {
-                                        contact.setSc(training.getNama_training());
+                                        contact.setSc(training.getTipe());
                                     }
-                                } else if (training.getNama_training().contains("TID")) {
+                                } else if (training.getTipe().contains("TID")) {
                                     Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS training detail LK3 " + contact.getFullName() + " iduser " + training.getId_user() + " " + me.get_id());
 
                                     if (training.getId_user().equals(me.get_id()) && Tools.isNonLK()) {
