@@ -36,11 +36,13 @@ import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
+import com.roma.android.sihmi.model.database.entity.Chating;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.notification.Data;
 import com.roma.android.sihmi.model.database.entity.notification.NotifResponse;
 import com.roma.android.sihmi.model.database.entity.notification.Sender;
 import com.roma.android.sihmi.model.database.entity.notification.Token;
+import com.roma.android.sihmi.model.database.interfaceDao.ChatingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.NotifClient;
@@ -105,6 +107,7 @@ public class ChatActivity extends BaseActivity {
     AppDb appDb;
     UserDao userDao;
     ContactDao contactDao;
+    ChatingDao chatingDao;
 
     List<Chat> list;
 
@@ -195,6 +198,7 @@ public class ChatActivity extends BaseActivity {
         appDb = AppDb.getInstance(this);
         userDao = appDb.userDao();
         contactDao = appDb.contactDao();
+        chatingDao = appDb.chatingDao();
 
         myuser = userDao.getUser().get_id();
         otheruser = getIntent().getStringExtra("iduser");
@@ -202,6 +206,10 @@ public class ChatActivity extends BaseActivity {
 
         id_other_user = getIntent().getStringExtra("iduser");
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
+
+        Chating thisChating = chatingDao.getChatingById(otherUser.get_id());
+        thisChating.setUnread(0);
+        chatingDao.insertChating(thisChating);
 
         readMessage();
     }
@@ -447,30 +455,6 @@ public class ChatActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: chatactivity 359");
                 new sendNotifAsycn(receiver, username, message).execute(dataSnapshot);
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Token token = snapshot.getValue(Token.class);
-//                    Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, username+": "+message, "New Message",
-//                            otheruser);
-//
-//                    Sender sender = new Sender(data, token.getToken());
-//
-//                    sendNotifService.sendNotification(sender)
-//                            .enqueue(new Callback<NotifResponse>() {
-//                                @Override
-//                                public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
-//                                    if (response.code() == 200){
-//                                        if (response.body().success != 1){
-////                                            Toast.makeText(ChatActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFailure(Call<NotifResponse> call, Throwable t) {
-//
-//                                }
-//                            });
-//                }
             }
 
             @Override
@@ -504,7 +488,7 @@ public class ChatActivity extends BaseActivity {
                             public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
                                 if (response.code() == 200){
                                     if (response.body().success != 1){
-//                                            Toast.makeText(ChatActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
+                                        Log.d("Notification", "Failed to send notification");
                                     }
                                 }
                             }

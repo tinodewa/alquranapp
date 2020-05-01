@@ -15,7 +15,6 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
 import com.roma.android.sihmi.model.database.entity.Chating;
-import com.roma.android.sihmi.model.database.entity.Chatlist;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.entity.GroupChatFirebase;
@@ -43,7 +42,6 @@ import com.roma.android.sihmi.service.AgendaWorkManager;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -72,8 +70,6 @@ public class LoadDataActivityViewModel extends ViewModel {
     private MutableLiveData<Boolean> isLoggedOut;
     private Context context;
 
-    private List<Chatlist> list;
-
     public void init(Context context) {
         this.context = context;
         appDb = AppDb.getInstance(context);
@@ -91,8 +87,6 @@ public class LoadDataActivityViewModel extends ViewModel {
         loadDataError.setValue(false);
         isLoggedOut = new MutableLiveData<>();
         isLoggedOut.setValue(false);
-
-        list = new ArrayList<>();
 
         token = Constant.getToken();
     }
@@ -125,8 +119,6 @@ public class LoadDataActivityViewModel extends ViewModel {
                 if (response.isSuccessful()){
                     assert response.body() != null;
                     if (response.body().getStatus().equalsIgnoreCase("ok")){
-                        User user = userDao.getUser();
-                        String alumni_cabang = user.getDomisili_cabang() != null ? user.getDomisili_cabang() : "";
                         masterDao.insertMaster(response.body().getData());
                         getListGroupChat();
                         new Handler().postDelayed(() -> getLevel(), 1000);
@@ -626,63 +618,16 @@ public class LoadDataActivityViewModel extends ViewModel {
 
     private void getPersonalChat() {
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getPersonalChat");
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chatlist").child(userDao.getUser().get_id());
-        reference.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                new ListChatAsync().execute(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+        getListChating();
     }
 
-    @SuppressLint("StaticFieldLeak")
-    private class ListChatAsync extends AsyncTask<DataSnapshot, Void, Boolean> {
-        @Override
-        protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
-            list.clear();
-            for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
-                Chatlist chatlist = snapshot.getValue(Chatlist.class);
-                list.add(chatlist);
-            }
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean aBoolean) {
-            super.onPostExecute(aBoolean);
-            chatList();
-        }
-    }
-
-    private void chatList(){
-        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on chatList");
-        List<Contact> contactList = new ArrayList<>();
-        List<Contact> contactList1 = this.contactDao.getAllListContact("%"+userDao.getUser().get_id()+"%");
-
-        if (contactList1.size()>0) {
-            for (Contact contact : contactList1) {
-                for (Chatlist chatlist : list) {
-                    if (contact.get_id().equals(chatlist.get_id())) {
-                        contactList.add(contact);
-                    }
-                }
-            }
-        }
-        getListChating(contactList);
-    }
-
-    private void getListChating(List<Contact> contactList) {
+    private void getListChating() {
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListChating");
         DatabaseReference referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
         referenceChats.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                new getListChatingAsync(contactList).execute(dataSnapshot);
+                new getListChatingAsync().execute(dataSnapshot);
             }
 
             @Override
@@ -694,43 +639,41 @@ public class LoadDataActivityViewModel extends ViewModel {
 
     @SuppressLint("StaticFieldLeak")
     private class getListChatingAsync extends AsyncTask<DataSnapshot, Void, Boolean> {
-        List<Contact> contactList;
-
-        getListChatingAsync(List<Contact> contactList) {
-            this.contactList = contactList;
-        }
 
         @Override
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
-            List<Chating> thisChating;
             try {
-                for (int i = 0; i < contactList.size(); i++) {
-                    String myuserid = userDao.getUser().get_id();
-                    int unReadCount = 0;
-                    for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
-                        Chat chat = snapshot.getValue(Chat.class);
-                        String userid = list.get(i).get_id();
-                        thisChating = chatingDao.getChatingById(userid);
-                        if (chat != null && (chat.getReceiver().equals(myuserid) && chat.getSender().equals(userid) ||
-                                chat.getReceiver().equals(userid) && chat.getSender().equals(myuserid))) {
-                            if ((thisChating.size() > 0 && chat.getTime() >= thisChating.get(0).getTime_message()) || thisChating.size() == 0) {
-                                if (!chat.isIsseen()) {
-                                    unReadCount++;
-                                }
-                                String lastMsg;
-                                if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
-                                    lastMsg = Constant.IMAGE;
-                                } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
-                                    lastMsg = Constant.DOCUMENT;
-                                } else {
-                                    lastMsg = chat.getMessage();
-                                }
-                                String name = contactDao.getContactById(userid).getFullName();
-                                chatingDao.insertChating(new Chating(userid, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unReadCount));
+                String myuserid = userDao.getUser().get_id();
+                for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
+                    Chat chat = snapshot.getValue(Chat.class);
+                    if (chat != null && (chat.getSender().equals(myuserid) || chat.getReceiver().equals(myuserid))) {
+                        String userId;
+                        if (chat.getSender().equals(myuserid)) {
+                            userId = chat.getReceiver();
+                        }
+                        else {
+                            userId = chat.getSender();
+                        }
+
+                        Chating thisChating = chatingDao.getChatingById(userId);
+
+                        if (thisChating == null || chat.getTime() > thisChating.getTime_message()) {
+                            int unreadCount = (thisChating != null) ? thisChating.getUnread() : 0;
+                            if (chat.getSender().equals(userId) && !chat.isIsseen()) {
+                                unreadCount++;
                             }
+                            String lastMsg;
+                            if (chat.getType().equalsIgnoreCase(Constant.IMAGE)) {
+                                lastMsg = Constant.IMAGE;
+                            } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)) {
+                                lastMsg = Constant.DOCUMENT;
+                            } else {
+                                lastMsg = chat.getMessage();
+                            }
+                            String name = contactDao.getContactById(userId).getFullName();
+                            chatingDao.insertChating(new Chating(userId, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unreadCount));
                         }
                     }
-
                 }
             } catch (Exception e){
                 e.printStackTrace();

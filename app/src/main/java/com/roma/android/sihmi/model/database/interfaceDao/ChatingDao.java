@@ -20,8 +20,8 @@ public interface ChatingDao {
     @Query("SELECT * FROM Chating ORDER BY time_message DESC")
     LiveData<List<Chating>> getListChating();
 
-    @Query("SELECT * FROM Chating WHERE _id = :id")
-    List<Chating> getChatingById(String id);
+    @Query("SELECT * FROM Chating WHERE _id = :id LIMIT 1")
+    Chating getChatingById(String id);
 
     @Query("SELECT * FROM Chating WHERE name LIKE :name ORDER BY time_message DESC")
     List<Chating> getSearchChating(String name);

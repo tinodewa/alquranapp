@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,11 +21,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.messaging.RemoteMessage;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
@@ -229,6 +232,11 @@ public class ChatGroupActivity extends BaseActivity {
         rvChat.setLayoutManager(llm);
         rvChat.setHasFixedSize(true);
         rvChat.setAdapter(adapter);
+
+    }
+
+    private void sendNotification() {
+
 
     }
 
