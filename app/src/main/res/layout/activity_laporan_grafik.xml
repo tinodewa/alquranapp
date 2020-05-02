@@ -59,7 +59,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="4dp"
                                 android:text="SIHMI"
-                                android:textColor="@android:color/black"
+                                android:textColor="?attr/textcolor"
                                 android:textSize="24sp"
                                 android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                         android:layout_height="wrap_content"
                         android:layout_margin="8dp"
                         android:text="@string/pengguna_sihmi"
-                        android:textColor="@android:color/black"
+                        android:textColor="?attr/textcolor"
                         android:textSize="18sp"
                         android:textStyle="bold" />
 
@@ -145,14 +145,14 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:text="@string/tahun"
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="?attr/textcolor" />
 
                                 <TextView
                                     android:layout_width="0dp"
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:text="@string/jumlah"
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="?attr/textcolor" />
 
                                 <TextView
                                     android:id="@+id/tv_kader"
@@ -160,7 +160,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:text="@string/kader"
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="?attr/textcolor" />
 
                                 <TextView
                                     android:id="@+id/tv_non_kader"
@@ -168,7 +168,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:text="@string/non_kader"
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="?attr/textcolor" />
 
                             </LinearLayout>
 
@@ -217,7 +217,7 @@
                             android:layout_height="wrap_content"
                             android:layout_margin="8dp"
                             android:text="@string/grafik"
-                            android:textColor="@android:color/black"
+                            android:textColor="?attr/textcolor"
                             android:textSize="18sp"
                             android:textStyle="bold" />
 
@@ -255,28 +255,28 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/tahun"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK 1"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK 2"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK 3"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
 
                             <TextView
@@ -284,14 +284,14 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="SC"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="TID"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                         </LinearLayout>
 

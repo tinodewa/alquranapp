@@ -11,6 +11,7 @@ import com.google.gson.annotations.SerializedName;
 public class Training {
     @PrimaryKey
     @NonNull
+    @SerializedName("_id")
     String id;
     String id_user;
     int id_level;

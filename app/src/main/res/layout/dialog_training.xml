@@ -21,11 +21,13 @@
         android:orientation="horizontal">
 
         <Spinner
+            android:textColor="?attr/textcolor"
             android:id="@+id/sp_training"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="4dp"/>
+
         <EditText
             android:textColor="?attr/textcolor"
             android:id="@+id/etTipe"
@@ -44,13 +46,6 @@
             android:hint="@string/tahun_training"
             android:inputType="number"/>
     </LinearLayout>
-
-    <EditText
-        android:textColor="?attr/textcolor"
-        android:id="@+id/etNama"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/nama_training"/>
 
     <EditText
         android:textColor="?attr/textcolor"

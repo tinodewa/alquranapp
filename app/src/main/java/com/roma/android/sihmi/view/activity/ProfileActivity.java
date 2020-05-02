@@ -197,6 +197,7 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
         setText(etAlamatDomisili, user.getAlamat());
 
         urlImage = user.getImage();
+        Tools.initial(ivInitial, user.getNama_depan());
         if (user.getImage() != null && !user.getImage().isEmpty()  && !user.getImage().equals(" ")){
             Glide.with(ProfileActivity.this)
                     .load(Uri.parse(user.getImage()))
@@ -205,7 +206,6 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
             ivPhoto.setVisibility(View.VISIBLE);
             fabDel.setVisibility(View.VISIBLE);
         } else {
-            Tools.initial(ivInitial, user.getNama_depan());
             ivInitial.setVisibility(View.VISIBLE);
             ivPhoto.setVisibility(View.GONE);
             fabDel.setVisibility(View.GONE);
@@ -525,24 +525,6 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
         contact.setTanggal_lk1(user.getTanggal_lk1());
         contact.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(contact.getTanggal_daftar())));
 
-        if (contact.getTanggal_lk1() != null && !contact.getTanggal_lk1().trim().isEmpty()){
-            String[] lk1 = contact.getTanggal_lk1().split("-");
-            contact.setTahun_lk1(lk1[2]);
-            Training training = new Training();
-            training.setId(contact.get_id()+"-LK1 (Basic Training)");
-            training.setId_user(contact.get_id());
-            training.setId_level(contact.getId_level());
-            training.setTipe("LK1 (Basic Training)");
-            training.setTahun(lk1[2]);
-            training.setCabang(contact.getCabang());
-            training.setKomisariat(contact.getKomisariat());
-            training.setDomisili_cabang(contact.getDomisili_cabang());
-            training.setJenis_kelamin(contact.getJenis_kelamin());
-            if (trainingDao.checkTrainingAvailable(contact.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
-                trainingDao.insertTraining(training);
-            }
-        }
-
         contactDao.insertContact(contact);
     }
 
@@ -574,6 +556,8 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
                                         .load(Uri.parse(url))
                                         .into(ivPhoto);
                             }
+                            user.setImage(url);
+                            userDao.updatePhoto(user.get_id(), url);
                             setResult(Activity.RESULT_OK);
 
                         } else {
@@ -609,6 +593,7 @@ public class ProfileActivity extends BaseActivity implements EasyPermissions.Per
                 if (response.isSuccessful()) {
                     if (response.body().getStatus().equalsIgnoreCase("ok")) {
                         userDao.updateProfile(user.get_id(), nama, nama_panggilan, jenis_kelamin, no_hp, alamat);
+                        userDao.updatePhoto(user.get_id(), user.getImage());
                         setResult(Activity.RESULT_OK);
                         finish();
                     } else {

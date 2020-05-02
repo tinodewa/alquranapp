@@ -110,7 +110,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         String firstLetter = String.valueOf(user.getFullName().charAt(0));
         ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
         // generate random color
-        int color = generator.getColor(chating);
+        int color = generator.getColor(firstLetter);
         //int color = generator.getRandomColor();
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(firstLetter, color); // radius in px

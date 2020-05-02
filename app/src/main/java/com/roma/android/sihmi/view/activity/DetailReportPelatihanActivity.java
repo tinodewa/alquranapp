@@ -66,11 +66,44 @@ public class DetailReportPelatihanActivity extends BaseActivity {
     User user;
     int tahun;
 
+    public static final String SUPERADMIN_KOMISARIAT = "__superadmin_komisariat_mode__";
+    public static final String SUPERADMIN_CABANG = "__superadmin_cabang_mode__";
+    public static final String KOMISARIAT_NAME = "__komisariat_name__";
+    public static final String CABANG_NAME = "__cabang_name__";
+
+    private boolean isSuperadminKomisariat = false;
+    private boolean isSuperadminCabang = false;
+
+    private String komisariatName, cabangName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_report_pelatihan);
         ButterKnife.bind(this);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+
+            isSuperadminKomisariat = intent.getBooleanExtra(DetailReportPelatihanActivity.SUPERADMIN_KOMISARIAT, false);
+            isSuperadminCabang = intent.getBooleanExtra(DetailReportPelatihanActivity.SUPERADMIN_CABANG, false);
+
+            if (isSuperadminKomisariat) {
+                komisariatName = intent.getStringExtra(DetailReportPelatihanActivity.KOMISARIAT_NAME);
+
+                if (komisariatName == null) {
+                    finish();
+                }
+            }
+            else if (isSuperadminCabang) {
+                cabangName = intent.getStringExtra(DetailReportPelatihanActivity.CABANG_NAME);
+
+                if (cabangName == null) {
+                    finish();
+                }
+            }
+        }
+
         initModule();
         initToolbar();
         initView();
@@ -104,11 +137,19 @@ public class DetailReportPelatihanActivity extends BaseActivity {
     private String getQuery(){
         String query = "";
         if (Tools.isAdmin1()){
-            query = Query.ReportKaderAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()){
-            query = Query.ReportKaderAdmin2(user.getCabang());
-        } else {
-            query = Query.ReportKaderLA2();
+            query = Query.reportTrainingAdmin1(user.getKomisariat());
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.reportTrainingAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()){
+            query = Query.reportTrainingAdmin2(user.getCabang());
+        }
+        else if (isSuperadminCabang) {
+            query = Query.reportTrainingAdmin2(cabangName);
+        }
+        else {
+            query = Query.reportPelatihanLA2();
         }
         return query;
     }

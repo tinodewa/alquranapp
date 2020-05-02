@@ -7,6 +7,7 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.util.Patterns;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -55,6 +57,12 @@ public class Tools {
         Date currentDate = new Date(currentDateTime);
         @SuppressLint("SimpleDateFormat") DateFormat df = new SimpleDateFormat("HH:mm");
         return df.format(currentDate);
+    }
+
+    public static Long getMillisFromTimeStr(String dateStr, String format) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.getDefault());
+        Date date = sdf.parse(dateStr);
+        return date.getTime();
     }
 
     public static String getTimeAMPMFromMillis(long currentDateTime) {
@@ -422,6 +430,21 @@ public class Tools {
         builder.create().show();
     }
 
+    public static void showDialogCustom(Context context, String title, String message, String positiveButton, String ket, ListenerHelper listenerHelper){
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(ket);
+                        dialog.dismiss();
+                    }
+                });
+        builder.create().show();
+    }
+
     public static void showDialogCustom(Context context, String title, String message, String textButton){
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context)
                 .setTitle(title)
@@ -453,30 +476,19 @@ public class Tools {
     }
 
     // dialog untuk super admin dan second admin
-    public static void showDialogType(Context context, EditText etType, EditText etNamaType){
-//        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context);
-//        String[] namaType = context.getResources().getStringArray(R.array.nama_type);
-//        builder.setItems(namaType, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                Constant.setTypeData(which);
-//                etType.setText(namaType[which]);
-//                String[] namaType;
-//                if (which == 0){
-//                    namaType = new String[1];
-//                    namaType[0] = "PB HMI";
-//                } else if (which == 1){
-//                    List<String> cabang = CoreApplication.get().getAppDb().interfaceDao().getMasterCabang();
-//                    namaType = cabang.toArray(new String[cabang.size()]);
-//                } else {
-//                    List<String> komisariat = CoreApplication.get().getAppDb().interfaceDao().getMasterKomisariat();
-//                    namaType = komisariat.toArray(new String[komisariat.size()]);
-//                }
-//                etNamaType.setText(namaType[0]);
-//            }
-//        });
-//        androidx.appcompat.app.AlertDialog dialog = builder.create();
-//        dialog.show();
+    public static void showDialogType(Context context, ListenerHelper listenerHelper){
+        String[] list = {"Cabang", "Komisariat", "Nasional"};
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(list[which]);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
     }
 
     // dialog tindakan
@@ -564,28 +576,18 @@ public class Tools {
         dialog.show();
     }
 
-    public static void showDialogNamaType(Context context, EditText etNamaType){
-//        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context);
-//        String[] namaType;
-//        int type = Constant.getTypeData();
-//        if (type == 0){
-//            namaType = new String[1];
-//            namaType[0] = "PB HMI";
-//        } else if (type == 1){
-//            List<String> cabang = CoreApplication.get().getAppDb().interfaceDao().getMasterCabang();
-//            namaType = cabang.toArray(new String[cabang.size()]);
-//        } else {
-//            List<String> komisariat = CoreApplication.get().getAppDb().interfaceDao().getMasterKomisariat();
-//            namaType = komisariat.toArray(new String[komisariat.size()]);
-//        }
-//        builder.setItems(namaType, new DialogInterface.OnClickListener() {
-//            @Override
-//            public void onClick(DialogInterface dialog, int which) {
-//                etNamaType.setText(namaType[which]);
-//            }
-//        });
-//        androidx.appcompat.app.AlertDialog dialog = builder.create();
-//        dialog.show();
+    public static void showDialogNamaType(Context context, String[] list, ListenerHelper listenerHelper) {
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerHelper.dialogYes(list[which]);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
     }
 
     public static int getType(String text){
@@ -705,7 +707,7 @@ public class Tools {
     public static void initial(ImageView imageView, String initial){
         String first = String.valueOf(initial.charAt(0));
         ColorGenerator generator = ColorGenerator.MATERIAL;
-        int color = generator.getColor(initial);
+        int color = generator.getColor(first);
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(first, color);
         imageView.setImageDrawable(drawable);
@@ -727,4 +729,17 @@ public class Tools {
             editText.setText(text);
         }
     }
+
+    public static int getScreenWidth() {
+        return Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public static int getScreenHeight() {
+        return Resources.getSystem().getDisplayMetrics().heightPixels;
+    }
+
+    public static boolean isScreenRotated(Activity activity) {
+        return activity.getWindowManager().getDefaultDisplay().getRotation() != Surface.ROTATION_0;
+    }
+
 }

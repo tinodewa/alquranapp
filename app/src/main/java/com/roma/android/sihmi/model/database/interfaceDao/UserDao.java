@@ -22,6 +22,9 @@ public interface UserDao {
     @Query("SELECT * FROM User ORDER BY _id ASC")
     User getUser();
 
+    @Query("SELECT image FROM user WHERE _id = :id")
+    LiveData<String> getImageLiveData(String id);
+
     @Query("UPDATE User SET image=:image WHERE _id = :id")
     void updatePhoto(String id, String image);
 

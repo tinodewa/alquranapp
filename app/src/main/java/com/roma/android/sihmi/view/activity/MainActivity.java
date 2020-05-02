@@ -30,6 +30,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.bumptech.glide.Glide;
@@ -54,7 +55,9 @@ import com.roma.android.sihmi.model.database.entity.User;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
+import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
+import com.roma.android.sihmi.model.response.ProfileResponse;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
 import com.roma.android.sihmi.utils.Constant;
@@ -91,6 +94,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, DrawerLayout.DrawerListener {
@@ -121,6 +125,7 @@ public class MainActivity extends BaseActivity
     NavigationView nav_view2;
 
     ImageView imageView;
+    ImageView ivInitial;
 
     User user;
     boolean doubleBackToExitPressedOnce = false;
@@ -132,6 +137,7 @@ public class MainActivity extends BaseActivity
     AppDb appDb;
     UserDao userDao;
     LevelDao levelDao;
+    MasterService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +156,7 @@ public class MainActivity extends BaseActivity
 
         user = userDao.getUser();
         language = Constant.getLanguage();
+        service = ApiClient.getInstance().getApi();
 
         try {
             if (Tools.isNonLK()) {
@@ -169,7 +176,6 @@ public class MainActivity extends BaseActivity
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.setScrimColor(Color.TRANSPARENT);
         drawer.setDrawerElevation(0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -187,6 +193,21 @@ public class MainActivity extends BaseActivity
         getNotif();
 
         requestPermission();
+
+        userDao.getImageLiveData(user.get_id()).observe(this, imageUrl -> {
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                Tools.initial(ivInitial, user.getNama_depan());
+                ivInitial.setVisibility(View.VISIBLE);
+                imageView.setVisibility(View.GONE);
+            }
+            else {
+                Glide.with(MainActivity.this)
+                        .load(Uri.parse(imageUrl))
+                        .into(imageView);
+                ivInitial.setVisibility(View.GONE);
+                imageView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     public void setToolBar(String title) {
@@ -199,6 +220,11 @@ public class MainActivity extends BaseActivity
         if (!language.equals(Constant.getLanguage())) {
             finish();
             startActivity(getIntent());
+        }
+
+        if (seenListener != null) {
+            databaseReference.removeEventListener(seenListener);
+            databaseReference.addValueEventListener(seenListener);
         }
     }
 
@@ -243,7 +269,7 @@ public class MainActivity extends BaseActivity
         TextView tv_admin = (TextView) headerView.findViewById(R.id.tv_admin);
         TextView tv_edit_profile = (TextView) headerView.findViewById(R.id.tv_edit_profile);
         imageView = (ImageView) headerView.findViewById(R.id.image_view);
-        ImageView ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
+        ivInitial = (ImageView) headerView.findViewById(R.id.iv_initial);
         FloatingActionButton fabEdit = (FloatingActionButton) headerView.findViewById(R.id.fab_edit);
 
         if (user.getImage() != null && !user.getImage().isEmpty() && !user.getImage().equals(" ")) {
@@ -409,6 +435,11 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    public void replaceFragment(Fragment fragment, Bundle arguments) {
+        fragment.setArguments(arguments);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frameContent, fragment).addToBackStack(null).commit();
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -474,6 +505,12 @@ public class MainActivity extends BaseActivity
                     doubleBackToExitPressedOnce = false;
                 }
             }, 2000);
+        }
+    }
+
+    public void backToPreviousFragment() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
         }
     }
 
@@ -572,18 +609,15 @@ public class MainActivity extends BaseActivity
                         if (response.isSuccessful()) {
                             if (response.body().getStatus().equalsIgnoreCase("success")) {
                                 Toast.makeText(MainActivity.this, getString(R.string.logout_berhasil), Toast.LENGTH_SHORT).show();
-                                clearData();
-                            } else {
-                                clearData();
-
                             }
-                        } else {
-                            clearData();
                         }
+                        Constant.logout();
+                        clearData();
                     }
 
                     @Override
                     public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                        Constant.logout();
                         clearData();
                     }
                 });
@@ -633,7 +667,7 @@ public class MainActivity extends BaseActivity
         updatePhoto();
 
         Constant.logout();
-        appDb.clearAllTables();
+        new Handler().postDelayed(() -> appDb.clearAllTables(), 1000);
         if (Constant.getSizeAccount() > 0) {
             startActivity(new Intent(MainActivity.this, SwitchAccountActivity.class));
         } else {
@@ -684,13 +718,39 @@ public class MainActivity extends BaseActivity
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification.getTo().equals(user.get_id())) {
                         if (!notification.isIsshow()) {
+                            int level = levelDao.getLevel(user.getId_roles());
+
                             if (notification.getStatus().equals("1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah));
-                            } else if (notification.getStatus().equals("2")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah));
-                            } else if (notification.getStatus().equals("3")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
+                                    if (level <= Constant.LEVEL_LK) {
+                                        logout();
+                                    }
+                                });
+                            }
+                            else if (notification.getStatus().equals("2")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
+                                    if (level > Constant.LEVEL_LK) {
+                                        logout();
+                                    }
+                                });
+                            }
+                            else if (notification.getStatus().equals("3")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
+                                    if (level == Constant.LEVEL_LK) {
+                                        logout();
+                                    }
+                                });
+                            }
+                            else if (notification.getStatus().equals("4")) {
                                 // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa));
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
+                                    if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
+                                        logout();
+                                    }
+                                });
+                            }
+                            else if (notification.getStatus().equals("-1")) {
+                                Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
                             }
                         }
 

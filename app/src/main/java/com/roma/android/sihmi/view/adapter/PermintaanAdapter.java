@@ -17,11 +17,13 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanHistoryJoin;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 
+import java.text.ParseException;
 import java.util.List;
 
 import butterknife.BindView;
@@ -29,13 +31,13 @@ import butterknife.ButterKnife;
 
 public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.ViewHolder> {
     Context context;
-    List<PengajuanHistory> list;
+    List<PengajuanHistoryJoin> list;
     itemClickListener listener;
     AppDb appDb;
     ContactDao contactDao;
     LevelDao levelDao;
 
-    public PermintaanAdapter(Context context, List<PengajuanHistory> list, itemClickListener listener) {
+    public PermintaanAdapter(Context context, List<PengajuanHistoryJoin> list, itemClickListener listener) {
         this.context = context;
         this.list = list;
         this.listener = listener;
@@ -44,7 +46,7 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
         levelDao = appDb.levelDao();
     }
 
-    public void updateData(List<PengajuanHistory> list){
+    public void updateData(List<PengajuanHistoryJoin> list){
         this.list = list;
         notifyDataSetChanged();
     }
@@ -61,7 +63,19 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
         Contact c = contactDao.getContactById(pengajuanHistory.getCreated_by());
 
         viewHolder.tvNama.setText(c.getNama_depan());
-        viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(pengajuanHistory.getDate_created()));
+        if (pengajuanHistory.getTanggal_lk1().trim().isEmpty()) {
+            viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(pengajuanHistory.getDate_created()));
+        }
+        else {
+            long dateLong;
+            try {
+                dateLong = Tools.getMillisFromTimeStr(pengajuanHistory.getTanggal_lk1().trim(), "dd-MM-yyyy");
+            } catch (ParseException e) {
+                dateLong = System.currentTimeMillis();
+                e.printStackTrace();
+            }
+            viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(dateLong));
+        }
 //        viewHolder.tvDate.setText(Tools.getDateLaporanFromMillis(System.currentTimeMillis()));
         if (pengajuanHistory.getStatus() == 0) {
             viewHolder.tvKet.setText(levelDao.getNamaLevel(pengajuanHistory.getId_roles()));
@@ -83,16 +97,16 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
 
         viewHolder.itemView.setOnClickListener(v -> {
             if (pengajuanHistory.getLevel() > 3) {
-                listener.onItemClick(Constant.DOCUMENT, pengajuanHistory.get_id()+"-"+pengajuanHistory.getFile(), c);
+                listener.onItemClick(Constant.DOCUMENT, pengajuanHistory.get_id()+"-"+pengajuanHistory.getFile(), c, pengajuanHistory);
             }
         });
 
         viewHolder.ivDetail.setOnClickListener(v -> {
-            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c);
+            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c, pengajuanHistory);
         });
 
         viewHolder.itemView.setOnClickListener(v -> {
-            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c);
+            listener.onItemClick(Constant.LIHAT, pengajuanHistory.get_id(), c, pengajuanHistory);
         });
 
         viewHolder.aSwitch.setOnClickListener(v -> {
@@ -100,12 +114,12 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
             if (pengajuanHistory.getLevel() != 1 && pengajuanHistory.getStatus() != -1) {
                 if (pengajuanHistory.getLevel() == 2 && pengajuanHistory.getStatus() == -1){
                     Tools.showDialogCustom(context, "Konfirmasi", context.getString(R.string.konfirm_akses_hapus_ket), Constant.LIHAT, ket -> {
-                        listener.onItemClick(Constant.HAPUS, pengajuanHistory.get_id(), c);
+                        listener.onItemClick(Constant.HAPUS, pengajuanHistory.get_id(), c, pengajuanHistory);
                         viewHolder.aSwitch.setChecked(false);
                     });
                 } else {
                     Tools.showDialogCustom(context, "Konfirmasi", context.getString(R.string.konfirm_akses_ket), Constant.LIHAT, ket -> {
-                        listener.onItemClick(Constant.UBAH, pengajuanHistory.get_id(), c);
+                        listener.onItemClick(Constant.UBAH, pengajuanHistory.get_id(), c, pengajuanHistory);
                     });
                 }
             }
@@ -141,6 +155,6 @@ public class PermintaanAdapter extends RecyclerView.Adapter<PermintaanAdapter.Vi
     }
 
     public interface itemClickListener{
-        void onItemClick(String type, String id_pengajuan, Contact contact);
+        void onItemClick(String type, String id_pengajuan, Contact contact, PengajuanHistory pengajuanHistory);
     }
 }

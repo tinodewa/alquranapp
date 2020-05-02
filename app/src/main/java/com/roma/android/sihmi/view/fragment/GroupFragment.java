@@ -99,12 +99,6 @@ public class GroupFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         refreshLayout.setEnabled(false);
-
-
-//        list = CoreApplication.get().getAppDb().interfaceDao().getAllGroupList();
-//        for (int i = 0; i < list.size() ; i++) {
-//            getGroupChat(list.get(i));
-//        }
         getGroupChatUnRead();
 
         return v;
@@ -154,34 +148,6 @@ public class GroupFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-
-//    private void getGroupChat(GroupChat groupChat){
-//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats_v2");
-//        reference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                int unread=0;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Chat chat = snapshot.getValue(Chat.class);
-//                    if (chat.getReceiver().equals(groupChat.getNama())) {
-//                        Log.d("testRoma", "onDataChange: "+groupChat.getNama()+" -- "+chat.getMessage());
-//                        groupChat.setLast_msg(chat.getType()+"split100x"+chat.getMessage());
-//                        groupChat.setTime(chat.getTime());
-//                        if (chat.getTime() > groupChat.getLast_seen()){
-//                            unread ++;
-//                        }
-//                        groupChat.setUnread(unread);
-//                    }
-//                    CoreApplication.get().getAppDb().interfaceDao().insertGroupChat(groupChat);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
     private void getGroupChat(){
         Log.e("roma", "onDataChange getGroupChat: Chats_v2" );
         referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
@@ -190,27 +156,6 @@ public class GroupFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: group fragment 159");
                 new getGroupChatAsync().execute(dataSnapshot);
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Chat chat = snapshot.getValue(Chat.class);
-//                    Log.d("romaa", "onDataChangeeee: "+chat.getSender()+" - "+chat.getReceiver()+" - "+chat.getMessage()+" - "+userDao.getUser().get_id());
-//
-//                    GroupChat groupChat = groupChatDao.getGroupChatByName(chat.getReceiver());
-//                    if (groupChat != null) {
-//                        groupChat.setLast_msg(chat.getType()+"split100x"+chat.getMessage());
-//                        groupChat.setTime(chat.getTime());
-//                        groupChat.setLast_seen(groupChat.getLast_seen());
-//                        Log.d("roma", "onDataChange: masuk if !=null "+chat.getSender()+" - "+chat.getReceiver()+" - "+chat.getMessage());
-//                        int unread;
-//                        if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())){
-//                            Log.d("roma", "onDataChange: masuk if unread++ "+chat.getSender()+" - "+chat.getReceiver()+" - "+chat.getMessage());
-//                            unread = groupChat.getUnread()+1;
-//                        } else {
-//                            unread = 0;
-//                        }
-//                        groupChat.setUnread(unread);
-//                        groupChatDao.insertGroupChat(groupChat);
-//                    }
-//                }
             }
 
             @Override
@@ -227,26 +172,28 @@ public class GroupFragment extends Fragment {
             try {
                 for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
                     Chat chat = snapshot.getValue(Chat.class);
-                    Log.d("romaa", "onDataChangeeee: " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage() + " - " + userDao.getUser().get_id());
 
                     GroupChat groupChat = groupChatDao.getGroupChatByName(chat.getReceiver());
                     if (groupChat != null) {
-                        groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
-                        groupChat.setTime(chat.getTime());
-                        groupChat.setLast_seen(groupChat.getLast_seen());
-                        Log.d("roma", "onDataChange: masuk if !=null " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
-                        int unread;
-                        if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())) {
-                            Log.d("roma", "onDataChange: masuk if unread++ " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
-                            unread = groupChat.getUnread() + 1;
-                        } else {
-                            unread = 0;
+                        if (chat.getTime() >= groupChat.getTime()) {
+                            groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
+                            groupChat.setTime(chat.getTime());
+                            groupChat.setLast_seen(groupChat.getLast_seen());
+                            Log.d("roma", "onDataChange: masuk if !=null " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
+                            int unread;
+                            if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())) {
+                                Log.d("roma", "onDataChange: masuk if unread++ " + chat.getSender() + " - " + chat.getReceiver() + " - " + chat.getMessage());
+                                unread = groupChat.getUnread() + 1;
+                            } else {
+                                unread = 0;
+                            }
+                            groupChat.setUnread(unread);
+                            groupChatDao.insertGroupChat(groupChat);
                         }
-                        groupChat.setUnread(unread);
-                        groupChatDao.insertGroupChat(groupChat);
                     }
                 }
-            } catch (IndexOutOfBoundsException e){
+            } catch (Exception e) {
+                e.printStackTrace();
                 return true;
             }
             return true;
@@ -261,13 +208,6 @@ public class GroupFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: groupfragment 201");
                 new getGroupChatUnReadAsync().execute(dataSnapshot);
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    GroupChatSeen groupChatSeen = snapshot.getValue(GroupChatSeen.class);
-//                    if (groupChatSeen.getId_user() != null && groupChatSeen.getId_user().equals(userDao.getUser().get_id())) {
-//                        groupChatDao.updateLastSeen(groupChatSeen.getNama(), groupChatSeen.getLast_seen());
-//                    }
-//                }sers
-//                getGroupChat();
             }
 
             @Override
@@ -314,8 +254,6 @@ public class GroupFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.e("roma", "onDestroy: ");
-//        referenceChats.removeEventListener(eventListenerChats);
-//        referenceUsers.removeEventListener(eventListenerUsers);
     }
 
     @Override

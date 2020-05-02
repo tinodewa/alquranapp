@@ -2,8 +2,10 @@ package com.roma.android.sihmi.view.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,8 +42,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.roma.android.sihmi.view.adapter.StickerAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -77,6 +81,12 @@ public class ChatGroupActivity extends BaseActivity {
     LinearLayout llAdd;
     @BindView(R.id.rlToolbar)
     RelativeLayout rlToolbar;
+    @BindView(R.id.rv_stiker)
+    RecyclerView rvStiker;
+    @BindView(R.id.activity_chat)
+    RelativeLayout rlChatActivity;
+    @BindView(R.id.chat_input_container)
+    RelativeLayout chatInputContainer;
 
     DatabaseReference databaseReference;
     ValueEventListener eventListener;
@@ -102,6 +112,49 @@ public class ChatGroupActivity extends BaseActivity {
 
         checkAdd(isAdd);
 
+        String[] strings = {"Yakusa", "Hijau Hitam", "Kawan", "Siap","Presidium", "Mainkan", "Kanda", "Ayunda", "Ada Arahan", "Adinda" ,"Ampun Senior", "Green black",
+                "Intrupsi", "Justifikasi", "Kahmi", "Ketum", "Nyimak", "Quorum", "Senior"};
+        List<String> listString = Arrays.asList(strings);
+
+        StickerAdapter stickerAdapter = new StickerAdapter(this, listString, (StickerAdapter.itemClickListener) sticker -> {
+            sendMessage(Constant.STICKER, sticker);
+        });
+
+        rvStiker.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL, false));
+        rvStiker.setHasFixedSize(true);
+        rvStiker.setAdapter(stickerAdapter);
+
+        etMessage.getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if (isKeyboardShown(etMessage.getRootView())){
+                rvStiker.setVisibility(View.VISIBLE);
+            } else {
+                rvStiker.setVisibility(View.GONE);
+            }
+
+        });
+
+        if (Constant.loadNightModeState()) {
+            rlChatActivity.setBackgroundColor(getResources().getColor(R.color.colorDarkAccent));
+            chatInputContainer.setBackgroundColor(getResources().getColor(R.color.colorDark));
+        }
+    }
+
+    private boolean isKeyboardShown(View rootView) {
+        /* 128dp = 32dp * 4, minimum button height 32dp and generic 4 rows soft keyboard */
+        final int SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD = 128;
+
+        Rect r = new Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        DisplayMetrics dm = rootView.getResources().getDisplayMetrics();
+        /* heightDiff = rootView height - status bar height (r.top) - visible frame height (r.bottom - r.top) */
+        int heightDiff = rootView.getBottom() - r.bottom;
+        /* Threshold size: dp to pixels, multiply with display density */
+        boolean isKeyboardShown = heightDiff > SOFT_KEYBOARD_HEIGHT_DP_THRESHOLD * dm.density;
+
+        Log.d("hallo", "onFocusChange isKeyboardShown ? " + isKeyboardShown + ", heightDiff:" + heightDiff + ", density:" + dm.density
+                + "root view height:" + rootView.getHeight() + ", rect:" + r);
+
+        return isKeyboardShown;
     }
 
     private void initAll(){

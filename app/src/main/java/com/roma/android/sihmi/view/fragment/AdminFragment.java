@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -99,8 +100,20 @@ public class AdminFragment extends Fragment {
             getContact();
         });
 
-        contactDao.getLiveDataListAdmin().observe(getActivity(), contacts -> {
-//            getContact();
+        LiveData<List<Contact>> liveDataContact;
+        if (Tools.isLA1()) {
+            liveDataContact = contactDao.getLiveDataListAdminForLA1(userDao.getUser().getCabang());
+        }
+        else if (Tools.isLA2()) {
+            liveDataContact = contactDao.getLiveDataListAdminForLA2();
+        }
+        else if (Tools.isSecondAdmin()) {
+            liveDataContact = contactDao.getLiveDataListAdminForSecondAdmin();
+        }
+        else {
+            liveDataContact = contactDao.getLiveDataListAdmin();
+        }
+        liveDataContact.observe(getActivity(), contacts -> {
             adapter.updateData(contacts);
             userFragment.updateTab(page, contacts.size());
             Log.d("hallogesss", "onCreateView onchange: adminFragment "+contacts.size());
@@ -127,14 +140,14 @@ public class AdminFragment extends Fragment {
     }
 
     private void changeRoles(String idUser){
-        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, 1);
+        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, Constant.LEVEL_LK);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if (response.isSuccessful()){
-                    String idRoles = levelDao.getIdRoles(1);
-                    sendNotif(idUser, "1");
-                    contactDao.updateRolesUser(idUser, idRoles);
+                    String idRoles = levelDao.getIdRoles(Constant.LEVEL_LK);
+                    sendNotif(idUser, "2");
+                    contactDao.updateRolesUser(idUser, idRoles, Constant.LEVEL_LK);
                 } else {
                     Tools.showToast(getActivity(), getString(R.string.gagal_ganti_admin));
                 }
@@ -188,23 +201,13 @@ public class AdminFragment extends Fragment {
                                 Contact c = contacts.get(i);
                                 c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
-                                if (c.getTanggal_lk1() != null && !c.getTanggal_lk1().trim().isEmpty()){
-                                    String[] lk1 = c.getTanggal_lk1().split("-");
-                                    c.setTahun_lk1(lk1[2]);
-                                    Training training = new Training();
-                                    training.setId(c.get_id()+"-LK1 (Basic Training)");
-                                    training.setId_user(c.get_id());
-                                    training.setId_level(c.getId_level());
-                                    training.setTipe("LK1 (Basic Training)");
-                                    training.setTahun(lk1[2]);
-                                    training.setCabang(c.getCabang());
-                                    training.setKomisariat(c.getKomisariat());
-                                    training.setDomisili_cabang(c.getDomisili_cabang());
-                                    training.setJenis_kelamin(c.getJenis_kelamin());
-                                    if (trainingDao.checkTrainingAvailable(c.get_id(), "LK1 (Basic Training)", lk1[2]) == null){
-                                        trainingDao.insertTraining(training);
-                                    }
+
+                                String tanggalLk1 = c.getTanggal_lk1();
+                                if (tanggalLk1 != null) {
+                                    String tahunLk1 = tanggalLk1.split("-")[2];
+                                    c.setTahun_lk1(tahunLk1);
                                 }
+
                                 contactDao.insertContact(c);
                             }
 //                            initAdapter();
@@ -256,9 +259,31 @@ public class AdminFragment extends Fragment {
                 @Override
                 public boolean onQueryTextChange(String newText) {
                     if (newText.isEmpty()){
-                        contacts = contactDao.getListAdmin();
+                        if (Tools.isLA1()) {
+                            contacts = contactDao.getListAdminForLA1(userDao.getUser().getCabang());
+                        }
+                        else if (Tools.isLA2()) {
+                            contacts = contactDao.getListAdminForLA2();
+                        }
+                        else if (Tools.isSecondAdmin()) {
+                            contacts = contactDao.getListAdminForSecondAdmin();
+                        }
+                        else {
+                            contacts = contactDao.getListAdmin();
+                        }
                     } else {
-                        contacts = contactDao.getSearchListAdmin("%" + newText + "%");
+                        if (Tools.isLA1()) {
+                            contacts = contactDao.getSearchListAdminForLA1(userDao.getUser().getCabang(), "%" + newText + "%");
+                        }
+                        else if (Tools.isLA2()) {
+                            contacts = contactDao.getSearchListAdminForLA2("%" + newText + "%");
+                        }
+                        else if (Tools.isSecondAdmin()) {
+                            contacts = contactDao.getSearchListAdminForSecondAdmin("%" + newText + "%");
+                        }
+                        else {
+                            contacts = contactDao.getSearchListAdmin("%" + newText + "%");
+                        }
                     }
                     adapter.updateData(contacts);
                     return true;

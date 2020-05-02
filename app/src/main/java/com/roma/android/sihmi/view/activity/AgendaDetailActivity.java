@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -71,6 +72,8 @@ public class AgendaDetailActivity extends BaseActivity {
     ImageView imgSend;
     @BindView(R.id.rv_comment)
     RecyclerView rvComment;
+    @BindView(R.id.cv_comment)
+    CardView cvComment;
 
     Agenda agenda;
     String id_agenda;
@@ -105,35 +108,17 @@ public class AgendaDetailActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-//        Drawable cal = getResources().getDrawable(R.drawable.ic_today);
-//        cal.setBounds(0, 0, (int)(cal.getIntrinsicWidth()*0.5), (int)(cal.getIntrinsicHeight()*0.5));
-
-//        Drawable jam = getResources().getDrawable(R.drawable.agenda_jam);
-//        jam.setBounds(0, 0, (int) (jam.getIntrinsicWidth() * 0.5), (int) (jam.getIntrinsicHeight() * 0.5));
-//
-//        Drawable lokasi = getResources().getDrawable(R.drawable.agenda_lokasi);
-//        lokasi.setBounds(0, 0, (int) (lokasi.getIntrinsicWidth() * 0.5), (int) (lokasi.getIntrinsicHeight() * 0.5));
-//
-//        Drawable tempat = getResources().getDrawable(R.drawable.ic_home);
-//        tempat.setBounds(0, 0, (int) (tempat.getIntrinsicWidth()), (int) (tempat.getIntrinsicHeight()));
-
-//        tvTgl.setCompoundDrawables(cal, null, null, null);
-//        tvJam.setCompoundDrawables(jam, null, null, null);
-//        tvTempat.setCompoundDrawables(tempat, null, null, null);
-//        tvAlamat.setCompoundDrawables(lokasi, null, null, null);
-
         String[] type = agenda.getType().split("-");
-//        tvType.setText(Tools.getStringType(type[0])+" "+type[1]);
         tvType.setText(type[1]);
         tvNama.setText(agenda.getNama());
         tvTgl.setText(Tools.getFullDateFromMillis(agenda.getDate_expired()));
         tvJam.setText(Tools.getTimeFromMillis(agenda.getDate_expired()) + getString(R.string.sampai_selesai));
         tvTempat.setText(agenda.getTempat());
         tvAlamat.setText(agenda.getLokasi());
-//        tvDesc.setText(agenda.getDeskripsi());
         if (agenda.getImage() != null && !agenda.getImage().isEmpty()) {
             Glide.with(AgendaDetailActivity.this)
                     .load(Uri.parse(agenda.getImage()))
+                    .centerCrop()
                     .into(ivImage);
             url = agenda.getImage();
         }
@@ -188,6 +173,9 @@ public class AgendaDetailActivity extends BaseActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                     AgendaComment comment = snapshot.getValue(AgendaComment.class);
                     if (comment.getId_agenda().equals(id_agenda)) {
+                        if (cvComment.getVisibility() == View.GONE) {
+                            cvComment.setVisibility(View.VISIBLE);
+                        }
                         list.add(comment);
                     }
                 }

@@ -1,5 +1,6 @@
 package com.roma.android.sihmi.view.activity;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -7,11 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
@@ -225,8 +230,6 @@ public class DataLainActivity extends BaseActivity {
         final EditText etTahun = dialogView.findViewById(R.id.et_thn_masuk);
         final EditText etJenjang = dialogView.findViewById(R.id.et_jenjang);
         final Spinner spJenjang = dialogView.findViewById(R.id.sp_jenjang);
-//        final Spinner spUniversitas = dialogView.findViewById(R.id.sp_universitas);
-//        final Spinner spFakultas = dialogView.findViewById(R.id.sp_fakultas);
         final EditText etNama = dialogView.findViewById(R.id.et_nama);
         final EditText etFakultas = dialogView.findViewById(R.id.et_fakultas);
 
@@ -235,11 +238,21 @@ public class DataLainActivity extends BaseActivity {
                 .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (!etNama.getText().toString().trim().isEmpty() && !etFakultas.getText().toString().trim().isEmpty()) {
-                            addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etFakultas.getText().toString());
-//                        addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etJurusan.getText().toString());
-                        } else {
+                        String tahun = etTahun.getText().toString();
+                        int tahunInt = Integer.parseInt(tahun);
+                        String curYear = Tools.getYearFromMillis(System.currentTimeMillis());
+                        int curYearInt = Integer.parseInt(curYear);
+
+                        if (tahun.length() > 4 || tahunInt < 1947) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
+                        }
+                        else if (tahunInt > curYearInt) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.tahun_overload));
+                        }
+                        else if (etNama.getText().toString().trim().isEmpty() || etFakultas.getText().toString().trim().isEmpty()) {
                             Tools.showToast(getApplicationContext(), getString(R.string.field_mandatory));
+                        } else {
+                            addDataPendidikan(etTahun.getText().toString(), String.valueOf(spJenjang.getSelectedItem()), etNama.getText().toString(), etFakultas.getText().toString());
                         }
                     }
                 })
@@ -302,7 +315,7 @@ public class DataLainActivity extends BaseActivity {
                         List<Training> trainingList = response.body().getData();
                         for (int i = 0; i < trainingList.size(); i++) {
                             Training training = trainingList.get(i);
-                            training.setId(training.getId_user()+training.getNama());
+                            training.setId(training.getId());
                             training.setId_user(training.getId_user());
                             training.setCabang(user.getCabang());
                             training.setKomisariat(user.getKomisariat());
@@ -310,7 +323,6 @@ public class DataLainActivity extends BaseActivity {
                             training.setJenis_kelamin(user.getJenis_kelamin());
                             trainingDao.insertTraining(training);
                         }
-//                        trainingAdapter.updateData(response.body().getData());
                     }
                 } else {
 
@@ -329,17 +341,35 @@ public class DataLainActivity extends BaseActivity {
         final EditText etTipe = dialogView.findViewById(R.id.etTipe);
         final Spinner spTipe = dialogView.findViewById(R.id.sp_training);
         final EditText etTahun = dialogView.findViewById(R.id.etTahun);
-        final EditText etNama = dialogView.findViewById(R.id.etNama);
         final EditText etLokasi = dialogView.findViewById(R.id.etLokasi);
         final AlertDialog dialog = new AlertDialog.Builder(this)
                 .setView(dialogView)
                 .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), etNama.getText().toString(), etLokasi.getText().toString());
-//                        trainings.add(new Training(trainings.size(), etTipe.getText().toString(), etTahun.getText().toString(), etNama.getText().toString(), etLokasi.getText().toString()));
-//                        Log.d("tessss", "onClick: "+trainings.get(0).getNama());
-//                        trainingAdapter.updateData(trainings);
+                        String tahun = etTahun.getText().toString();
+                        int tahunInt = Integer.parseInt(tahun);
+                        String curYear = Tools.getYearFromMillis(System.currentTimeMillis());
+                        int curYearInt = Integer.parseInt(curYear);
+                        Training trainingSame = trainingDao.getTrainingUserByType(spTipe.getSelectedItem().toString(), user.get_id());
+
+                        if (tahun.trim().length() > 4 || tahunInt < 1947) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.invalid_year_format));
+                        }
+                        else if (tahunInt > curYearInt) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.tahun_overload));
+                        }
+                        else if (trainingSame != null) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.same_training_type));
+                        }
+                        else if (spTipe.getSelectedItem().toString().trim().isEmpty()
+                                || etTahun.getText().toString().trim().isEmpty()
+                                || etLokasi.getText().toString().trim().isEmpty()) {
+                            Tools.showToast(DataLainActivity.this, getString(R.string.field_mandatory));
+                        }
+                        else {
+                            addDataTraining(String.valueOf(spTipe.getSelectedItem()), etTahun.getText().toString(), spTipe.getSelectedItem().toString(), etLokasi.getText().toString());
+                        }
                         dialog.dismiss();
                     }
                 })
@@ -362,6 +392,22 @@ public class DataLainActivity extends BaseActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),  android.R.layout.simple_spinner_dropdown_item, strings);
         adapter.setDropDownViewResource( android.R.layout.simple_spinner_dropdown_item);
         spTipe.setAdapter(adapter);
+
+        spTipe.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                TypedValue typedValue = new TypedValue();
+                Resources.Theme theme = DataLainActivity.this.getTheme();
+                theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+                @ColorInt int textColor = typedValue.data;
+                ((TextView) parent.getChildAt(0)).setTextColor(textColor);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
     }
 

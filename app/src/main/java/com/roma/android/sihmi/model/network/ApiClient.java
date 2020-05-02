@@ -3,6 +3,8 @@ package com.roma.android.sihmi.model.network;
 import com.roma.android.sihmi.utils.Constant;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 
+import java.util.concurrent.TimeUnit;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -15,6 +17,10 @@ public class ApiClient {
     public ApiClient() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .addNetworkInterceptor(new StethoInterceptor())
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .callTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
                 .build();
         retrofit = new Retrofit.Builder().baseUrl(Constant.BASE_URL)
                 .client(okHttpClient)
