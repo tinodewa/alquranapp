@@ -480,8 +480,8 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                 Log.e("roma", "onDataChange: permintaanfragment 347");
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Token token = snapshot.getValue(Token.class);
-                    Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "Pemberitahuan",
-                            receiver);
+                    Data data = new Data("", R.mipmap.ic_launcher, message, "Pemberitahuan",
+                            receiver, null);
 
                     Sender sender = new Sender(data, token.getToken());
 

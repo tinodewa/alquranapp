@@ -451,5 +451,7 @@
     <string name="tahun_overload">Year field can not be more than current year</string>
     <string name="same_training_type">Can not add training data with same type</string>
     <string name="invalid_year_format">Invalid year format</string>
+    <string name="you">You</string>
+    <string name="message_from">Message from&#160;</string>
 
 </resources>

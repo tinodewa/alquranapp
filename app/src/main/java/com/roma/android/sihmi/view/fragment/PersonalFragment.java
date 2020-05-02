@@ -227,8 +227,15 @@ public class PersonalFragment extends Fragment {
                             } else {
                                 lastMsg = chat.getMessage();
                             }
-                            String name = contactDao.getContactById(userId).getFullName();
-                            chatingDao.insertChating(new Chating(userId, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unreadCount));
+
+                            Contact c = contactDao.getContactById(userId);
+                            if (c != null) {
+                                String name = contactDao.getContactById(userId).getFullName();
+                                chatingDao.insertChating(new Chating(userId, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unreadCount));
+                            }
+                            else {
+                                snapshot.getRef().removeValue();
+                            }
                         }
                     }
                 }

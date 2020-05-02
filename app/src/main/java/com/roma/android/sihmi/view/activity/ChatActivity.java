@@ -34,6 +34,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
 import com.roma.android.sihmi.model.database.entity.Chating;
@@ -207,9 +208,14 @@ public class ChatActivity extends BaseActivity {
         id_other_user = getIntent().getStringExtra("iduser");
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
 
+        String key = id_other_user+"_"+NotificationHelper.ID_CHAT;
+        NotificationHelper.removeHistoryMessage(key);
+
         Chating thisChating = chatingDao.getChatingById(otherUser.get_id());
-        thisChating.setUnread(0);
-        chatingDao.insertChating(thisChating);
+        if (thisChating != null) {
+            thisChating.setUnread(0);
+            chatingDao.insertChating(thisChating);
+        }
 
         readMessage();
     }
@@ -222,23 +228,6 @@ public class ChatActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: chatactivity 150");
                 new readMessageAsync().execute(dataSnapshot);
-//                list.clear();
-//
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Chat chat = snapshot.getValue(Chat.class);
-//                    if (chat.getReceiver().equals(myuser) && chat.getSender().equals(otheruser) ||
-//                            chat.getReceiver().equals(otheruser) && chat.getSender().equals(myuser)){
-//                        list.add(chat);
-//                    }
-//
-//                    // Update isSeen
-//                    if (chat.getReceiver().equals(myuser) && chat.getSender().equals(otheruser)){
-//                        HashMap<String, Object> hashMap = new HashMap<>();
-//                        hashMap.put("isseen", true);
-//                        snapshot.getRef().updateChildren(hashMap);
-//                    }
-//                }
-//                setAdapter(list);
             }
 
             @Override
@@ -477,8 +466,9 @@ public class ChatActivity extends BaseActivity {
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
             for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
                 Token token = snapshot.getValue(Token.class);
-                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, username+": "+message, "New Message",
-                        otheruser);
+                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "New Message",
+                        otheruser,
+                        NotificationHelper.TYPE_PERSONAL);
 
                 Sender sender = new Sender(data, token.getToken());
 
