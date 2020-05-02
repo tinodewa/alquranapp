@@ -48,6 +48,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Account;
 import com.roma.android.sihmi.model.database.entity.Notification;
@@ -663,6 +664,11 @@ public class MainActivity extends BaseActivity
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+
+        NotificationHelper.removeAllHistoryMessage();
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        reference.child(userDao.getUser().get_id()).removeValue();
 
         updatePhoto();
 

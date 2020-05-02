@@ -27,7 +27,6 @@ import com.roma.android.sihmi.view.activity.SplashActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -48,7 +47,7 @@ public class NotificationHelper {
         if (type != null) {
             String TYPE_GROUP = "__type_group__";
             if ((type.equals(TYPE_PERSONAL) || type.equals(TYPE_GROUP) && !contact.isBisukan())) {
-                Message message = new Message(contact.getNama_panggilan(), Tools.convertUTF8ToString(body), System.currentTimeMillis());
+                Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
                 sendNotificationMessaging(message, context, contact, type.equals(TYPE_GROUP));
             }
             else {
@@ -253,6 +252,13 @@ public class NotificationHelper {
     public static void removeHistoryMessage(String key) {
         if (MESSAGE != null) {
             MESSAGE.remove(key);
+        }
+    }
+
+    public static void removeAllHistoryMessage() {
+        if (MESSAGE != null) {
+            MESSAGE.clear();
+            MESSAGE = null;
         }
     }
 }
