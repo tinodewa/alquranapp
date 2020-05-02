@@ -59,9 +59,9 @@ public class QueryRoomDao {
         String kondisilevel;
         if (level.isEmpty()){
             if (kondisi.isEmpty()){
-                kondisilevel = " WHERE id_level != '19' AND id_level != '20'";
+                kondisilevel = " WHERE id_level != '19' AND id_level != '20' AND id_level != 1";
             } else {
-                kondisilevel = " AND id_level != '19' AND id_level != '20'";
+                kondisilevel = " AND id_level != '19' AND id_level != '20' AND id_level != 1";
             }
         } else {
             if (kondisi.isEmpty()){
@@ -95,8 +95,8 @@ public class QueryRoomDao {
     };
 
     public static SimpleSQLiteQuery getTraining(String tipe, String cabang, String gender, String year){
-        String  query = "SELECT * FROM Training WHERE id_level != '20' AND id_level != '19' AND " +
-                "(tahun != 8 AND tahun != 200 AND tahun != 255 AND tahun != 999 AND tahun != 1875) ";
+        String  query = "SELECT * FROM Training WHERE id_level != " + Constant.USER_NON_LK + " AND id_level != " + Constant.USER_SECOND_ADMIN + " AND id_level != " + Constant.USER_SUPER_ADMIN + " AND " +
+                "(tahun >= 1947) ";
 
         if (!tipe.isEmpty()){
             query += " AND tipe = '"+tipe+"' ";

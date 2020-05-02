@@ -37,9 +37,21 @@ public interface TrainingDao {
     @Query("SELECT * FROM Training WHERE id_user = :idUser")
     List<Training> getListAllTrainingByUser(String idUser);
 
+    @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe LIKE 'LK1%'")
+    List<Training> getListAllTrainingLK1ByUser(String idUser);
+
+    @Query("SELECT * FROM Training WHERE id = :id")
+    Training getTraining(String id);
+
+    @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe = :type")
+    Training getListAllTrainingByUserType(String idUser, String type);
+
     @Query("SELECT * FROM Training WHERE id_user = :idUser")
     LiveData<List<Training>> getAllTrainingByUser(String idUser);
 
     @Query("SELECT * FROM Training WHERE id_user = :idUser AND tipe = :tipe AND tahun = :tahun")
     Training checkTrainingAvailable(String idUser, String tipe, String tahun);
+
+    @Query("SELECT * FROM Training WHERE tipe = :type AND id_user = :idUser LIMIT 1")
+    Training getTrainingUserByType(String type, String idUser);
 }

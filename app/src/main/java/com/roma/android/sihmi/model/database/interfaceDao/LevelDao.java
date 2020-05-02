@@ -30,4 +30,7 @@ public interface LevelDao {
 
     @Query("SELECT nama FROM Level WHERE level LIKE :level")
     String getNamaLevel(int level);
+
+    @Query("SELECT id FROM Level WHERE idLevel = :id_roles")
+    int getIdLevelByIdRole(String id_roles);
 }

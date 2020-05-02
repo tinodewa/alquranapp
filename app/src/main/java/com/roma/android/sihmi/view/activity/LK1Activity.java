@@ -1,6 +1,7 @@
 package com.roma.android.sihmi.view.activity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -12,14 +13,23 @@ import androidx.appcompat.widget.Toolbar;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
+import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.User;
+import com.roma.android.sihmi.model.database.interfaceDao.HistoryPengajuanDao;
+import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.MasterDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
+import com.roma.android.sihmi.model.response.PengajuanLK1Response;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +64,9 @@ public class LK1Activity extends BaseActivity {
     AppDb appDb;
     MasterDao masterDao;
     UserDao userDao;
+    LevelDao levelDao;
+    HistoryPengajuanDao historyPengajuanDao;
+    Boolean isOnPengajuan = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +79,16 @@ public class LK1Activity extends BaseActivity {
         masterDao = appDb.masterDao();
         userDao = appDb.userDao();
         user = userDao.getUser();
+        levelDao = appDb.levelDao();
+        historyPengajuanDao = appDb.historyPengajuanDao();
+
+        btnSimpan.setVisibility(View.GONE);
+        checkBox.setVisibility(View.GONE);
+
+        getPermintaanLK1();
         initView();
+
+        Log.d("CHECK TOKEN", "CHECK TOKEN " + Constant.getToken());
     }
 
     private void initToolbar(){
@@ -77,7 +99,7 @@ public class LK1Activity extends BaseActivity {
     }
 
     private void initView(){
-        if (user.getBadko() != null && !user.getBadko().trim().isEmpty()) {
+        if (isOnPengajuan || !Tools.isNonLK()) {
             Tools.setText(etBadko, user.getBadko());
             Tools.setText(etCabang, user.getCabang());
             Tools.setText(etKorkom, user.getKorkom());
@@ -89,16 +111,9 @@ public class LK1Activity extends BaseActivity {
             etKorkom.setEnabled(false);
             etKomisariat.setEnabled(false);
             etTanggal.setEnabled(false);
-
-            if (Tools.isNonLK()) {
-                tvKet.setVisibility(View.VISIBLE);
-                checkBox.setVisibility(View.VISIBLE);
-                btnSimpan.setVisibility(View.VISIBLE);
-            } else {
-                tvKet.setVisibility(View.GONE);
-                checkBox.setVisibility(View.GONE);
-                btnSimpan.setVisibility(View.GONE);
-            }
+            tvKet.setVisibility(View.GONE);
+            btnSimpan.setVisibility(View.GONE);
+            checkBox.setVisibility(View.GONE);
         } else {
             etBadko.setEnabled(true);
             etCabang.setEnabled(true);
@@ -153,7 +168,17 @@ public class LK1Activity extends BaseActivity {
         String komisariat = etKomisariat.getText().toString().trim();
         String tanggal = etTanggal.getText().toString().trim();
         if (!badko.isEmpty() && !cabang.isEmpty() && !korkom.isEmpty() && !komisariat.isEmpty() && !tanggal.isEmpty() && checkBox.isChecked()) {
-            if (Tools.isOnline(this)) {
+            long dateLong = -1;
+            try {
+                dateLong = Tools.getMillisFromTimeStr(tanggal, "dd-MM-yyyy");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            if (dateLong > System.currentTimeMillis()) {
+                Tools.showToast(this, getString(R.string.tanggal_lk1_over));
+            }
+            else if (Tools.isOnline(this)) {
                 pegajuan(badko, cabang, korkom, komisariat, tanggal);
             } else {
                 Tools.showToast(this, getString(R.string.tidak_ada_internet));
@@ -165,7 +190,12 @@ public class LK1Activity extends BaseActivity {
 
     private void pegajuan(String badko, String cabang, String korkom, String komisariat, String tgl){
         Tools.showProgressDialog(this, getString(R.string.pengajuan));
-        Call<GeneralResponse> call = service.addPengajuanLK1(Constant.getToken(), badko, cabang, korkom, komisariat, tgl, "");
+        String tahunLk1 = "";
+        String[] tanggalLk1Split = tgl.split("-");
+        if (tanggalLk1Split.length == 3) {
+            tahunLk1 = tanggalLk1Split[2];
+        }
+        Call<GeneralResponse> call = service.addPengajuanLK1(Constant.getToken(), badko, cabang, korkom, komisariat, tgl, tahunLk1);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
@@ -188,5 +218,60 @@ public class LK1Activity extends BaseActivity {
                 Tools.showToast(LK1Activity.this, getString(R.string.pengajuan_gagal));
             }
         });
+    }
+
+    private void getPermintaanLK1() {
+        if (Tools.isOnline(this)) {
+            Call<PengajuanLK1Response> call = service.getPengajuanLK1(Constant.getToken());
+            call.enqueue(new Callback<PengajuanLK1Response>() {
+                @Override
+                public void onResponse(Call<PengajuanLK1Response> call, Response<PengajuanLK1Response> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body().getStatus().equalsIgnoreCase("ok")) {
+                            int size = response.body().getData().size();
+                            if (size > 0) {
+                                List<PengajuanHistory> listHistory = new ArrayList<>();
+                                for (int i = 0; i < size; i++) {
+                                    PengajuanLK1 pengajuanLK1 = response.body().getData().get(i);
+                                    String idPengajuan = pengajuanLK1.get_id();
+                                    String idRoles = "5da699c1a61aed0fe65ae31f";
+                                    String tgl_lk1 = pengajuanLK1.getTanggal_lk1();
+                                    String createdBy = pengajuanLK1.getCreated_by();
+                                    String approvedBy = pengajuanLK1.getModified_by();
+                                    long dateCreated = pengajuanLK1.getDate_created();
+                                    long dateApproved = pengajuanLK1.getDate_modified();
+                                    int status = pengajuanLK1.getStatus();
+
+                                    int level = levelDao.getLevel(idRoles);
+
+                                    PengajuanHistory pengajuanHistory = new PengajuanHistory(idPengajuan, idRoles, "", createdBy, approvedBy, dateCreated, dateApproved, status, tgl_lk1, level);
+                                    pengajuanHistory.setNama(user.getNama_depan());
+                                    historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+
+                                    if (pengajuanLK1.getStatus() == 0) {
+                                        listHistory.add(pengajuanHistory);
+                                    }
+                                }
+                            }
+                        }
+
+                        isOnPengajuan = checkIsOnPengajuan();
+                        initView();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PengajuanLK1Response> call, Throwable t) {
+                    Tools.showToast(LK1Activity.this, getString(R.string.tidak_ada_internet));
+                }
+            });
+        } else {
+            Tools.showToast(this, getString(R.string.tidak_ada_internet));
+        }
+    }
+
+    private boolean checkIsOnPengajuan() {
+        PengajuanHistory pengajuanHistory = historyPengajuanDao.getOnProgressPengajuan(user.get_id());
+        return pengajuanHistory != null;
     }
 }

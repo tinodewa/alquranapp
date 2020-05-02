@@ -1,6 +1,9 @@
 package com.roma.android.sihmi.model.database.entity;
 
+import com.roma.android.sihmi.utils.Tools;
+
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -16,6 +19,7 @@ public class Contact {
     int status_online;
     int id_level;
     boolean bisukan;
+    long dateRole = System.currentTimeMillis();
 
     String lk1, lk2, lk3, sc, tid;
     String tahun_daftar, tanggal_lk1, tahun_lk1, akun_sosmed, domisili_cabang, pekerjaan, jabatan, alamat_kerja, kontribusi;
@@ -46,6 +50,7 @@ public class Contact {
         this.status_online = status_online;
         this.id_level = id_level;
         this.bisukan = false;
+        this.dateRole = System.currentTimeMillis();
     }
 
     @Ignore
@@ -379,5 +384,16 @@ public class Contact {
 
     public void setTid(String tid) {
         this.tid = tid;
+    }
+
+    public long getDateRole() {
+        if (Tools.getDateLaporanFromMillis(this.dateRole).equalsIgnoreCase("01/01/1970")) {
+            this.setDateRole(System.currentTimeMillis());
+        }
+        return dateRole;
+    }
+
+    public void setDateRole(long dateRole) {
+        this.dateRole = dateRole;
     }
 }

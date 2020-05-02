@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:text="Pengguna SIHMI - 2019"
-                android:textColor="@android:color/black"
+                android:textColor="?attr/textcolor"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:text="Non Kader"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -51,7 +51,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@android:color/black" />
+                    android:background="?attr/textcolor" />
 
                 <TextView
                     android:id="@+id/tv_no_non_kader"
@@ -59,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:text="-"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="18sp" />
 
                 <androidx.recyclerview.widget.RecyclerView
@@ -74,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:text="Kader"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
@@ -82,7 +82,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@android:color/black" />
+                    android:background="?attr/textcolor" />
 
                 <TextView
                     android:id="@+id/tv_no_kader"
@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:text="-"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="18sp" />
 
                 <androidx.recyclerview.widget.RecyclerView

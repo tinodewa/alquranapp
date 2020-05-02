@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
+import com.google.firebase.database.core.Repo;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
@@ -48,6 +49,7 @@ import com.roma.android.sihmi.view.adapter.LaporanUserAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -295,39 +297,64 @@ public class LaporanFragment extends Fragment {
         rvCopywriterKonstitusi.setAdapter(adapterCwKonstitusi);
 
         DataKaderAdapter adapterBadko = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_BADKO, "1"), dataKader -> {
-            goToGrafik(Constant.M_BADKO, "");
+            // no action
         });
         rvBadko.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvBadko.setAdapter(adapterBadko);
 
         DataKaderAdapter adapterCabang = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_CABANG, "2"), dataKader -> {
-            goToGrafik(Constant.M_CABANG, dataKader.getNama());
+//            goToGrafik(Constant.M_CABANG, dataKader.getNama());
+
+            String allItem = getString(R.string.semua)+ " " + getName(Constant.M_CABANG);
+            if (!dataKader.getNama().equalsIgnoreCase(allItem)) {
+                Bundle arguments = new Bundle();
+                arguments.putBoolean(ReportFragment.SUPERADMIN_CABANG, true);
+                arguments.putString(ReportFragment.CABANG_NAME, dataKader.getNama());
+
+                ((MainActivity) Objects.requireNonNull(getActivity())).replaceFragment(new ReportFragment(), arguments);
+            }
         });
         rvCabang.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvCabang.setAdapter(adapterCabang);
 
         DataKaderAdapter adapterKorkom = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_KORKOM,  "3"), dataKader -> {
-            goToGrafik(Constant.M_KORKOM, "");
+            // no action
         });
         rvKorkom.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvKorkom.setAdapter(adapterKorkom);
 
         DataKaderAdapter adapterKomisariat = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_KOMISARIAT,  "4"), dataKader -> {
-            goToGrafik(Constant.M_KOMISARIAT, dataKader.getNama());
+//            goToGrafik(Constant.M_KOMISARIAT, dataKader.getNama());
+
+            String allItem = getString(R.string.semua)+ " " + getName(Constant.M_KOMISARIAT);
+            if (!dataKader.getNama().equalsIgnoreCase(allItem)) {
+                Bundle arguments = new Bundle();
+                arguments.putBoolean(ReportFragment.SUPERADMIN_KOMISARIAT, true);
+                arguments.putString(ReportFragment.KOMISARIAT_NAME, dataKader.getNama());
+
+                ((MainActivity) Objects.requireNonNull(getActivity())).replaceFragment(new ReportFragment(), arguments);
+            }
         });
         rvKomisariat.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvKomisariat.setAdapter(adapterKomisariat);
 
         DataKaderAdapter adapterAlumni = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_ALUMNI, "2"), dataKader -> {
-            goToGrafik(Constant.M_ALUMNI, dataKader.getNama());
+//            goToGrafik(Constant.M_ALUMNI, dataKader.getNama());
+
+            String allItem = getString(R.string.semua)+ " " + getName(Constant.M_ALUMNI);
+            if (!dataKader.getNama().equalsIgnoreCase(allItem)) {
+                Bundle arguments = new Bundle();
+                arguments.putBoolean(ReportFragment.SUPERADMIN_ALUMNI, true);
+                arguments.putString(ReportFragment.CABANG_NAME, dataKader.getNama());
+
+                ((MainActivity) Objects.requireNonNull(getActivity())).replaceFragment(new ReportFragment(), arguments);
+            }
         });
         rvAlumni.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvAlumni.setAdapter(adapterAlumni);
 
         DataKaderAdapter adapterTraining = new DataKaderAdapter(getActivity(), dataKaders(Constant.M_TRAINING, "5"), dataKader -> {
             goToGrafik(Constant.M_TRAINING, dataKader.getNama());
-//            startActivity(new Intent(getActivity(), LaporanDetailActivity.class).putExtra(LaporanDetailActivity.TYPE_LAPORAN, Constant.LAP_KADER)
-//                    .putExtra(LaporanDetailActivity.NAMA_LAPORAN, dataKader.getNama()));
         });
         rvTraining.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
         rvTraining.setAdapter(adapterTraining);
@@ -572,7 +599,7 @@ public class LaporanFragment extends Fragment {
                                 contactDao.insertContact(contact);
 
 
-                                training.setId(training.getId_user()+"-"+training.getTipe());
+                                training.setId(training.getId());
                                 training.setId_user(training.getId_user());
                                 training.setId_level(contact.getId_level());
                                 training.setCabang(contact.getCabang());

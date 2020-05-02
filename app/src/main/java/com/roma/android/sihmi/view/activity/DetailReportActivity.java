@@ -1,5 +1,6 @@
 package com.roma.android.sihmi.view.activity;
 
+import androidx.annotation.ColorInt;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -8,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -56,6 +59,17 @@ import static com.roma.android.sihmi.view.activity.DetailReportPelatihanActivity
 public class DetailReportActivity extends BaseActivity {
     public static final String TYPE_DETAIL = "type_detail";
     public static final String VALUE_DETAIL = "value_detail";
+    public static final String SUPERADMIN_KOMISARIAT = "__superadmin_komisariat_mode__";
+    public static final String SUPERADMIN_CABANG = "__superadmin_cabang_mode__";
+    public static final String SUPERADMIN_ALUMNI = "__superadmin_alumni_mode__";
+    public static final String KOMISARIAT_NAME = "__komisariat_name__";
+    public static final String CABANG_NAME = "__cabang_name__";
+
+    private boolean isSuperadminKomisariat = false;
+    private boolean isSuperadminCabang = false;
+    private boolean isSuperadminAlumni = false;
+
+    private String komisariatName, cabangName;
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -95,8 +109,34 @@ public class DetailReportActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_report);
         ButterKnife.bind(this);
-        type = getIntent().getStringExtra(TYPE_DETAIL);
-        value = getIntent().getStringExtra(VALUE_DETAIL);
+
+        Intent intent = getIntent();
+        if (intent != null) {
+            type = intent.getStringExtra(TYPE_DETAIL);
+            value = intent.getStringExtra(VALUE_DETAIL);
+
+            isSuperadminKomisariat = intent.getBooleanExtra(DetailReportActivity.SUPERADMIN_KOMISARIAT, false);
+            isSuperadminCabang = intent.getBooleanExtra(DetailReportActivity.SUPERADMIN_CABANG, false);
+            isSuperadminAlumni = intent.getBooleanExtra(DetailReportActivity.SUPERADMIN_ALUMNI, false);
+
+            if (isSuperadminKomisariat) {
+                komisariatName = intent.getStringExtra(DetailReportActivity.KOMISARIAT_NAME);
+
+                if (komisariatName == null) {
+                    finish();
+                }
+            }
+            else if (isSuperadminCabang || isSuperadminAlumni) {
+                cabangName = intent.getStringExtra(DetailReportActivity.CABANG_NAME);
+
+                if (cabangName == null) {
+                    finish();
+                }
+            }
+        } else if (Tools.isSuperAdmin() && !isSuperadminKomisariat && !isSuperadminCabang && !isSuperadminAlumni) {
+            finish();
+        }
+
         initToolbar();
         initModule();
         initView(type);
@@ -161,19 +201,32 @@ public class DetailReportActivity extends BaseActivity {
 
     private void initKaderChart(){
         String query;
+        String whereClause = "tahun_lk1";
         if (Tools.isAdmin1()){
             query = Query.countReportKaderAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()) {
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.countReportKaderAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()) {
             query = Query.countReportKaderAdmin2(user.getCabang());
-        } else if (Tools.isAdmin3()){
+        }
+        else if (isSuperadminCabang) {
+            query = Query.countReportKaderAdmin2(cabangName);
+        }
+        else if (Tools.isAdmin3()){
             query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
-        } else {
+        }
+        else if (isSuperadminAlumni) {
+            query = Query.countReportAlumniAdmin3(cabangName);
+        }
+        else {
             query = Query.countReportKaderLA2();
         }
 
         ArrayList member = new ArrayList();
         for (int i = batas_tahun; i <= now; i++) {
-            String query2 = query+" AND tahun_daftar ='"+i+"';";
+            String query2 = query+" AND " + whereClause + " ='"+i+"';";
             int count = contactDao.countRawQueryContact(new SimpleSQLiteQuery(query2));
             member.add(new Entry(i, (float) count));
         }
@@ -199,6 +252,14 @@ public class DetailReportActivity extends BaseActivity {
         xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(quarters));
 
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = this.getTheme();
+        theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+        @ColorInt int textColor = typedValue.data;
+        yAxis.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        data.setValueTextColor(textColor);
+
         kaderChart.setData(data);
         kaderChart.getDescription().setEnabled(false);
         kaderChart.getLegend().setEnabled(false);
@@ -221,8 +282,7 @@ public class DetailReportActivity extends BaseActivity {
             int tid = trainingDao.countRawQueryTraining(
                     new SimpleSQLiteQuery(query + " AND tipe = '" + Constant.TRAINING_TID + "' AND tahun = '" + i + "';"));
             int count = lk1+lk2+lk3+sc+tid;
-//            String query2 = query+ " AND tipe = '" + Constant.TRAINING_LK1 + "' AND tahun = '" + i + "';");
-//            int count = trainingDao.countRawQueryTraining(new SimpleSQLiteQuery(query2));
+
             member.add(new BarEntry(i, (float) count));
         }
 
@@ -247,6 +307,14 @@ public class DetailReportActivity extends BaseActivity {
         xAxis.setDrawGridLines(false);
         xAxis.setValueFormatter(new IndexAxisValueFormatter(quarters));
 
+        TypedValue typedValue = new TypedValue();
+        Resources.Theme theme = this.getTheme();
+        theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+        @ColorInt int textColor = typedValue.data;
+        yAxis.setTextColor(textColor);
+        xAxis.setTextColor(textColor);
+        data.setValueTextColor(textColor);
+
         pelatihanChart.setData(data);
         pelatihanChart.getDescription().setEnabled(false);
         pelatihanChart.getLegend().setEnabled(false);
@@ -258,13 +326,15 @@ public class DetailReportActivity extends BaseActivity {
     private List<DataGrafik> getListKaderGender(){
         String query = getQuery();
 
+        String whereClause = "tahun_lk1";
+
         List<DataGrafik> list = new ArrayList<>();
         for (int i = now; i >= 1947 ; i--) {
             int tahun = i;
             int l = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND tahun_daftar = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '0' AND "+ whereClause +" = '"+i+"';"));
             int p = contactDao.countRawQueryContact(
-                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND tahun_daftar = '"+i+"';"));
+                    new SimpleSQLiteQuery(query+" AND jenis_kelamin = '1' AND "+ whereClause +" = '"+i+"';"));
             int total = l+p;
             list.add(new DataGrafik(tahun, total, p, l));
         }
@@ -274,7 +344,10 @@ public class DetailReportActivity extends BaseActivity {
     private void initKaderAdapter(){
         kaderAdapter = new LaporanGrafikAdapter(this, getListKaderGender(), dataGrafik -> {
             if (dataGrafik.getJumlah() > 0) {
-                showDialogUser(getObjectQuery() + " AND tahun = '" + dataGrafik.getTahun() + "'");
+                String whereClause = "tahun_lk1";
+
+                Log.d("GET TAHUN", "GET TAHUN "+dataGrafik.getTahun());
+                showDialogUser(getObjectQuery() + " AND " + whereClause + " = '" + dataGrafik.getTahun() + "'");
             } else {
                 Toast.makeText(this, getString(R.string.data_tidak_tersedia), Toast.LENGTH_SHORT).show();
             }
@@ -308,7 +381,18 @@ public class DetailReportActivity extends BaseActivity {
         pelatihanAdapter = new LaporanDataKaderPelatihanAdapter(this, getListPelatihan(), dataKader -> {
             int total = dataKader.getLk1()+dataKader.getLk2()+dataKader.getLk3()+dataKader.getSc()+dataKader.getTid();
             if (total > 0) {
-                startActivity(new Intent(DetailReportActivity.this, DetailReportPelatihanActivity.class).putExtra(VALUE_YEAR, dataKader.getTahun()));
+                Intent intent = new Intent(DetailReportActivity.this, DetailReportPelatihanActivity.class);
+                if (Tools.isSuperAdmin()) {
+                    if (isSuperadminKomisariat) {
+                        intent.putExtra(DetailReportPelatihanActivity.SUPERADMIN_KOMISARIAT, true)
+                                .putExtra(DetailReportPelatihanActivity.KOMISARIAT_NAME, komisariatName);
+                    }
+                    else if (isSuperadminCabang) {
+                        intent.putExtra(DetailReportPelatihanActivity.SUPERADMIN_CABANG, true)
+                                .putExtra(DetailReportPelatihanActivity.CABANG_NAME, cabangName);
+                    }
+                }
+                startActivity(intent.putExtra(VALUE_YEAR, dataKader.getTahun()));
             } else {
                 Toast.makeText(this, getString(R.string.data_tidak_tersedia), Toast.LENGTH_SHORT).show();
             }
@@ -322,11 +406,23 @@ public class DetailReportActivity extends BaseActivity {
         String query;
         if (Tools.isAdmin1()){
             query = Query.countReportKaderAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()){
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.countReportKaderAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()){
             query = Query.countReportKaderAdmin2(user.getCabang());
-        } else if (Tools.isAdmin3()){
+        }
+        else if (isSuperadminCabang) {
+            query = Query.countReportKaderAdmin2(cabangName);
+        }
+        else if (Tools.isAdmin3()){
             query = Query.countReportAlumniAdmin3(user.getDomisili_cabang());
-        } else {
+        }
+        else if (isSuperadminAlumni) {
+            query = Query.countReportAlumniAdmin3(cabangName);
+        }
+        else {
             query = Query.countReportKaderLA2();
         }
         return query;
@@ -336,9 +432,17 @@ public class DetailReportActivity extends BaseActivity {
         String query;
         if (Tools.isAdmin1()){
             query = Query.countPelatihanAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()){
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.countPelatihanAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()){
             query = Query.countPelatihanAdmin2(user.getCabang());
-        } else {
+        }
+        else if (isSuperadminCabang) {
+            query = Query.countPelatihanAdmin2(cabangName);
+        }
+        else {
             query = Query.countPelatihanLA2();
         }
         return query;
@@ -348,27 +452,39 @@ public class DetailReportActivity extends BaseActivity {
         String query;
         if (Tools.isAdmin1()){
             query = Query.ReportKaderAdmin1(user.getKomisariat());
-        } else if (Tools.isAdmin2() || Tools.isLA1()){
+        }
+        else if (isSuperadminKomisariat) {
+            query = Query.ReportKaderAdmin1(komisariatName);
+        }
+        else if (Tools.isAdmin2() || Tools.isLA1()){
             query = Query.ReportKaderAdmin2(user.getCabang());
-        } else if (Tools.isAdmin3()){
+        }
+        else if (isSuperadminCabang) {
+            query = Query.ReportKaderAdmin2(cabangName);
+        }
+        else if (Tools.isAdmin3()){
             query = Query.ReportAlumniAdmin3(user.getDomisili_cabang());
-        } else {
+        }
+        else if (isSuperadminAlumni) {
+            query = Query.ReportAlumniAdmin3(cabangName);
+        }
+        else {
             query = Query.ReportKaderLA2();
         }
         return query;
     }
 
-    private List<String> listName(List<Training> list){
+    private List<String> listName(List<Contact> list){
         List<String> listName = new ArrayList<>();
-        for (Training t : list){
-            listName.add(contactDao.getContactById(t.getId_user()).getNama_depan());
+        for (Contact t : list){
+            listName.add(contactDao.getContactById(t.get_id()).getNama_depan());
         }
         return listName;
     }
 
     private void showDialogUser(String query){
-        List<Training> trainings = trainingDao.rawQueryTraining(new SimpleSQLiteQuery(query));
-        String[] user = listName(trainings).toArray(new String[listName(trainings).size()]);
+        List<Contact> contacts = contactDao.rawQueryContact(new SimpleSQLiteQuery(query));
+        String[] user = listName(contacts).toArray(new String[listName(contacts).size()]);
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setItems(user, (dialog1, which) -> {
                     String id_other_user = contactDao.getContactIdByName(user[which]);

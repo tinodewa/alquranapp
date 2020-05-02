@@ -33,7 +33,9 @@ import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.PengajuanAdmin;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanHistoryJoin;
 import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
+import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.entity.notification.Data;
 import com.roma.android.sihmi.model.database.entity.notification.NotifResponse;
 import com.roma.android.sihmi.model.database.entity.notification.Sender;
@@ -42,16 +44,21 @@ import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.HistoryPengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
+import com.roma.android.sihmi.model.database.interfaceDao.TrainingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.network.NotifClient;
 import com.roma.android.sihmi.model.network.SendNotifService;
+import com.roma.android.sihmi.model.response.ContactResponse;
 import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.model.response.PengajuanAdminResponse;
 import com.roma.android.sihmi.model.response.PengajuanLK1Response;
+import com.roma.android.sihmi.model.response.TrainingResponse;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
+import com.roma.android.sihmi.view.activity.ContactActivity;
 import com.roma.android.sihmi.view.activity.ProfileChatActivity;
 import com.roma.android.sihmi.view.adapter.PermintaanAdapter;
 
@@ -79,19 +86,21 @@ public class PermintaanFragment extends Fragment implements Ifragment {
 
     MasterService service;
 
-    List<PengajuanHistory> list;
+    List<PengajuanHistoryJoin> list;
     PermintaanAdapter adapter;
 
-    LiveData<List<PengajuanHistory>> listLiveData;
+    LiveData<List<PengajuanHistoryJoin>> listLiveData;
     UserFragment userFragment;
 
     int page;
 
     AppDb appDb;
     HistoryPengajuanDao historyPengajuanDao;
+    private PengajuanLK1Dao pengajuanLK1Dao;
     UserDao userDao;
     ContactDao contactDao;
     LevelDao levelDao;
+    private TrainingDao trainingDao;
 
     public PermintaanFragment() {
         // Required empty public constructor
@@ -115,32 +124,33 @@ public class PermintaanFragment extends Fragment implements Ifragment {
         userDao = appDb.userDao();
         contactDao = appDb.contactDao();
         levelDao = appDb.levelDao();
+        pengajuanLK1Dao = appDb.pengajuanLK1Dao();
+        trainingDao = appDb.trainingDao();
+
+        getContact();
 
         list = new ArrayList<>();
         initAdapter();
 
         refreshLayout.setOnRefreshListener(() -> {
             refreshLayout.setRefreshing(true);
-            getPermintaanLK1();
-            getPermintaanAdmin();
+            getContact();
         });
-
-
-        getPermintaanLK1();
-        getPermintaanAdmin();
 
         Log.d("hallo", "onCreateView: " + Tools.dateNow());
 
-        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+        if (Tools.isSuperAdmin()){
             listLiveData = historyPengajuanDao.getAllPengajuanHistory();
         } else if (Tools.isAdmin1()) {
-            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin1("%" + Tools.dateNow());
+            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin1(userDao.getUser().getKomisariat());
         } else if (Tools.isAdmin2()) {
-            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin2("%" + Tools.dateNow());
+            listLiveData = historyPengajuanDao.getAllPengajuanHistoryAdmin2(userDao.getUser().getCabang(), "%" + Tools.dateNow());
         } else if (Tools.isLA1()) {
-            listLiveData = historyPengajuanDao.getAllPengajuanHistoryLA1();
+            listLiveData = historyPengajuanDao.getAllPengajuanHistoryLA1(userDao.getUser().getCabang());
         } else if (Tools.isLA2()) {
             listLiveData = historyPengajuanDao.getAllPengajuanHistoryLA2();
+        } else if (Tools.isSecondAdmin()) {
+            listLiveData = historyPengajuanDao.getAllPengajuanHistorySecondAdmin();
         } else {
             listLiveData = historyPengajuanDao.getAllPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()));
         }
@@ -150,6 +160,50 @@ public class PermintaanFragment extends Fragment implements Ifragment {
             Log.d("hallogesss", "onCreateView onchange: permintaanFragment " + pengajuanHistories.size());
         });
         return v;
+    }
+
+    private void getContact(){
+        Call<ContactResponse> call = service.getContact(Constant.getToken());
+        if (Tools.isOnline(getContext())) {
+            call.enqueue(new Callback<ContactResponse>() {
+                @Override
+                public void onResponse(Call<ContactResponse> call, Response<ContactResponse> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body().getStatus().equalsIgnoreCase("success")) {
+                            List<Contact> contacts = response.body().getData();
+                            for (int i = 0; i < contacts.size() ; i++) {
+                                Contact c = contacts.get(i);
+                                c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
+                                c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
+
+                                String tanggalLk1 = c.getTanggal_lk1();
+                                if (tanggalLk1 != null) {
+                                    String tahunLk1 = tanggalLk1.split("-")[2];
+                                    c.setTahun_lk1(tahunLk1);
+                                }
+
+                                contactDao.insertContact(c);
+                            }
+
+                            getPermintaanLK1();
+                            getPermintaanAdmin();
+                        } else {
+                            Toast.makeText(getActivity(), "" + response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), "" + response.message(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ContactResponse> call, Throwable t) {
+                    Toast.makeText(getActivity(), "" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    Tools.dissmissProgressDialog();
+                }
+            });
+        } else{
+            Toast.makeText(getActivity(), "Tidak Ada Internet!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void getPermintaanLK1() {
@@ -182,13 +236,12 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                     PengajuanHistory pengajuanHistory = new PengajuanHistory(idPengajuan, idRoles, "", createdBy, approvedBy, dateCreated, dateApproved, status, tgl_lk1, level);
                                     pengajuanHistory.setNama(contactDao.getContactById(createdBy).getNama_depan());
                                     historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
+                                    pengajuanLK1Dao.insertPengajuan(pengajuanLK1);
 
                                     if (pengajuanLK1.getStatus() == 0) {
                                         listHistory.add(pengajuanHistory);
                                     }
                                 }
-//                                getOtherUser();
-//                                new Handler().postDelayed(() -> getOtherUser(), 500);
                             }
                         }
                     }
@@ -209,22 +262,6 @@ public class PermintaanFragment extends Fragment implements Ifragment {
             Tools.showToast(getActivity(), getString(R.string.tidak_ada_internet));
         }
     }
-
-//    private void getOtherUser() {
-//        List<Contact> contactList = contactDao.getAllListNonAdminUser();
-//        int size = contactList.size();
-//        for (int i = 0; i < size; i++) {
-//            Contact contact = contactList.get(i);
-//            if (historyPengajuanDao.getPengajuanHistory(contact.get_id()) == null) {
-//                int level = levelDao.getLevel(contact.getId_roles());
-//
-//                PengajuanHistory pengajuanHistory = new PengajuanHistory(String.valueOf(historyPengajuanDao.getAllPengajuanHistory().size()),
-//                        contact.getId_roles(), "", contact.get_id(), "", 0, 0, -1, "", level);
-//                pengajuanHistory.setNama(contact.getNama_depan());
-//                historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-//            }
-//        }
-//    }
 
     private boolean availableUser(Contact contact, List<PengajuanHistory> list) {
         boolean available = false;
@@ -262,6 +299,13 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                                     int status = Integer.valueOf(statusString);
                                     Log.d("halllo", "onResponse: " + idPengajuan);
 
+                                    // begin log
+                                    if (contactDao.getContactById(createdBy).getNama_depan().equalsIgnoreCase("Rofiudin")) {
+                                        Log.d("REQUEST LOG", "TOKEN " + Constant.getToken());
+                                        Log.d("REQUEST LOG", "REQUEST LOG Rofiudin has status " + statusString + " has id_pengajuan " + idPengajuan);
+                                    }
+                                    // end log
+
                                     int level = levelDao.getLevel(idRoles);
 
                                     PengajuanHistory pengajuanHistory = new PengajuanHistory(idPengajuan, idRoles, file, createdBy, approvedBy, dateCreated, dateApproved, status, "", level);
@@ -290,9 +334,16 @@ public class PermintaanFragment extends Fragment implements Ifragment {
     }
 
     private void initAdapter() {
-        adapter = new PermintaanAdapter(getActivity(), list, (type, id_pengajuan, contact) -> {
+        adapter = new PermintaanAdapter(getActivity(), list, (type, id_pengajuan, contact, pengajuanHistory) -> {
             if (type.equals(Constant.LIHAT)) {
-                startActivity(new Intent(getActivity(), ProfileChatActivity.class).putExtra("iduser", contact.get_id()).putExtra("idpengajuan", id_pengajuan));
+                Intent profileChatIntent = new Intent(getActivity(), ProfileChatActivity.class)
+                        .putExtra("iduser", contact.get_id())
+                        .putExtra("idpengajuan", id_pengajuan)
+                        .putExtra("MODE_REQUEST", true);
+                if (!pengajuanHistory.getTanggal_lk1().trim().isEmpty()) {
+                    profileChatIntent.putExtra(ProfileChatActivity.requestKader, true);
+                }
+                startActivity(profileChatIntent);
             } else if (type.equals(Constant.UBAH)) {
                 approveUser(contact, id_pengajuan, "1");
             } else if (type.equals(Constant.DOCUMENT)) {
@@ -332,8 +383,27 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             if (level != 2) {
                                 sendNotif(contact.get_id(), status);
                             } else {
-                                sendNotif(contact.get_id(), "3");
+                                sendNotif(contact.get_id(), "4");
                             }
+
+                            PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
+                            String idRoles = pengajuanHistory.getId_roles();
+                            int id_level = levelDao.getIdLevelByIdRole(idRoles);
+
+                            contact.setId_roles(idRoles);
+                            contact.setId_level(id_level);
+
+                            if (level == 2) {
+                                // update tanggalLk1 and tahunLk1 after approving kader
+                                String tanggalLk1 = pengajuanHistory.getTanggal_lk1();
+                                String tahunLk1 = tanggalLk1.split("-")[2];
+
+                                contact.setTanggal_lk1(tanggalLk1);
+                                contact.setTahun_lk1(tahunLk1);
+                            }
+
+                            contactDao.insertContact(contact);
+
                             historyPengajuanDao.updateApprovePengajuan(id_pengajuan);
                         }
                     }
@@ -462,32 +532,36 @@ public class PermintaanFragment extends Fragment implements Ifragment {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    List<PengajuanHistory> list;
+                    List<PengajuanHistoryJoin> list;
                     if (newText.isEmpty()) {
-                        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+                        if (Tools.isSuperAdmin()){
                             list = historyPengajuanDao.getAllListPengajuanHistory();
                         } else if (Tools.isLA1()){
-                            list = historyPengajuanDao.getAllListPengajuanHistoryLA1();
+                            list = historyPengajuanDao.getAllListPengajuanHistoryLA1(userDao.getUser().getCabang());
                         } else if (Tools.isLA2()){
                             list = historyPengajuanDao.getAllListPengajuanHistoryLA2();
                         } else if (Tools.isAdmin1()) {
-                            list = historyPengajuanDao.getAllListPengajuanHistoryAdmin1("%" + Tools.dateNow());
+                            list = historyPengajuanDao.getAllListPengajuanHistoryAdmin1(userDao.getUser().getKomisariat());
                         } else if (Tools.isAdmin2()) {
-                            list = historyPengajuanDao.getAllListPengajuanHistoryAdmin2("%" + Tools.dateNow());
+                            list = historyPengajuanDao.getAllListPengajuanHistoryAdmin2(userDao.getUser().getCabang(), "%" + Tools.dateNow());
+                        } else if (Tools.isSecondAdmin()) {
+                            list = historyPengajuanDao.getAllListPengajuanHistorySecondAdmin();
                         } else {
                             list = historyPengajuanDao.getAllListPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()));
                         }
                     } else {
-                        if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
+                        if (Tools.isSuperAdmin()){
                             list = historyPengajuanDao.getSearchAllPengajuanHistory("%" + newText + "%");
                         } else if (Tools.isLA1()){
-                            list = historyPengajuanDao.getSearchAllPengajuanHistoryLA1("%" + newText + "%");
+                            list = historyPengajuanDao.getSearchAllPengajuanHistoryLA1(userDao.getUser().getCabang(), "%" + newText + "%");
                         } else if (Tools.isLA2()){
                             list = historyPengajuanDao.getSearchAllPengajuanHistoryLA2("%" + newText + "%");
                         } else if (Tools.isAdmin1()) {
-                            list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin1("%" + Tools.dateNow(), "%" + newText + "%");
+                            list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin1(userDao.getUser().getKomisariat(), "%" + newText + "%");
                         } else if (Tools.isAdmin2()) {
-                            list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin2("%" + Tools.dateNow(), "%" + newText + "%");
+                            list = historyPengajuanDao.getSearchAllPengajuanHistoryAdmin2(userDao.getUser().getCabang(), "%" + Tools.dateNow(), "%" + newText + "%");
+                        } else if (Tools.isSecondAdmin()) {
+                            list = historyPengajuanDao.getSearchAllPengajuanHistorySecondAdmin("%" + newText + "%");
                         } else {
                             list = historyPengajuanDao.getSearchAllPengajuanHistory(levelDao.getLevel(userDao.getUser().getId_roles()), "%" + newText + "%");
                         }

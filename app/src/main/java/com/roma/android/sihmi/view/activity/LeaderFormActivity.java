@@ -208,19 +208,62 @@ public class LeaderFormActivity extends BaseActivity {
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_periode:
-                dialogTahun(etPeriode, 0);
+                dialogTahun(etPeriode, 0, true);
                 break;
             case R.id.et_sampai:
                 if (!etPeriode.getText().toString().trim().isEmpty()) {
                     int tahunMulai = Integer.valueOf(etPeriode.getText().toString());
-                    dialogTahun(etSampai, tahunMulai);
+                    dialogTahun(etSampai, tahunMulai, false);
                 }
                 break;
             case R.id.et_type:
-                Tools.showDialogType(this, etType, etNamaType);
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    Tools.showDialogType(this, res -> {
+                        etType.setText(res);
+
+                        if (res.equalsIgnoreCase("nasional")) {
+                            etNamaType.setText("PB HMI");
+                        }
+                        else if (res.equalsIgnoreCase("cabang")) {
+                            List<String> listCabang = masterDao.getMasterCabang();
+                            if (listCabang.size() > 0)
+                                etNamaType.setText(listCabang.get(0));
+                        }
+                        else if (res.equalsIgnoreCase("komisariat")) {
+                            List<String> listKomisariat = masterDao.getMasterKomisariat();
+                            if (listKomisariat.size() > 0)
+                                etNamaType.setText(listKomisariat.get(0));
+                        }
+                        else {
+                            etNamaType.setText(null);
+                        }
+                    });
+                }
                 break;
             case R.id.et_nama_type:
-                Tools.showDialogNamaType(this, etNamaType);
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    String[] array;
+                    List<String> list;
+                    if (etType.getText().toString().equalsIgnoreCase("cabang")) {
+                        list = masterDao.getMasterCabang();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                        Log.d("LEADER FORM", "LEADER FORM this is cabang and the length of list is " + array.length + " " + masterDao.getMasterCabang());
+                    }
+                    else if (etType.getText().toString().equalsIgnoreCase("komisariat")) {
+                        list = masterDao.getMasterKomisariat();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                        Log.d("LEADER FORM", "LEADER FORM this is komisariat and the length of list is " + array.length + " " + masterDao.getMasterKomisariat().size());
+                    }
+                    else {
+                        array = new String[1];
+                        array[0] = "PB HMI";
+                    }
+                    Tools.showDialogNamaType(this, array, res -> {
+                        etNamaType.setText(res);
+                    });
+                }
                 break;
         }
     }
@@ -242,44 +285,6 @@ public class LeaderFormActivity extends BaseActivity {
             Tools.showToast(this, getString(R.string.field_mandatory));
         }
     }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == Constant.REQUEST_GALLERY_CODE && resultCode == Activity.RESULT_OK){
-//            Uri uri = data.getData();
-//            String filePath = UploadFile.getRealPathFromURIPath(uri, LeaderFormActivity.this);
-//
-//            if (Tools.isOnline(this)) {
-//                Tools.showProgressDialog(LeaderFormActivity.this, "Mengungah Foto...");
-//                UploadFile.uploadFileToServer(Constant.IMAGE, filePath, new Callback<UploadFileResponse>() {
-//                    @Override
-//                    public void onResponse(Call<UploadFileResponse> call, Response<UploadFileResponse> response) {
-//                        if (response.isSuccessful()) {
-//                            if (response.body().getStatus().equalsIgnoreCase("ok")) {
-//                                if (response.body().getData().size() > 0) {
-//                                    urlImage = response.body().getData().get(0).getUrl();
-//
-//                                    Glide.with(LeaderFormActivity.this)
-//                                            .load(Uri.parse(urlImage))
-//                                            .into(imgFoto);
-//                                }
-//                            }
-//                        }
-//                        Tools.dissmissProgressDialog();
-//                    }
-//
-//                    @Override
-//                    public void onFailure(Call<UploadFileResponse> call, Throwable t) {
-//                        Tools.dissmissProgressDialog();
-//                    }
-//                });
-//            } else {
-//                Tools.showToast(LeaderFormActivity.this, getString(R.string.tidak_ada_internet));
-//            }
-//
-//        }
-//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -442,16 +447,26 @@ public class LeaderFormActivity extends BaseActivity {
 
     }
 
-    private void dialogTahun(EditText editText, int tahunMulai){
+    private void dialogTahun(EditText editText, int tahunMulai, boolean reset){
+        int layoutHeight = (int)(Tools.getScreenHeight() * 0.6);
+        int layoutWidth = 250;
+
+        Log.d("LOG DIALOG TAHUN", "LOG DIALOG TAHUN height : " + layoutHeight);
+
+        if (layoutHeight > 800) layoutHeight = 800;
+
         String[] tahun = listTahun(tahunMulai).toArray(new String[listTahun(tahunMulai).size()]);
         AlertDialog dialog = new AlertDialog.Builder(this, R.style.mydialog)
                 .setItems(tahun, (dialog1, which) -> {
                     editText.setText(tahun[which]);
+                    if (reset) {
+                        etSampai.setText(null);
+                    }
                     dialog1.dismiss();
                 }).create();
         dialog.show();
         Window window = dialog.getWindow();
-        window.setLayout(250, 800);
+        window.setLayout(layoutWidth, layoutHeight);
         window.setGravity(Gravity.CENTER);
     }
 

@@ -27,7 +27,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/grafik_alumni"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="16sp" />
 
                 <TextView
@@ -58,7 +58,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/grafik_kaderisasi"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="16sp" />
 
                 <TextView
@@ -89,7 +89,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="8dp"
                     android:text="@string/data_pelatihan_kader"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="16sp" />
 
                 <RelativeLayout
@@ -144,7 +144,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginBottom="4dp"
                                 android:text="@string/jenis_kelamin"
-                                android:textColor="@android:color/black"
+                                android:textColor="?attr/textcolor"
                                 android:textSize="24sp"
                                 android:textStyle="bold" />
 
@@ -213,7 +213,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/data_kader"
-                    android:textColor="@android:color/black"
+                    android:textColor="?attr/textcolor"
                     android:textSize="16sp" />
 
                 <androidx.cardview.widget.CardView
@@ -243,42 +243,42 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="@string/tahun"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK1"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK2"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="LK3"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="SC"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
 
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:text="TID"
-                                android:textColor="@android:color/black" />
+                                android:textColor="?attr/textcolor" />
                         </LinearLayout>
 
                         <View

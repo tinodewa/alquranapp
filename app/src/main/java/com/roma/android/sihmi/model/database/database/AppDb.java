@@ -3,10 +3,12 @@ package com.roma.android.sihmi.model.database.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.roma.android.sihmi.model.database.entity.AboutUs;
 import com.roma.android.sihmi.model.database.entity.Agenda;
@@ -19,11 +21,13 @@ import com.roma.android.sihmi.model.database.entity.Job;
 import com.roma.android.sihmi.model.database.entity.Konstituisi;
 import com.roma.android.sihmi.model.database.entity.Leader;
 import com.roma.android.sihmi.model.database.entity.Level;
+import com.roma.android.sihmi.model.database.entity.LoadDataState;
 import com.roma.android.sihmi.model.database.entity.Master;
 import com.roma.android.sihmi.model.database.entity.Medsos;
 import com.roma.android.sihmi.model.database.entity.Pendidikan;
 import com.roma.android.sihmi.model.database.entity.Pengajuan;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
+import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.Sejarah;
 import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.entity.User;
@@ -39,8 +43,10 @@ import com.roma.android.sihmi.model.database.interfaceDao.InterfaceDao;
 import com.roma.android.sihmi.model.database.interfaceDao.KonstitusiDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LeaderDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
+import com.roma.android.sihmi.model.database.interfaceDao.LoadDataStateDao;
 import com.roma.android.sihmi.model.database.interfaceDao.MasterDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
 import com.roma.android.sihmi.model.database.interfaceDao.SejarahDao;
 import com.roma.android.sihmi.model.database.interfaceDao.TrainingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
@@ -48,28 +54,31 @@ import com.roma.android.sihmi.utils.Constant;
 
 @Database(
         entities = {
-                AboutUs.class,
-                Agenda.class,
-                Alamat.class,
-                Chating.class,
-                Contact.class,
-                File.class,
-                GroupChat.class,
-                Job.class,
-                Konstituisi.class,
-                Leader.class,
-                Level.class,
-                Master.class,
-                Medsos.class,
-                Pendidikan.class,
-                Pengajuan.class,
-                PengajuanHistory.class,
-                Sejarah.class,
-                Training.class,
-                User.class },
-        version = 22,
+            AboutUs.class,
+            Agenda.class,
+            Alamat.class,
+            Chating.class,
+            Contact.class,
+            File.class,
+            GroupChat.class,
+            Job.class,
+            Konstituisi.class,
+            Leader.class,
+            Level.class,
+            Master.class,
+            Medsos.class,
+            Pendidikan.class,
+            Pengajuan.class,
+            PengajuanHistory.class,
+            Sejarah.class,
+            Training.class,
+            User.class,
+            LoadDataState.class,
+            PengajuanLK1.class
+        },
+        version = 25,
         exportSchema = false)
-public abstract class AppDb extends RoomDatabase {
+public abstract class   AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
 
     public abstract AboutUsDao aboutUsDao();
@@ -89,6 +98,8 @@ public abstract class AppDb extends RoomDatabase {
     public abstract SejarahDao sejarahDao();
     public abstract TrainingDao trainingDao();
     public abstract UserDao userDao();
+    public abstract LoadDataStateDao loadDataStateDao();
+    public abstract PengajuanLK1Dao pengajuanLK1Dao();
 
     public static AppDb getInstance(Context context){
         if (instance == null){
@@ -96,10 +107,48 @@ public abstract class AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
+                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25)
                         .build();
             }
         }
         return instance;
     }
 
+    private static final Migration MIGRATION_22_23 = new Migration(22, 23) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Contact ADD COLUMN dateRole INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+    private static final Migration MIGRATION_23_24 = new Migration(23, 24) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE LoadDataState (" +
+                    "id INTEGER PRIMARY KEY NOT NULL," +
+                    "isLoaded INTEGER DEFAULT 0 NOT NULL," +
+                    "timeLoaded INTEGER DEFAULT 0 NOT NULL" +
+                    ")");
+        }
+    };
+
+    private static final Migration MIGRATION_24_25 = new Migration(24, 25) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("CREATE TABLE PengajuanLK1 (" +
+                    "_id TEXT PRIMARY KEY NOT NULL," +
+                    "badko TEXT," +
+                    "cabang TEXT," +
+                    "korkom TEXT," +
+                    "komisariat TEXT," +
+                    "tanggal_lk1 TEXT," +
+                    "tahun_lk1 TEXT," +
+                    "created_by TEXT," +
+                    "modified_by TEXT," +
+                    "date_created INTEGER NOT NULL DEFAULT 0," +
+                    "date_modified INTEGER NOT NULL DEFAULT 0," +
+                    "status INTEGER NOT NULL DEFAULT 0" +
+                    ")");
+        }
+    };
 }

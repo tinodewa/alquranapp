@@ -378,7 +378,7 @@
     <string name="jumlah">Total</string>
     <string name="kader">Kader</string>
     <string name="non_kader">Non Kader</string>
-    <string name="permintaan_admin_anggota">Admin/Member Request</string>
+    <string name="permintaan_admin_anggota">Request</string>
     <string name="anggota">Member</string>
     <string name="permintaan_anggota">Member Request</string>
     <string name="sampai_selesai">- Finish</string>
@@ -435,5 +435,21 @@
     <string name="jadikan_admin">Make an Admin</string>
     <string name="peringatan">Warning</string>
     <string name="kesalahan_data">An error occurred while accessing data, please log in again</string>
+    <string name="anggota_berakhir">Member Has Been Ended</string>
+    <string name="anggota_berakhir_desc">Thank you for being member in HMI</string>
+    <string name="tutup">Close</string>
+    <string name="pengajuan_ditolak_desc">Your request has been rejected.</string>
+    <string name="pengajuan_ditolak">Sorry, not the time.</string>
+    <string name="batalkan_permintaan">Reject this request</string>
+    <string name="gagal_membatalkan">Reject failed</string>
+    <string name="membatalkan_permintaan">Rejecting request...</string>
+    <string name="memuat_data">Loading data ...</string>
+    <string name="download_image">Download Image</string>
+    <string name="coba_lagi">Try Again</string>
+    <string name="gagal_memuat_data">Failed while loading data</string>
+    <string name="tanggal_lk1_over">LK1 date cannot be over current date</string>
+    <string name="tahun_overload">Year field can not be more than current year</string>
+    <string name="same_training_type">Can not add training data with same type</string>
+    <string name="invalid_year_format">Invalid year format</string>
 
 </resources>

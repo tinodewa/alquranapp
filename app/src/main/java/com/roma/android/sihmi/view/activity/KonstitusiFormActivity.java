@@ -33,6 +33,7 @@ import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -231,11 +232,50 @@ public class KonstitusiFormActivity extends BaseActivity {
     public void click(EditText editText){
         switch (editText.getId()){
             case R.id.et_type:
-                Tools.showDialogType(this, etType, etNamaType);
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    Tools.showDialogType(this, res -> {
+                        etType.setText(res);
+
+                        if (res.equalsIgnoreCase("nasional")) {
+                            etNamaType.setText("PB HMI");
+                        }
+                        else if (res.equalsIgnoreCase("cabang")) {
+                            List<String> listCabang = masterDao.getMasterCabang();
+                            if (listCabang.size() > 0)
+                                etNamaType.setText(listCabang.get(0));
+                        }
+                        else if (res.equalsIgnoreCase("komisariat")) {
+                            List<String> listKomisariat = masterDao.getMasterKomisariat();
+                            if (listKomisariat.size() > 0)
+                                etNamaType.setText(listKomisariat.get(0));
+                        }
+                        else {
+                            etNamaType.setText(null);
+                        }
+                    });
+                }
                 break;
             case R.id.et_nama_type:
-                if (Tools.isSuperAdmin()) {
-                    Tools.showDialogNamaType(this, etNamaType);
+                if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                    String[] array;
+                    List<String> list;
+                    if (etType.getText().toString().equalsIgnoreCase("cabang")) {
+                        list = masterDao.getMasterCabang();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                    }
+                    else if (etType.getText().toString().equalsIgnoreCase("komisariat")) {
+                        list = masterDao.getMasterKomisariat();
+                        array = new String[list.size()];
+                        list.toArray(array);
+                    }
+                    else {
+                        array = new String[1];
+                        array[0] = "PB HMI";
+                    }
+                    Tools.showDialogNamaType(this, array, res -> {
+                        etNamaType.setText(res);
+                    });
                 }
                 break;
             case R.id.et_unggah:
