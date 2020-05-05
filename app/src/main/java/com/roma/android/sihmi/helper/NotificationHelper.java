@@ -22,9 +22,11 @@ import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.notification.Message;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.ChatActivity;
+import com.roma.android.sihmi.view.activity.ChatGroupActivity;
 import com.roma.android.sihmi.view.activity.SplashActivity;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -32,23 +34,27 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
 public class NotificationHelper {
-    public static  final String TYPE_PERSONAL = "__type_personal__";
-    private static HashMap<String, List<Message>> MESSAGE;
+    private static HashMap<String, List<Message>> MESSAGE = new HashMap<>();
+    private static List<Integer> UNUSED_MESSAGE_RC = new ArrayList<>();
+    private static List<Integer> USED_MESSAGE_RC = new ArrayList<>();
+    private static HashMap<String, Integer> MESSAGE_RC = new HashMap<>();
     private static String CHANNEL_ID = "com.example.root.sihmi";
     public static final int ID_CHAT = 1;
     private static final int ID_GENERAL = 2;
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
+    public static final String TYPE_MESSAGE = "__type_message__";
+    private static String GROUP_NOTIFICATION_MESSAGE = "com.roma.android.sihmi.MESSAGE";
 
     public static void sendNotification(RemoteMessage remoteMessage, Contact contact, Context context) {
         String title = remoteMessage.getData().get("title");
         String body = remoteMessage.getData().get("body");
+        String groupName = remoteMessage.getData().get("groupName");
         String type = remoteMessage.getData().get("type");
 
-        if (type != null) {
-            String TYPE_GROUP = "__type_group__";
-            if ((type.equals(TYPE_PERSONAL) || type.equals(TYPE_GROUP) && !contact.isBisukan())) {
+        if (type != null && type.equals(TYPE_MESSAGE)) {
+            if (!contact.isBisukan()) {
                 Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
-                sendNotificationMessaging(message, context, contact, type.equals(TYPE_GROUP));
+                sendNotificationMessaging(message, context, contact, groupName);
             }
             else {
                 // force general
@@ -61,11 +67,10 @@ public class NotificationHelper {
         }
     }
 
-    private static void sendNotificationMessaging(Message message, Context context, Contact contact, boolean isGroup) {
+    private static void sendNotificationMessaging(Message message, Context context, Contact contact, String groupName) {
+        int SUMMARY_ID = 0;
+        boolean isGroup = groupName != null;
         String key = contact.get_id()+"_"+ID_CHAT;
-        if (MESSAGE == null) {
-            MESSAGE = new HashMap<>();
-        }
 
         List<Message> messages = MESSAGE.get(key);
 
@@ -73,14 +78,35 @@ public class NotificationHelper {
             messages = new ArrayList<>();
         }
 
-        Intent intent = new Intent(context, ChatActivity.class)
-                .putExtra("nama", contact.getFullName()).putExtra("iduser", contact.get_id());
+        Integer messageRequestCode = MESSAGE_RC.get(key);
+        if (messageRequestCode == null) {
+            if (UNUSED_MESSAGE_RC.size() > 0) {
+                messageRequestCode = UNUSED_MESSAGE_RC.get(0);
+                USED_MESSAGE_RC.add(messageRequestCode);
+            }
+            else {
+                messageRequestCode = USED_MESSAGE_RC.size();
+                USED_MESSAGE_RC.add(messageRequestCode);
+            }
+            Collections.sort(USED_MESSAGE_RC);
+        }
+
+        Intent intent;
+        if (isGroup) {
+            intent = new Intent(context, ChatGroupActivity.class)
+                    .putExtra(ChatGroupActivity.NAMA_GROUP, groupName);
+        }
+        else {
+            intent = new Intent(context, ChatActivity.class)
+                    .putExtra("nama", contact.getFullName()).putExtra("iduser", contact.get_id());
+        }
+
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, messageRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         messages.add(message);
         MESSAGE.put(key, messages);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
-        
+
         Notification notification;
 
         BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -88,6 +114,15 @@ public class NotificationHelper {
             public void onReceive(Context context, Intent intent) {
                 Log.d("REMOVE MESSAGE", "REMOVE MESSAGE " + key);
                 removeHistoryMessage(key);
+                Integer messageRc = MESSAGE_RC.get(key);
+                if (messageRc != null) {
+                    MESSAGE_RC.remove(key);
+                    USED_MESSAGE_RC.remove((int) messageRc);
+                    UNUSED_MESSAGE_RC.add(messageRc);
+
+                    Collections.sort(USED_MESSAGE_RC);
+                    Collections.sort(UNUSED_MESSAGE_RC);
+                }
                 context.unregisterReceiver(this);
             }
         };
@@ -98,7 +133,7 @@ public class NotificationHelper {
         PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(context, 0, cancelIntent, 0);
 
         context.registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
-                
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Log.d("NOTIFICATION HELPER", "NOTIFICATION HELPER oreo");
             NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, "SIHMI", NotificationManager.IMPORTANCE_HIGH);
@@ -108,7 +143,6 @@ public class NotificationHelper {
             notificationManager.createNotificationChannel(notificationChannel);
 
             Notification.MessagingStyle messagingStyle = new Notification.MessagingStyle(context.getString(R.string.you));
-            messagingStyle.setConversationTitle(context.getString(R.string.message_from) + contact.getNama_panggilan());
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 messagingStyle.setGroupConversation(isGroup);
             }
@@ -162,17 +196,18 @@ public class NotificationHelper {
                     .setSmallIcon(R.drawable.ic_stat_name)
                     .setColor(ContextCompat.getColor(context, R.color.colorlogo))
                     .setStyle(messagingStyle)
+                    .setShowWhen(true)
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setContentIntent(pendingIntent)
                     .setDeleteIntent(cancelPendingIntent)
                     .setAutoCancel(true)
+                    .setGroup(GROUP_NOTIFICATION_MESSAGE)
                     .build();
         }
         else {
             Log.d("NOTIFICATION HELPER", "NOTIFICATION HELPER not oreo");
             //noinspection deprecation
             NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(context.getString(R.string.you));
-            messagingStyle.setConversationTitle(context.getString(R.string.message_from) + contact.getNama_panggilan());
             messagingStyle.setGroupConversation(isGroup);
 
             for (Message m : messages) {
@@ -185,32 +220,106 @@ public class NotificationHelper {
                     .setSmallIcon(R.drawable.ic_stat_name)
                     .setColor(ContextCompat.getColor(context, R.color.colorlogo))
                     .setStyle(messagingStyle)
+                    .setShowWhen(true)
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setContentIntent(pendingIntent)
                     .setDeleteIntent(cancelPendingIntent)
                     .setAutoCancel(true)
+                    .setGroup(GROUP_NOTIFICATION_MESSAGE)
                     .build();
         }
 
+        NotificationCompat.InboxStyle inboxStyle = new NotificationCompat.InboxStyle()
+                .setBigContentTitle(getSummaryTitle())
+                .setSummaryText(getSummaryTitleShort());
+
+        for (String summary : getMessageSummaryItem()) {
+            inboxStyle.addLine(summary);
+        }
+
+        Intent mainActivityIntent = new Intent(context, ChatActivity.class);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(context, 0, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Notification summaryNotification = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setContentTitle(getSummaryTitleShort())
+                .setContentTitle(getSummaryTitle())
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setColor(ContextCompat.getColor(context, R.color.colorlogo))
+                .setShowWhen(true)
+                .setStyle(inboxStyle)
+                .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setGroup(GROUP_NOTIFICATION_MESSAGE)
+                .setGroupSummary(true)
+                .setContentIntent(mainActivityPendingIntent)
+                .build();
+
         notificationManager.notify(contact.get_id(), ID_CHAT, notification);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            notificationManager.notify(SUMMARY_ID, summaryNotification);
+        }
     }
 
     private static void sendNotificationGeneral(String title, String body, Context context, Contact contact) {
         Log.d("NOTIFICATION HELPER", "NOTIFICATION HELPER general");
         Intent intent;
+        PendingIntent pendingIntent;
+        PendingIntent cancelPendingIntent = null;
 
         if (contact != null) {
+            String key = contact.get_id()+"_"+ID_CHAT;
             body = contact.getNama_panggilan() + " : " + body;
+
+            Integer messageRequestCode = MESSAGE_RC.get(key);
+            if (messageRequestCode == null) {
+                if (UNUSED_MESSAGE_RC.size() > 0) {
+                    messageRequestCode = UNUSED_MESSAGE_RC.get(0);
+                    USED_MESSAGE_RC.add(messageRequestCode);
+                }
+                else {
+                    messageRequestCode = USED_MESSAGE_RC.size();
+                    USED_MESSAGE_RC.add(messageRequestCode);
+                }
+                Collections.sort(USED_MESSAGE_RC);
+            }
+
             intent = new Intent(context, ChatActivity.class).putExtra("nama", contact.getFullName()).putExtra("iduser", contact.get_id());
+            pendingIntent = PendingIntent.getActivity(context, messageRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            BroadcastReceiver receiver = new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    Log.d("REMOVE MESSAGE", "REMOVE MESSAGE " + key);
+                    removeHistoryMessage(key);
+                    Integer messageRc = MESSAGE_RC.get(key);
+                    if (messageRc != null) {
+                        MESSAGE_RC.remove(key);
+                        USED_MESSAGE_RC.remove((int) messageRc);
+                        UNUSED_MESSAGE_RC.add(messageRc);
+
+                        Collections.sort(USED_MESSAGE_RC);
+                        Collections.sort(UNUSED_MESSAGE_RC);
+                    }
+                    context.unregisterReceiver(this);
+                }
+            };
+
+            Intent cancelIntent = new Intent(NOTIFICATION_DELETED_ACTION);
+            cancelPendingIntent = PendingIntent.getBroadcast(context, 0, cancelIntent, 0);
+
+            context.registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
+
         }
         else {
             intent = new Intent(context, SplashActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+
+            pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
-
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -229,7 +338,9 @@ public class NotificationHelper {
                     .setContentTitle(title)
                     .setContentText(Tools.convertUTF8ToString(body))
                     .setCategory(Notification.CATEGORY_MESSAGE)
+                    .setDeleteIntent(cancelPendingIntent)
                     .setContentIntent(pendingIntent)
+                    .setGroup(GROUP_NOTIFICATION_MESSAGE)
                     .setAutoCancel(true)
                     .build();
         }
@@ -241,7 +352,9 @@ public class NotificationHelper {
                     .setContentText(Tools.convertUTF8ToString(body))
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setDeleteIntent(cancelPendingIntent)
                     .setContentIntent(pendingIntent)
+                    .setGroup(GROUP_NOTIFICATION_MESSAGE)
                     .setAutoCancel(true)
                     .build();
         }
@@ -258,8 +371,46 @@ public class NotificationHelper {
     public static void removeAllHistoryMessage() {
         if (MESSAGE != null) {
             MESSAGE.clear();
-            MESSAGE = null;
         }
+    }
+
+    private static int getCountAllMessage() {
+        int count = 0;
+        for (String key: MESSAGE.keySet()) {
+            List<Message> m = MESSAGE.get(key);
+            if (m != null) {
+                count += m.size();
+            }
+        }
+        return count;
+    }
+
+    private static String getSummaryTitle() {
+        int countC = MESSAGE.size();
+        int countM = getCountAllMessage();
+        String messageName = (countM > 1) ? "messages" : "message";
+        String chatName = (countC > 1) ? "chats" : "chat";
+
+        return countM + " new " + messageName + " from " + countC + " " + chatName;
+    }
+
+    private static String getSummaryTitleShort() {
+        int countC = MESSAGE.size();
+
+        return countC + " new " + (countC > 0 ? "messages" : "message");
+    }
+
+    private static List<String> getMessageSummaryItem() {
+        List<String> summaries = new ArrayList<>();
+        for (String key: MESSAGE.keySet()) {
+            List<Message> m = MESSAGE.get(key);
+            if (m != null) {
+                Message lastMessage = m.get(m.size()-1);
+                summaries.add(lastMessage.getSender() + " " + lastMessage.getText());
+            }
+        }
+
+        return summaries;
     }
 }
 

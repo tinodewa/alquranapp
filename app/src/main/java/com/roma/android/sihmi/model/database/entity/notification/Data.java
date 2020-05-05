@@ -1,18 +1,26 @@
 package com.roma.android.sihmi.model.database.entity.notification;
 
 public class Data {
-    String user, body, title, sented, type;
+    String user, body, title, sented, groupName, type;
     int icon;
 
     public Data() {
     }
 
-    public Data(String user, int icon, String body, String title, String sented, String type) {
+    public Data(String user, int icon, String body, String title, String sented, String groupName) {
         this.user = user;
         this.icon = icon;
         this.body = body;
         this.title = title;
         this.sented = sented;
+        this.groupName = groupName;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
         this.type = type;
     }
 

@@ -312,7 +312,15 @@ public class ChatActivity extends BaseActivity {
                             if (response.body().getData().size() > 0) {
                                 String url = response.body().getData().get(0).getUrl();
                                 sendMessage(type, url);
-//                                updatePhoto(response.body().getData().get(0).getUrl());
+
+                                String message;
+                                if (type.equals(Constant.IMAGE)) {
+                                    message = "\uD83D\uDCF7 send an image";
+                                }
+                                else {
+                                    message = "\uD83D\uDCC4 send a document";
+                                }
+                                sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
                             }
                         }
                     }
@@ -369,11 +377,6 @@ public class ChatActivity extends BaseActivity {
         databaseReference.child("Chats_v2").push().setValue(hashMap);
         chatList();
         chatListOtherUser();
-
-//        String msg = etMessage.getText().toString().trim();
-//        if (type.equals(Constant.STICKER)){
-//            msg = message;
-//        }
 
         if (notify && (type.equals(Constant.TEXT) || type.equals(Constant.STICKER))) {
             sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
@@ -466,9 +469,8 @@ public class ChatActivity extends BaseActivity {
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
             for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
                 Token token = snapshot.getValue(Token.class);
-                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "New Message",
-                        otheruser,
-                        NotificationHelper.TYPE_PERSONAL);
+                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "New Message", otheruser, null);
+                data.setType(NotificationHelper.TYPE_MESSAGE);
 
                 Sender sender = new Sender(data, token.getToken());
 
