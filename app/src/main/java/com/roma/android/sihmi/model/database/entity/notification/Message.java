@@ -1,13 +1,21 @@
 package com.roma.android.sihmi.model.database.entity.notification;
 
 public class Message {
-    private String sender, text;
+    private String sender, text, groupName;
     private long timestamp;
 
     public Message(String sender, String text, long timestamp) {
         this.sender = sender;
         this.text = text;
         this.timestamp = timestamp;
+    }
+
+    public String getGroupName() {
+        return groupName;
+    }
+
+    public void setGroupName(String groupName) {
+        this.groupName = groupName;
     }
 
     public String getSender() {

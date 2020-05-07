@@ -31,6 +31,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
@@ -168,21 +169,15 @@ public class ChatGroupActivity extends BaseActivity {
         myuser = userDao.getUser().get_id();
         databaseReference = FirebaseDatabase.getInstance().getReference();
         readMessage();
+
+        if (namaGroup != null) {
+            String key = namaGroup+"_"+ NotificationHelper.ID_CHAT;
+            NotificationHelper.removeHistoryMessage(key);
+        }
     }
 
     private void initToolbar(){
         tvTitle.setText(getIntent().getStringExtra(NAMA_GROUP));
-//        if (otherUser.getImage() != null && !otherUser.getImage().trim().isEmpty()) {
-//            imgProfile.setVisibility(View.VISIBLE);
-//            ivInitial.setVisibility(View.GONE);
-//            Glide.with(this).load(otherUser.getImage()).into(imgProfile);
-//        } else {
-//            imgProfile.setVisibility(View.GONE);
-//            ivInitial.setVisibility(View.VISIBLE);
-//            Tools.initial(ivInitial, otherUser.getFullName());
-//        }
-
-//        toolbar.setTitle(getIntent().getStringExtra(NAMA_GROUP).toUpperCase());
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -232,11 +227,6 @@ public class ChatGroupActivity extends BaseActivity {
         rvChat.setLayoutManager(llm);
         rvChat.setHasFixedSize(true);
         rvChat.setAdapter(adapter);
-
-    }
-
-    private void sendNotification() {
-
 
     }
 

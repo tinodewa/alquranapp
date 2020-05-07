@@ -23,6 +23,7 @@ import com.roma.android.sihmi.model.database.entity.notification.Message;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.ChatActivity;
 import com.roma.android.sihmi.view.activity.ChatGroupActivity;
+import com.roma.android.sihmi.view.activity.MainActivity;
 import com.roma.android.sihmi.view.activity.SplashActivity;
 
 import java.util.ArrayList;
@@ -42,35 +43,44 @@ public class NotificationHelper {
     public static final int ID_CHAT = 1;
     private static final int ID_GENERAL = 2;
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-    public static final String TYPE_MESSAGE = "__type_message__";
+    private static final String SUMMARY_NOTIFICATION_DELETED_ACTION = "SUMMARY_NOTIFICATION_DELETED";
+    private static final String TYPE_MESSAGE = "__type_message__";
     private static String GROUP_NOTIFICATION_MESSAGE = "com.roma.android.sihmi.MESSAGE";
 
     public static void sendNotification(RemoteMessage remoteMessage, Contact contact, Context context) {
-        String title = remoteMessage.getData().get("title");
+//        String title = remoteMessage.getData().get("title");
         String body = remoteMessage.getData().get("body");
-        String groupName = remoteMessage.getData().get("groupName");
+        String groupChat = remoteMessage.getData().get("groupChat");
         String type = remoteMessage.getData().get("type");
+        String groupName = null;
 
-        if (type != null && type.equals(TYPE_MESSAGE)) {
-            if (!contact.isBisukan()) {
-                Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
-                sendNotificationMessaging(message, context, contact, groupName);
-            }
-            else {
-                // force general
-                sendNotificationGeneral(title, body, context, contact);
-            }
+        if (groupChat != null && groupChat.equals("GROUP_CHAT")) {
+            groupName = remoteMessage.getData().get("sented");
         }
-        else {
-            // force general
-            sendNotificationGeneral(title, body, context, contact);
+
+        if (type != null) {
+            if (type.equals(TYPE_MESSAGE)) {
+                if (!contact.isBisukan()) {
+                    Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
+                    if (groupName != null) {
+                        message.setGroupName(groupName);
+                    }
+                    sendNotificationMessaging(message, context, contact, groupName);
+                }
+            }
         }
     }
 
     private static void sendNotificationMessaging(Message message, Context context, Contact contact, String groupName) {
         int SUMMARY_ID = 0;
         boolean isGroup = groupName != null;
-        String key = contact.get_id()+"_"+ID_CHAT;
+        String key;
+        if (isGroup) {
+            key = groupName+"_"+ID_CHAT;
+        }
+        else {
+            key = contact.get_id()+"_"+ID_CHAT;
+        }
 
         List<Message> messages = MESSAGE.get(key);
 
@@ -127,10 +137,10 @@ public class NotificationHelper {
             }
         };
 
-        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
         Intent cancelIntent = new Intent(NOTIFICATION_DELETED_ACTION);
         PendingIntent cancelPendingIntent = PendingIntent.getBroadcast(context, 0, cancelIntent, 0);
+
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         context.registerReceiver(receiver, new IntentFilter(NOTIFICATION_DELETED_ACTION));
 
@@ -145,6 +155,7 @@ public class NotificationHelper {
             Notification.MessagingStyle messagingStyle = new Notification.MessagingStyle(context.getString(R.string.you));
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 messagingStyle.setGroupConversation(isGroup);
+                messagingStyle.setConversationTitle(groupName);
             }
 
             for (Message m : messages) {
@@ -209,6 +220,7 @@ public class NotificationHelper {
             //noinspection deprecation
             NotificationCompat.MessagingStyle messagingStyle = new NotificationCompat.MessagingStyle(context.getString(R.string.you));
             messagingStyle.setGroupConversation(isGroup);
+            messagingStyle.setConversationTitle(groupName);
 
             for (Message m : messages) {
                 //noinspection deprecation
@@ -238,14 +250,13 @@ public class NotificationHelper {
             inboxStyle.addLine(summary);
         }
 
-        Intent mainActivityIntent = new Intent(context, ChatActivity.class);
+        Intent mainActivityIntent = new Intent(context, MainActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent mainActivityPendingIntent = PendingIntent.getActivity(context, 0, mainActivityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Notification summaryNotification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setContentTitle(getSummaryTitleShort())
-                .setContentTitle(getSummaryTitle())
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setColor(ContextCompat.getColor(context, R.color.colorlogo))
                 .setShowWhen(true)
@@ -254,17 +265,31 @@ public class NotificationHelper {
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setGroup(GROUP_NOTIFICATION_MESSAGE)
                 .setGroupSummary(true)
+                .setAutoCancel(true)
                 .setContentIntent(mainActivityPendingIntent)
                 .build();
 
-        notificationManager.notify(contact.get_id(), ID_CHAT, notification);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            notificationManager.notify(SUMMARY_ID, summaryNotification);
+        String tagName;
+        if (isGroup) {
+            tagName = groupName;
         }
+        else {
+            tagName = contact.get_id();
+        }
+        notificationManager.notify(tagName, ID_CHAT, notification);
+        notificationManager.notify(SUMMARY_ID, summaryNotification);
     }
 
-    private static void sendNotificationGeneral(String title, String body, Context context, Contact contact) {
+    public static void removeAllMessageRC() {
+        if (MESSAGE_RC != null) {
+            MESSAGE_RC.clear();
+        }
+
+        USED_MESSAGE_RC.clear();
+        UNUSED_MESSAGE_RC.clear();
+    }
+
+    private static void sendNotificationGeneral(String title, String body, Context context, Contact contact, String tagName) {
         Log.d("NOTIFICATION HELPER", "NOTIFICATION HELPER general");
         Intent intent;
         PendingIntent pendingIntent;
@@ -359,7 +384,7 @@ public class NotificationHelper {
                     .build();
         }
 
-        notificationManager.notify(ID_GENERAL, notification);
+        notificationManager.notify(tagName, ID_GENERAL, notification);
     }
 
     public static void removeHistoryMessage(String key) {
@@ -406,7 +431,12 @@ public class NotificationHelper {
             List<Message> m = MESSAGE.get(key);
             if (m != null) {
                 Message lastMessage = m.get(m.size()-1);
-                summaries.add(lastMessage.getSender() + " " + lastMessage.getText());
+                if (lastMessage.getGroupName() != null) {
+                    summaries.add( "(" + lastMessage.getGroupName() + ")" +  lastMessage.getSender() + " " + lastMessage.getText());
+                }
+                else {
+                    summaries.add(lastMessage.getSender() + " " + lastMessage.getText());
+                }
             }
         }
 

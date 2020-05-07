@@ -40,7 +40,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Log.d(TAG, "onMessageReceived: Message " + sented + " - " + user + " - " + currentUser + " - " + userDao.getUser().get_id());
             Contact contact = contactDao.getContactById(user);
 
-            NotificationHelper.sendNotification(remoteMessage, contact, this);
+            if (user != null && !user.equals(userDao.getUser().get_id())) {
+                NotificationHelper.sendNotification(remoteMessage, contact, this);
+            }
         } catch (NullPointerException e){
             e.printStackTrace();
         }

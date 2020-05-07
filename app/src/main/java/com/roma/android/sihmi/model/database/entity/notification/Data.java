@@ -1,19 +1,27 @@
 package com.roma.android.sihmi.model.database.entity.notification;
 
 public class Data {
-    String user, body, title, sented, groupName, type;
+    String user, body, title, sented, type;
     int icon;
+    String groupChat;
 
     public Data() {
     }
 
-    public Data(String user, int icon, String body, String title, String sented, String groupName) {
+    public Data(String user, int icon, String body, String title, String sented) {
         this.user = user;
         this.icon = icon;
         this.body = body;
         this.title = title;
         this.sented = sented;
-        this.groupName = groupName;
+    }
+
+    public String getGroupChat() {
+        return groupChat;
+    }
+
+    public void setGroupChat(String groupChat) {
+        this.groupChat = groupChat;
     }
 
     public String getType() {

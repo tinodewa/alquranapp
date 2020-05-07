@@ -312,7 +312,9 @@ public class LoadDataActivityViewModel extends ViewModel {
             }
 
             for(GroupChat groupChat : groupChats) {
-                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupChat.getNama();
+                String[] groupNameSplit = groupChat.getNama().split(" ");
+                String groupName = String.join("_", groupNameSplit);
+                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupName;
                 FirebaseMessaging.getInstance().subscribeToTopic(topic)
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

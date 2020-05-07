@@ -318,7 +318,6 @@ public class ChatActivity extends BaseActivity {
                                 else {
                                     message = "\uD83D\uDCC4 send a document";
                                 }
-                                sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
                             }
                         }
                     }
@@ -375,10 +374,6 @@ public class ChatActivity extends BaseActivity {
         chatList();
         chatListOtherUser();
 
-        if ((type.equals(Constant.TEXT) || type.equals(Constant.STICKER))) {
-            sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
-        }
-
         etMessage.setText("");
         Log.e("roma", "onDataChange: SENDMESSAGE AFTER");
     }
@@ -431,63 +426,6 @@ public class ChatActivity extends BaseActivity {
 
             }
         });
-    }
-
-    private void sendNotifiaction(String receiver, final String username, final String message){
-        Log.d("hairoma", "sendNotifiaction: "+receiver+" -- "+username+" -- "+message);
-        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
-        Query query = tokens.orderByKey().equalTo(receiver);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("roma", "onDataChange: chatactivity 359");
-                new sendNotifAsycn(receiver, username, message).execute(dataSnapshot);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private class sendNotifAsycn extends AsyncTask<DataSnapshot, Void, Boolean> {
-        String receiver, username, message;
-
-        public sendNotifAsycn(String receiver, String username, String message) {
-            this.receiver = receiver;
-            this.username = username;
-            this.message = message;
-        }
-
-        @Override
-        protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
-            for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
-                Token token = snapshot.getValue(Token.class);
-                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "New Message", otheruser, null);
-                data.setType(NotificationHelper.TYPE_MESSAGE);
-
-                Sender sender = new Sender(data, token.getToken());
-
-                sendNotifService.sendNotification(sender)
-                        .enqueue(new Callback<NotifResponse>() {
-                            @Override
-                            public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
-                                if (response.code() == 200){
-                                    if (response.body().success != 1){
-                                        Log.d("Notification", "Failed to send notification");
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<NotifResponse> call, Throwable t) {
-
-                            }
-                        });
-            }
-            return true;
-        }
     }
 
     @Override
