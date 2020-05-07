@@ -21,13 +21,16 @@ public interface GroupChatDao {
     void insertGroupChat(GroupChat groupChat);
 
     @Query("SELECT * FROM GroupChat ORDER BY time DESC")
-    LiveData<List<GroupChat>> getAllGroup();
+    LiveData<List<GroupChat>> getAllGroupLiveData();
 
     @Query("SELECT * FROM GroupChat WHERE nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni ORDER BY time DESC")
-    LiveData<List<GroupChat>> getAllGroupNotSuperAdmin(String cabang, String komisariat, String alumni);
+    LiveData<List<GroupChat>> getAllGroupLiveDataNotSuperAdmin(String cabang, String komisariat, String alumni);
 
-    @Query("SELECT * FROM GroupChat")
+    @Query("SELECT * FROM GroupChat ORDER BY time DESC")
     List<GroupChat> getAllGroupList();
+
+    @Query("SELECT * FROM GroupChat WHERE nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni ORDER BY time DESC")
+    List<GroupChat> getAllGroupListNotSuperAdmin(String cabang, String komisariat, String alumni);
 
     @Query("SELECT * FROM GroupChat WHERE nama = :name")
     GroupChat getGroupChatByName(String name);

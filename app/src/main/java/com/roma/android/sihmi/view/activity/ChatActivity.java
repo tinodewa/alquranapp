@@ -113,7 +113,6 @@ public class ChatActivity extends BaseActivity {
     List<Chat> list;
 
     SendNotifService sendNotifService;
-    boolean notify = false;
     boolean isAdd = false;
 
     Contact otherUser;
@@ -135,7 +134,6 @@ public class ChatActivity extends BaseActivity {
         List<String> listString = Arrays.asList(strings);
 
         StickerAdapter stickerAdapter = new StickerAdapter(this, listString, (StickerAdapter.itemClickListener) sticker -> {
-            notify = true;
             sendMessage(Constant.STICKER, sticker);
         });
 
@@ -353,7 +351,6 @@ public class ChatActivity extends BaseActivity {
 
     @OnClick(R.id.btn_send)
     public void goSend(){
-        notify = true;
         if (!etMessage.getText().toString().isEmpty() && etMessage.getText().toString().trim().length() != 0) {
             Log.e("halloboyyy", "goSend: "+etMessage.getText().toString()+" --> "+Tools.convertStringToUTF8(etMessage.getText().toString()));
             sendMessage(Constant.TEXT, etMessage.getText().toString());
@@ -378,11 +375,9 @@ public class ChatActivity extends BaseActivity {
         chatList();
         chatListOtherUser();
 
-        if (notify && (type.equals(Constant.TEXT) || type.equals(Constant.STICKER))) {
+        if ((type.equals(Constant.TEXT) || type.equals(Constant.STICKER))) {
             sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
         }
-
-        notify = false;
 
         etMessage.setText("");
         Log.e("roma", "onDataChange: SENDMESSAGE AFTER");

@@ -81,9 +81,9 @@ public class GroupFragment extends Fragment {
         User user = userDao.getUser();
 
         if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
-            groupChatDao.getAllGroup().observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
+            groupChatDao.getAllGroupLiveData().observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
         } else {
-            groupChatDao.getAllGroupNotSuperAdmin(checkKosong(user.getCabang()), checkKosong(user.getKomisariat()),
+            groupChatDao.getAllGroupLiveDataNotSuperAdmin(checkKosong(user.getCabang()), checkKosong(user.getKomisariat()),
                     "Alumni "+checkKosong(user.getDomisili_cabang())).observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
         }
 

@@ -6,11 +6,15 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
@@ -39,6 +43,7 @@ import com.roma.android.sihmi.model.response.LevelResponse;
 import com.roma.android.sihmi.model.response.MasterResponse;
 import com.roma.android.sihmi.model.response.TrainingResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.service.MyFirebaseMessagingService;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 
@@ -279,12 +284,12 @@ public class LoadDataActivityViewModel extends ViewModel {
                     GroupChatFirebase groupChatFirebase = s.getValue(GroupChatFirebase.class);
                     assert groupChatFirebase != null;
                     groupChatDao.insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
-                    getGroupChat(groupChatFirebase);
                 }
 
                 if (!Tools.isNonLK()) {
                     User user = userDao.getUser();
                     checkGroup(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
+                    new Handler().postDelayed(() -> subscribeToGroupChat(), 2000);
                 }
             }
 
@@ -293,6 +298,30 @@ public class LoadDataActivityViewModel extends ViewModel {
 
             }
         });
+    }
+
+    private void subscribeToGroupChat() {
+        List<GroupChat> groupChats;
+        User user = userDao.getUser();
+        if (user != null) {
+            if (Tools.isSuperAdmin()) {
+                groupChats = groupChatDao.getAllGroupList();
+            }
+            else {
+                groupChats = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
+            }
+
+            for(GroupChat groupChat : groupChats) {
+                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupChat.getNama();
+                FirebaseMessaging.getInstance().subscribeToTopic(topic)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Log.d("Fabric", "Successfully subscribed to topic " + topic);
+                            }
+                        });
+            }
+        }
     }
 
     private void checkGroup(String cabang, String komisariat, String alumniCabang) {
@@ -315,30 +344,6 @@ public class LoadDataActivityViewModel extends ViewModel {
         }
     }
 
-    private void getGroupChat(GroupChatFirebase groupChatFirebase){
-        Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getGroupChat");
-        DatabaseReference referenceChats = FirebaseDatabase.getInstance().getReference("Chats_v2");
-        referenceChats.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Chat chat = snapshot.getValue(Chat.class);
-                    GroupChat groupChat = new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage());
-                    if (chat != null && chat.getReceiver().equals(groupChatFirebase.getNama())) {
-                        groupChat.setLast_msg(chat.getType()+"split100x"+chat.getMessage());
-                        groupChat.setTime(chat.getTime());
-                    }
-                    groupChatDao.insertGroupChat(groupChat);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     private void addGroupChat(String name){
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on addGroupChat");
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -348,6 +353,20 @@ public class LoadDataActivityViewModel extends ViewModel {
         hashMap.put("image", "");
 
         databaseReference.child("ChatGroup_v2").child(name).setValue(hashMap);
+
+        databaseReference.child("ChatGroup_v2").child(name).getRef().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                GroupChatFirebase groupChatFirebase = dataSnapshot.getValue(GroupChatFirebase.class);
+                assert groupChatFirebase != null;
+                groupChatDao.insertGroupChat(new GroupChat(groupChatFirebase.getNama(), groupChatFirebase.getImage()));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void deleteTraining(String idTraining) {
@@ -759,12 +778,11 @@ public class LoadDataActivityViewModel extends ViewModel {
                         if (chat.getTime() >= groupChat.getTime()) {
                             groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
                             groupChat.setTime(chat.getTime());
-                            groupChat.setLast_seen(groupChat.getLast_seen());
                             int unread;
                             if (chat.getTime() > groupChat.getLast_seen() && !chat.getSender().equals(userDao.getUser().get_id())) {
                                 unread = groupChat.getUnread() + 1;
                             } else {
-                                unread = 0;
+                                unread = groupChat.getUnread();
                             }
                             groupChat.setUnread(unread);
                             groupChatDao.insertGroupChat(groupChat);

@@ -17,6 +17,8 @@ import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import static io.fabric.sdk.android.Fabric.TAG;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
+    public static String GROUP_TOPIC_PREFIX = "com.roma.android.sihmi.GROUP.";
+
     UserDao userDao;
     ContactDao contactDao;
     @Override
