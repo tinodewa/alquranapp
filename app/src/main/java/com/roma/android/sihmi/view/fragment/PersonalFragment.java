@@ -106,7 +106,9 @@ public class PersonalFragment extends Fragment {
             refreshLayout.setRefreshing(false);
         });
 
-        chatingDao.getListChating().observe(getActivity(), chatings -> adapter.updateData(chatings));
+        chatingDao.getListChating().observe(getActivity(), chatings -> {
+            adapter.updateData(chatings);
+        });
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
 
@@ -127,7 +129,7 @@ public class PersonalFragment extends Fragment {
                         .putExtra("nama", contact.getFullName()).putExtra("iduser", contact.get_id()));
 
             } else {
-                Tools.showDialogRb(getActivity(), chating.get_id());
+                Tools.showDialogRb(getActivity(), chating.get_id(), adapter);
             }
         });
 

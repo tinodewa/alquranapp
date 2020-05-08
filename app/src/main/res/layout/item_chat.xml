@@ -42,34 +42,51 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <TextView
-                    android:textColor="?attr/textcolor"
-                    android:id="@+id/tvTime"
+                <RelativeLayout
+                    android:id="@+id/right_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="10:45 AM"
-                    android:textSize="10sp"
-                    android:layout_alignParentRight="true"
-                    android:visibility="visible"/>
+                    android:layout_alignParentEnd="true">
 
-                <TextView
-                    android:id="@+id/tvUnread"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    tools:text="10"
-                    android:gravity="center"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp"
-                    android:background="@drawable/bg_circle"
-                    android:layout_below="@id/tvTime"
-                    android:layout_alignParentEnd="true"
-                    android:padding="4dp"
-                    android:visibility="gone"/>
+                    <TextView
+                        android:textColor="?attr/textcolor"
+                        android:id="@+id/tvTime"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="10:45 AM"
+                        android:textSize="10sp"
+                        android:visibility="visible"/>
+
+                    <TextView
+                        android:id="@+id/tvUnread"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        tools:text="10"
+                        android:gravity="center"
+                        android:textColor="@android:color/white"
+                        android:textSize="12sp"
+                        android:background="@drawable/bg_circle"
+                        android:layout_below="@id/tvTime"
+                        android:layout_toEndOf="@id/notifIcon"
+                        android:padding="4dp"
+                        android:visibility="gone"/>
+
+                    <ImageView
+                        android:id="@+id/notifIcon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_notifications_off_black"
+                        android:layout_below="@id/tvTime"
+                        android:layout_marginEnd="5dp"
+                        android:visibility="gone"
+                        android:tint="?attr/textcolor"/>
+
+                </RelativeLayout>
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@id/tvTime"
+                    android:layout_toStartOf="@id/right_container"
                     android:orientation="vertical">
 
                     <TextView
@@ -77,6 +94,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         tools:text="Faris Perwira P."
+                        android:ellipsize="end"
+                        android:singleLine="true"
                         android:textSize="18sp"
                         android:textColor="?attr/textcolor"/>
 
@@ -87,6 +106,8 @@
                         tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                         android:textSize="12sp"
                         android:maxLines="2"
+                        android:ellipsize="end"
+                        android:singleLine="true"
                         android:textColor="?attr/textcolor"
                         android:visibility="visible"/>
                 </LinearLayout>

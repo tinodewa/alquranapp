@@ -35,7 +35,9 @@ import com.roma.android.sihmi.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.entity.Agenda;
+import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.view.adapter.ChatAdapter;
 
 import java.net.InetAddress;
 import java.text.DateFormat;
@@ -230,24 +232,21 @@ public class Tools {
         dialog.show();
     }
 
-    public static void showDialogRb(Context context, String user_id){
-//        String[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
-//        boolean isBisu = CoreApplication.get().getAppDb().interfaceDao().getContactById(user_id).isBisukan();
-//        int pos = isBisu ? 1 : 0;
-//
-//        AlertDialog dialog = new AlertDialog.Builder(context)
-//                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
-//                    boolean bisu;
-//                    if (which == 0){
-//                        bisu = false;
-//                    } else {
-//                        bisu = true;
-//                    }
-//                    CoreApplication.get().getAppDb().interfaceDao().updateBisukan(user_id, bisu);
-//                    dialog1.dismiss();
-//                })
-//                .create();
-//        dialog.show();
+    public static void showDialogRb(Context context, String user_id, ChatAdapter adapter){
+        CharSequence[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
+        Contact contact = CoreApplication.get().getConstant().getContactDao().getContactById(user_id);
+        int pos = contact.isBisukan() ? 1 : 0;
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
+                    boolean bisu = which != 0;
+                    contact.setBisukan(bisu);
+                    CoreApplication.get().getConstant().getContactDao().insertContact(contact);
+                    adapter.notifyDataSetChanged();
+                    dialog1.dismiss();
+                })
+                .create();
+        dialog.show();
     }
 
     public static void showDialogAgendaRb(Context context, Agenda agenda){
