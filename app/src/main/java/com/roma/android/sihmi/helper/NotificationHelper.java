@@ -18,7 +18,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.messaging.RemoteMessage;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.entity.Contact;
+import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.entity.notification.Message;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.ChatActivity;
@@ -52,14 +54,16 @@ public class NotificationHelper {
         String groupChat = remoteMessage.getData().get("groupChat");
         String type = remoteMessage.getData().get("type");
         String groupName = null;
+        GroupChat gChat = null;
 
         if (groupChat != null && groupChat.equals("GROUP_CHAT")) {
             groupName = remoteMessage.getData().get("sented");
+            gChat = CoreApplication.get().getConstant().getGroupChatDao().getGroupChatByName(groupName);
         }
 
         if (type != null) {
             if (type.equals(TYPE_MESSAGE)) {
-                if (!contact.isBisukan() || groupName != null) {
+                if ((groupName == null && !contact.isBisukan()) || (groupName != null && !gChat.isBisukan())) {
                     Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
                     if (groupName != null) {
                         message.setGroupName(groupName);

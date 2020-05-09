@@ -76,7 +76,7 @@ import com.roma.android.sihmi.utils.Constant;
             LoadDataState.class,
             PengajuanLK1.class
         },
-        version = 25,
+        version = 26,
         exportSchema = false)
 public abstract class   AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
@@ -107,7 +107,7 @@ public abstract class   AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
-                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25)
+                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25, MIGRATION_25_26)
                         .build();
             }
         }
@@ -149,6 +149,14 @@ public abstract class   AppDb extends RoomDatabase {
                     "date_modified INTEGER NOT NULL DEFAULT 0," +
                     "status INTEGER NOT NULL DEFAULT 0" +
                     ")");
+        }
+    };
+
+    private static final Migration MIGRATION_25_26 = new Migration(25, 26) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE GroupChat " +
+                    "ADD bisukan INTEGER NOT NULL DEFAULT 0");
         }
     };
 }

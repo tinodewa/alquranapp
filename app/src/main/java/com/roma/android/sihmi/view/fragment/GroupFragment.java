@@ -1,6 +1,7 @@
 package com.roma.android.sihmi.view.fragment;
 
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -25,8 +26,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
+import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.entity.GroupChatSeen;
 import com.roma.android.sihmi.model.database.entity.User;
@@ -93,7 +96,18 @@ public class GroupFragment extends Fragment {
                 startActivity(new Intent(getActivity(), ChatGroupActivity.class).putExtra(ChatGroupActivity.NAMA_GROUP, groupChat.getNama()));
                 addUserGroupLastSeen(groupChat.getNama(), System.currentTimeMillis());
             } else {
-//                Tools.showDialogRb(getActivity(),  groupChat.getNama());
+                CharSequence[] grpName = getActivity().getResources().getStringArray(R.array.notfikasi_chat_array);
+                int pos = groupChat.isBisukan() ? 1 : 0;
+
+                AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
+                            boolean bisu = which != 0;
+                            groupChat.setBisukan(bisu);
+                            groupChatDao.insertGroupChat(groupChat);
+                            dialog1.dismiss();
+                        })
+                        .create();
+                dialog.show();
             }
         });
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -191,7 +205,7 @@ public class GroupFragment extends Fragment {
 
                     GroupChat groupChat = groupChatDao.getGroupChatByName(chat.getReceiver());
                     if (groupChat != null) {
-                        if (chat.getTime() >= groupChat.getTime()) {
+                        if (chat.getTime() > groupChat.getTime()) {
                             groupChat.setLast_msg(chat.getType() + "split100x" + chat.getMessage());
                             groupChat.setTime(chat.getTime());
                             groupChat.setLast_seen(groupChat.getLast_seen());

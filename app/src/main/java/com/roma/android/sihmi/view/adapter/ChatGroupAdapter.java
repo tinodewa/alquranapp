@@ -80,8 +80,13 @@ public class ChatGroupAdapter extends RecyclerView.Adapter<ChatGroupAdapter.View
         } else {
             viewHolder.tvDesc.setText(theLastMessage);
         }
-        viewHolder.tvTime.setVisibility(View.GONE);
 
+        if (groupChat.isBisukan()) {
+            viewHolder.notifIcon.setVisibility(View.VISIBLE);
+        }
+        else {
+            viewHolder.notifIcon.setVisibility(View.GONE);
+        }
 
         if (groupChat.getUnread() > 0){
             viewHolder.tvUnread.setVisibility(View.VISIBLE);
@@ -90,10 +95,6 @@ public class ChatGroupAdapter extends RecyclerView.Adapter<ChatGroupAdapter.View
             viewHolder.tvUnread.setVisibility(View.GONE);
         }
 
-
-
-//        getLastMessage(groupChat.getNama(), viewHolder.tvDesc, viewHolder.tvTime);
-//        viewHolder.tvDesc.setText(getLastMessage(groupChat.getNama()));
         try {
             if (groupChat.getImage() != null && !groupChat.getImage().isEmpty()) {
                 Glide.with(context).load(groupChat.getImage()).into(viewHolder.ivPhoto);
@@ -106,70 +107,14 @@ public class ChatGroupAdapter extends RecyclerView.Adapter<ChatGroupAdapter.View
             Glide.with(context).load(R.drawable.logo_icon).into(viewHolder.ivPhoto);
         }
 
-//        if (Tools.getDateFromMillis(chating.getTime_message()).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-////            viewHolder.tvTime.setText(Tools.getTimeAMPMFromMillis(chating.getTime_message()));
-//            viewHolder.tvTime.setText("Hari Ini");
-//        } else if (Tools.getDateFromMillis(chating.getTime_message()+ TimeUnit.DAYS.toMillis(1)).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-//            viewHolder.tvTime.setText("Kemarin");
-//        } else {
-//            viewHolder.tvTime.setText(Tools.getDateFromMillis(chating.getTime_message()));
-//        }
+        viewHolder.itemView.setOnClickListener(v -> listener.onItemClick(groupChat, false));
 
-//        checkLastMsg(CoreApplication.get().getAppDb().interfaceDao().getUser().get_id(), contact.get_id(), viewHolder.tvDesc, viewHolder.tvTime);
-        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onItemClick(groupChat, false);
-            }
-        });
-
-        viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                listener.onItemClick(groupChat, true);
-                return true;
-            }
+        viewHolder.itemView.setOnLongClickListener(v -> {
+            listener.onItemClick(groupChat, true);
+            return true;
         });
 
     }
-
-//    private void getLastMessage(String receiver, TextView tvDesc, TextView tvTime) {
-//        theLastMessage = "Tidak Ada Pesan";
-//        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Chats_v2");
-//        reference.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                for (int i = 0; i < list.size(); i++) {
-//                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                        Chat chat = snapshot.getValue(Chat.class);
-//                        if (chat.getReceiver().equals(receiver)) {
-//                            time = chat.getTime();
-//                            if (chat.getType().equalsIgnoreCase(Constant.IMAGE)){
-//                                theLastMessage = Constant.IMAGE;
-//                            } else if (chat.getType().equalsIgnoreCase(Constant.DOCUMENT)){
-//                                theLastMessage = Constant.DOCUMENT;
-//                            } else {
-//                                theLastMessage = chat.getMessage();
-//                            }
-//                        }
-//                    }
-//                }
-//                tvDesc.setText(theLastMessage);
-//                if (Tools.getDateFromMillis(time).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-//                    tvTime.setText("Hari Ini");
-//                } else if (Tools.getDateFromMillis(time+ TimeUnit.DAYS.toMillis(1)).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-//                    tvTime.setText("Kemarin");
-//                } else {
-//                    tvTime.setText(Tools.getDateFromMillis(time));
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
 
     @Override
     public int getItemCount() {
@@ -187,6 +132,8 @@ public class ChatGroupAdapter extends RecyclerView.Adapter<ChatGroupAdapter.View
         ImageView ivPhoto;
         @BindView(R.id.tvUnread)
         TextView tvUnread;
+        @BindView(R.id.notifIcon)
+        ImageView notifIcon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
