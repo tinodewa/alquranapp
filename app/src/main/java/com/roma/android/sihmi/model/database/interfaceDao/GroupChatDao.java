@@ -46,4 +46,8 @@ public interface GroupChatDao {
 
     @Query("DELETE FROM GroupChat")
     void deleteAllGroup();
+
+        @Query("SELECT * FROM GroupChat WHERE nama LIKE :s AND (nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni) ORDER BY time DESC")
+    List<GroupChat> getSearchGroupChatNotSuperAdmin(String cabang, String komisariat, String alumni, String s);
+
 }

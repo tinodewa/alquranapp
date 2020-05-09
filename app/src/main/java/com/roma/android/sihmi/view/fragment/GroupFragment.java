@@ -62,6 +62,7 @@ public class GroupFragment extends Fragment {
     AppDb appDb;
     UserDao userDao;
     GroupChatDao groupChatDao;
+    private User user;
 
     public GroupFragment() {
         // Required empty public constructor
@@ -78,7 +79,7 @@ public class GroupFragment extends Fragment {
         groupChatDao = appDb.groupChatDao();
 
         setHasOptionsMenu(true);
-        User user = userDao.getUser();
+        user = userDao.getUser();
 
         if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
             groupChatDao.getAllGroupLiveData().observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
@@ -138,7 +139,22 @@ public class GroupFragment extends Fragment {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    list = groupChatDao.getSearchGroupChatByName("%"+newText+"%");
+                    if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                        if (newText.trim().length() == 0) {
+                            list = groupChatDao.getAllGroupList();
+                        }
+                        else {
+                            list = groupChatDao.getSearchGroupChatByName("%"+newText+"%");
+                        }
+                    }
+                    else {
+                        if (newText.trim().length() == 0) {
+                            list = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), "Alumni " + checkKosong(user.getDomisili_cabang()));
+                        }
+                        else {
+                            list = groupChatDao.getSearchGroupChatNotSuperAdmin(user.getCabang(), user.getKomisariat(), "Alumni " + checkKosong(user.getDomisili_cabang()), "%"+newText+"%");
+                        }
+                    }
                     adapter.updateData(list);
                     return true;
                 }
