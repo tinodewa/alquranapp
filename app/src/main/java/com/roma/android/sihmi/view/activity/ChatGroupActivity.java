@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,16 +22,20 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.messaging.RemoteMessage;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
+import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
@@ -100,6 +106,7 @@ public class ChatGroupActivity extends BaseActivity {
     AppDb appDb;
     UserDao userDao;
     ContactDao contactDao;
+    private RoomChatAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,22 +171,25 @@ public class ChatGroupActivity extends BaseActivity {
         userDao = appDb.userDao();
         myuser = userDao.getUser().get_id();
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        list = new ArrayList<>();
+
+        setAdapter(list);
+
         readMessage();
+
+        GroupChat groupChat = appDb.groupChatDao().getGroupChatByName(namaGroup);
+        if (groupChat != null) {
+            groupChat.setUnread(0);
+        }
+
+        if (namaGroup != null) {
+            String key = namaGroup+"_"+ NotificationHelper.ID_CHAT;
+            NotificationHelper.removeHistoryMessage(key);
+        }
     }
 
     private void initToolbar(){
         tvTitle.setText(getIntent().getStringExtra(NAMA_GROUP));
-//        if (otherUser.getImage() != null && !otherUser.getImage().trim().isEmpty()) {
-//            imgProfile.setVisibility(View.VISIBLE);
-//            ivInitial.setVisibility(View.GONE);
-//            Glide.with(this).load(otherUser.getImage()).into(imgProfile);
-//        } else {
-//            imgProfile.setVisibility(View.GONE);
-//            ivInitial.setVisibility(View.VISIBLE);
-//            Tools.initial(ivInitial, otherUser.getFullName());
-//        }
-
-//        toolbar.setTitle(getIntent().getStringExtra(NAMA_GROUP).toUpperCase());
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -194,21 +204,12 @@ public class ChatGroupActivity extends BaseActivity {
     }
 
     private void readMessage(){
-        list = new ArrayList<>();
         databaseReference = FirebaseDatabase.getInstance().getReference("Chats_v2");
         eventListener = databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("roma", "onDataChange: chatgroupactivity 142");
-                list.clear();
-
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    Chat chat = snapshot.getValue(Chat.class);
-                    if (chat.getReceiver().equalsIgnoreCase(namaGroup)){
-                        list.add(chat);
-                    }
-                }
-                setAdapter(list);
+                Log.d("roma", "onDataChange: chatactivity 150");
+                new readMessageAsync().execute(dataSnapshot);
             }
 
             @Override
@@ -218,8 +219,37 @@ public class ChatGroupActivity extends BaseActivity {
         });
     }
 
+    private class readMessageAsync extends AsyncTask<DataSnapshot, Void, List<Chat>> {
+        List<Chat> chatList;
+
+        public readMessageAsync() {
+            this.chatList = new ArrayList<>();
+        }
+
+        @Override
+        protected List<Chat> doInBackground(DataSnapshot... dataSnapshots) {
+            for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
+                Chat chat = snapshot.getValue(Chat.class);
+                if (chat != null && chat.getReceiver().equalsIgnoreCase(namaGroup)) {
+                    chatList.add(chat);
+                }
+            }
+
+            return chatList;
+        }
+
+        @Override
+        protected void onPostExecute(List<Chat> chats) {
+            super.onPostExecute(chats);
+            list.clear();
+            list.addAll(chats);
+            adapter.notifyDataSetChanged();
+            rvChat.scrollToPosition(list.size()-1);
+        }
+    }
+
     private void setAdapter(List<Chat> list){
-        RoomChatAdapter adapter = new RoomChatAdapter(this, list, 2, chat -> {
+        adapter = new RoomChatAdapter(this, list, 2, chat -> {
             startActivity(new Intent(ChatGroupActivity.this, ChatFileDetailActivity.class).putExtra(ChatFileDetailActivity.NAMA_FILE, chat.getMessage()).putExtra(ChatFileDetailActivity.TYPE_FILE, chat.getType())
                     .putExtra(ChatFileDetailActivity.TIME_FILE, String.valueOf(chat.getTime())));
         });
@@ -227,7 +257,6 @@ public class ChatGroupActivity extends BaseActivity {
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         llm.setStackFromEnd(true);
         rvChat.setLayoutManager(llm);
-        rvChat.setHasFixedSize(true);
         rvChat.setAdapter(adapter);
 
     }

@@ -34,13 +34,16 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.nbsp.materialfilepicker.ui.FilePickerActivity;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
+import com.roma.android.sihmi.model.database.entity.Chating;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.notification.Data;
 import com.roma.android.sihmi.model.database.entity.notification.NotifResponse;
 import com.roma.android.sihmi.model.database.entity.notification.Sender;
 import com.roma.android.sihmi.model.database.entity.notification.Token;
+import com.roma.android.sihmi.model.database.interfaceDao.ChatingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.NotifClient;
@@ -105,11 +108,11 @@ public class ChatActivity extends BaseActivity {
     AppDb appDb;
     UserDao userDao;
     ContactDao contactDao;
+    ChatingDao chatingDao;
 
     List<Chat> list;
 
     SendNotifService sendNotifService;
-    boolean notify = false;
     boolean isAdd = false;
 
     Contact otherUser;
@@ -131,7 +134,6 @@ public class ChatActivity extends BaseActivity {
         List<String> listString = Arrays.asList(strings);
 
         StickerAdapter stickerAdapter = new StickerAdapter(this, listString, (StickerAdapter.itemClickListener) sticker -> {
-            notify = true;
             sendMessage(Constant.STICKER, sticker);
         });
 
@@ -195,6 +197,7 @@ public class ChatActivity extends BaseActivity {
         appDb = AppDb.getInstance(this);
         userDao = appDb.userDao();
         contactDao = appDb.contactDao();
+        chatingDao = appDb.chatingDao();
 
         myuser = userDao.getUser().get_id();
         otheruser = getIntent().getStringExtra("iduser");
@@ -202,6 +205,15 @@ public class ChatActivity extends BaseActivity {
 
         id_other_user = getIntent().getStringExtra("iduser");
         otherUser = contactDao.getContactById(getIntent().getStringExtra("iduser"));
+
+        String key = id_other_user+"_"+NotificationHelper.ID_CHAT;
+        NotificationHelper.removeHistoryMessage(key);
+
+        Chating thisChating = chatingDao.getChatingById(otherUser.get_id());
+        if (thisChating != null) {
+            thisChating.setUnread(0);
+            chatingDao.insertChating(thisChating);
+        }
 
         readMessage();
     }
@@ -214,23 +226,6 @@ public class ChatActivity extends BaseActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.e("roma", "onDataChange: chatactivity 150");
                 new readMessageAsync().execute(dataSnapshot);
-//                list.clear();
-//
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Chat chat = snapshot.getValue(Chat.class);
-//                    if (chat.getReceiver().equals(myuser) && chat.getSender().equals(otheruser) ||
-//                            chat.getReceiver().equals(otheruser) && chat.getSender().equals(myuser)){
-//                        list.add(chat);
-//                    }
-//
-//                    // Update isSeen
-//                    if (chat.getReceiver().equals(myuser) && chat.getSender().equals(otheruser)){
-//                        HashMap<String, Object> hashMap = new HashMap<>();
-//                        hashMap.put("isseen", true);
-//                        snapshot.getRef().updateChildren(hashMap);
-//                    }
-//                }
-//                setAdapter(list);
             }
 
             @Override
@@ -315,7 +310,14 @@ public class ChatActivity extends BaseActivity {
                             if (response.body().getData().size() > 0) {
                                 String url = response.body().getData().get(0).getUrl();
                                 sendMessage(type, url);
-//                                updatePhoto(response.body().getData().get(0).getUrl());
+
+                                String message;
+                                if (type.equals(Constant.IMAGE)) {
+                                    message = "\uD83D\uDCF7 send an image";
+                                }
+                                else {
+                                    message = "\uD83D\uDCC4 send a document";
+                                }
                             }
                         }
                     }
@@ -348,7 +350,6 @@ public class ChatActivity extends BaseActivity {
 
     @OnClick(R.id.btn_send)
     public void goSend(){
-        notify = true;
         if (!etMessage.getText().toString().isEmpty() && etMessage.getText().toString().trim().length() != 0) {
             Log.e("halloboyyy", "goSend: "+etMessage.getText().toString()+" --> "+Tools.convertStringToUTF8(etMessage.getText().toString()));
             sendMessage(Constant.TEXT, etMessage.getText().toString());
@@ -372,17 +373,6 @@ public class ChatActivity extends BaseActivity {
         databaseReference.child("Chats_v2").push().setValue(hashMap);
         chatList();
         chatListOtherUser();
-
-//        String msg = etMessage.getText().toString().trim();
-//        if (type.equals(Constant.STICKER)){
-//            msg = message;
-//        }
-
-        if (notify && (type.equals(Constant.TEXT) || type.equals(Constant.STICKER))) {
-            sendNotifiaction(otheruser, userDao.getUser().getUsername(), Tools.convertStringToUTF8(message));
-        }
-
-        notify = false;
 
         etMessage.setText("");
         Log.e("roma", "onDataChange: SENDMESSAGE AFTER");
@@ -436,87 +426,6 @@ public class ChatActivity extends BaseActivity {
 
             }
         });
-    }
-
-    private void sendNotifiaction(String receiver, final String username, final String message){
-        Log.d("hairoma", "sendNotifiaction: "+receiver+" -- "+username+" -- "+message);
-        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
-        Query query = tokens.orderByKey().equalTo(receiver);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("roma", "onDataChange: chatactivity 359");
-                new sendNotifAsycn(receiver, username, message).execute(dataSnapshot);
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    Token token = snapshot.getValue(Token.class);
-//                    Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, username+": "+message, "New Message",
-//                            otheruser);
-//
-//                    Sender sender = new Sender(data, token.getToken());
-//
-//                    sendNotifService.sendNotification(sender)
-//                            .enqueue(new Callback<NotifResponse>() {
-//                                @Override
-//                                public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
-//                                    if (response.code() == 200){
-//                                        if (response.body().success != 1){
-////                                            Toast.makeText(ChatActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
-//                                        }
-//                                    }
-//                                }
-//
-//                                @Override
-//                                public void onFailure(Call<NotifResponse> call, Throwable t) {
-//
-//                                }
-//                            });
-//                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-    private class sendNotifAsycn extends AsyncTask<DataSnapshot, Void, Boolean> {
-        String receiver, username, message;
-
-        public sendNotifAsycn(String receiver, String username, String message) {
-            this.receiver = receiver;
-            this.username = username;
-            this.message = message;
-        }
-
-        @Override
-        protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
-            for (DataSnapshot snapshot : dataSnapshots[0].getChildren()){
-                Token token = snapshot.getValue(Token.class);
-                Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, username+": "+message, "New Message",
-                        otheruser);
-
-                Sender sender = new Sender(data, token.getToken());
-
-                sendNotifService.sendNotification(sender)
-                        .enqueue(new Callback<NotifResponse>() {
-                            @Override
-                            public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
-                                if (response.code() == 200){
-                                    if (response.body().success != 1){
-//                                            Toast.makeText(ChatActivity.this, "Failed!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<NotifResponse> call, Throwable t) {
-
-                            }
-                        });
-            }
-            return true;
-        }
     }
 
     @Override

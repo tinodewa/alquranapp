@@ -469,48 +469,6 @@ public class PermintaanFragment extends Fragment implements Ifragment {
         return df.format(currentDate);
     }
 
-    private void sendNotifiaction(String receiver, final String username, final String message) {
-        SendNotifService sendNotifService = NotifClient.getInstance("https://fcm.googleapis.com/").getNotifService();
-        Log.d("Message", "sendNotifiaction: ");
-        DatabaseReference tokens = FirebaseDatabase.getInstance().getReference("Tokens");
-        Query query = tokens.orderByKey().equalTo(receiver);
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                Log.e("roma", "onDataChange: permintaanfragment 347");
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Token token = snapshot.getValue(Token.class);
-                    Data data = new Data(userDao.getUser().get_id(), R.mipmap.ic_launcher, message, "Pemberitahuan",
-                            receiver);
-
-                    Sender sender = new Sender(data, token.getToken());
-
-                    sendNotifService.sendNotification(sender)
-                            .enqueue(new Callback<NotifResponse>() {
-                                @Override
-                                public void onResponse(Call<NotifResponse> call, Response<NotifResponse> response) {
-                                    if (response.code() == 200) {
-                                        if (response.body().success != 1) {
-                                            Toast.makeText(getActivity(), "Failed!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<NotifResponse> call, Throwable t) {
-
-                                }
-                            });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         menu.clear();

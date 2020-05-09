@@ -8,7 +8,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -31,7 +35,9 @@ import com.roma.android.sihmi.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.entity.Agenda;
+import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.view.adapter.ChatAdapter;
 
 import java.net.InetAddress;
 import java.text.DateFormat;
@@ -226,24 +232,21 @@ public class Tools {
         dialog.show();
     }
 
-    public static void showDialogRb(Context context, String user_id){
-//        String[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
-//        boolean isBisu = CoreApplication.get().getAppDb().interfaceDao().getContactById(user_id).isBisukan();
-//        int pos = isBisu ? 1 : 0;
-//
-//        AlertDialog dialog = new AlertDialog.Builder(context)
-//                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
-//                    boolean bisu;
-//                    if (which == 0){
-//                        bisu = false;
-//                    } else {
-//                        bisu = true;
-//                    }
-//                    CoreApplication.get().getAppDb().interfaceDao().updateBisukan(user_id, bisu);
-//                    dialog1.dismiss();
-//                })
-//                .create();
-//        dialog.show();
+    public static void showDialogRb(Context context, String user_id, ChatAdapter adapter){
+        CharSequence[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
+        Contact contact = CoreApplication.get().getConstant().getContactDao().getContactById(user_id);
+        int pos = contact.isBisukan() ? 1 : 0;
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
+                    boolean bisu = which != 0;
+                    contact.setBisukan(bisu);
+                    CoreApplication.get().getConstant().getContactDao().insertContact(contact);
+                    adapter.notifyDataSetChanged();
+                    dialog1.dismiss();
+                })
+                .create();
+        dialog.show();
     }
 
     public static void showDialogAgendaRb(Context context, Agenda agenda){
@@ -711,6 +714,33 @@ public class Tools {
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(first, color);
         imageView.setImageDrawable(drawable);
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 96; // Replaced the 1 by a 96
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 96; // Replaced the 1 by a 96
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public static Bitmap getInitial(char c) {
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        int color = generator.getColor(c);
+        TextDrawable drawable = TextDrawable.builder()
+                .buildRound(String.valueOf(c), color);
+        return drawableToBitmap(drawable);
     }
 
     public static void showDateDialog(Activity activity, EditText editText){

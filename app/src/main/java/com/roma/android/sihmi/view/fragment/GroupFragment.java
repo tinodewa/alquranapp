@@ -62,6 +62,7 @@ public class GroupFragment extends Fragment {
     AppDb appDb;
     UserDao userDao;
     GroupChatDao groupChatDao;
+    private User user;
 
     public GroupFragment() {
         // Required empty public constructor
@@ -78,12 +79,12 @@ public class GroupFragment extends Fragment {
         groupChatDao = appDb.groupChatDao();
 
         setHasOptionsMenu(true);
-        User user = userDao.getUser();
+        user = userDao.getUser();
 
         if (Tools.isSuperAdmin() || Tools.isSecondAdmin()){
-            groupChatDao.getAllGroup().observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
+            groupChatDao.getAllGroupLiveData().observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
         } else {
-            groupChatDao.getAllGroupNotSuperAdmin(checkKosong(user.getCabang()), checkKosong(user.getKomisariat()),
+            groupChatDao.getAllGroupLiveDataNotSuperAdmin(checkKosong(user.getCabang()), checkKosong(user.getKomisariat()),
                     "Alumni "+checkKosong(user.getDomisili_cabang())).observe(getActivity(), groupChatList -> adapter.updateData(groupChatList));
         }
 
@@ -138,7 +139,22 @@ public class GroupFragment extends Fragment {
 
                 @Override
                 public boolean onQueryTextChange(String newText) {
-                    list = groupChatDao.getSearchGroupChatByName("%"+newText+"%");
+                    if (Tools.isSuperAdmin() || Tools.isSecondAdmin()) {
+                        if (newText.trim().length() == 0) {
+                            list = groupChatDao.getAllGroupList();
+                        }
+                        else {
+                            list = groupChatDao.getSearchGroupChatByName("%"+newText+"%");
+                        }
+                    }
+                    else {
+                        if (newText.trim().length() == 0) {
+                            list = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), "Alumni " + checkKosong(user.getDomisili_cabang()));
+                        }
+                        else {
+                            list = groupChatDao.getSearchGroupChatNotSuperAdmin(user.getCabang(), user.getKomisariat(), "Alumni " + checkKosong(user.getDomisili_cabang()), "%"+newText+"%");
+                        }
+                    }
                     adapter.updateData(list);
                     return true;
                 }
@@ -223,7 +239,8 @@ public class GroupFragment extends Fragment {
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
             for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
                 GroupChatSeen groupChatSeen = snapshot.getValue(GroupChatSeen.class);
-                if (groupChatSeen.getId_user() != null && groupChatSeen.getId_user().equals(userDao.getUser().get_id())) {
+                User user = userDao.getUser();
+                if (groupChatSeen != null && user != null && groupChatSeen.getId_user() != null && groupChatSeen.getId_user().equals(user.get_id())) {
                     groupChatDao.updateLastSeen(groupChatSeen.getNama(), groupChatSeen.getLast_seen());
                 }
             }

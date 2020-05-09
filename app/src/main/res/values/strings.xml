@@ -382,6 +382,8 @@
     <string name="tahun_overload">Tahun tidak boleh lebih dari tahun sekarang</string>
     <string name="same_training_type">Tidak bisa menambahkan tipe Training yang sama</string>
     <string name="invalid_year_format">Format tahun salah</string>
+    <string name="you">Anda</string>
+    <string name="message_from">Pesan dari&#160;</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>
