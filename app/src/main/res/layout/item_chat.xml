@@ -42,11 +42,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <RelativeLayout
+                <LinearLayout
                     android:id="@+id/right_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true">
+                    android:layout_alignParentEnd="true"
+                    android:orientation="vertical"
+                    android:gravity="end">
 
                     <TextView
                         android:textColor="?attr/textcolor"
@@ -57,31 +59,36 @@
                         android:textSize="10sp"
                         android:visibility="visible"/>
 
-                    <TextView
-                        android:id="@+id/tvUnread"
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        tools:text="10"
-                        android:gravity="center"
-                        android:textColor="@android:color/white"
-                        android:textSize="12sp"
-                        android:background="@drawable/bg_circle"
-                        android:layout_below="@id/tvTime"
-                        android:layout_toEndOf="@id/notifIcon"
-                        android:padding="4dp"
-                        android:visibility="gone"/>
-
-                    <ImageView
-                        android:id="@+id/notifIcon"
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_notifications_off_black"
-                        android:layout_below="@id/tvTime"
-                        android:layout_marginEnd="5dp"
-                        android:visibility="gone"
-                        android:tint="?attr/textcolor"/>
+                        android:orientation="horizontal"
+                        android:layout_marginTop="2dp">
 
-                </RelativeLayout>
+                        <ImageView
+                            android:id="@+id/notifIcon"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/ic_notifications_off_black"
+                            android:layout_marginEnd="5dp"
+                            android:visibility="gone"
+                            android:tint="?attr/textcolor"/>
+
+                        <TextView
+                            android:id="@+id/tvUnread"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            tools:text="10"
+                            android:gravity="center"
+                            android:textColor="@android:color/white"
+                            android:textSize="12sp"
+                            android:background="@drawable/bg_circle"
+                            android:padding="4dp"
+                            android:visibility="gone"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="fill_parent"

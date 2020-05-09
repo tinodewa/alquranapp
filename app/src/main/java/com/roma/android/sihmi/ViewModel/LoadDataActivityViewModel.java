@@ -5,15 +5,15 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
@@ -27,6 +27,7 @@ import com.roma.android.sihmi.model.database.entity.Level;
 import com.roma.android.sihmi.model.database.entity.LoadDataState;
 import com.roma.android.sihmi.model.database.entity.Training;
 import com.roma.android.sihmi.model.database.entity.User;
+import com.roma.android.sihmi.model.database.entity.notification.Token;
 import com.roma.android.sihmi.model.database.interfaceDao.ChatingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
 import com.roma.android.sihmi.model.database.interfaceDao.GroupChatDao;
@@ -49,6 +50,7 @@ import com.roma.android.sihmi.utils.Tools;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -272,6 +274,21 @@ public class LoadDataActivityViewModel extends ViewModel {
         contactDao.insertContact(contact);
     }
 
+    private void initializeFcmToken() {
+        FirebaseInstanceId.getInstance().getInstanceId().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.e("Fabric", "Failed to initialize token");
+                return;
+            }
+            String tokenStr = Objects.requireNonNull(task.getResult()).getToken();
+
+            Token token = new Token(tokenStr);
+            FirebaseDatabase.getInstance().getReference("Tokens").child(userDao.getUser().get_id()).setValue(token);
+
+            Log.d("Fabric", "Successfully initialize new token " + tokenStr);
+        });
+    }
+
     private void getListGroupChat(){
         Log.d("LOAD DATA PROCESS", "LOAD DATA PROCESS " + "on getListGroupChat");
 
@@ -289,7 +306,6 @@ public class LoadDataActivityViewModel extends ViewModel {
                 if (!Tools.isNonLK()) {
                     User user = userDao.getUser();
                     checkGroup(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
-                    new Handler().postDelayed(() -> subscribeToGroupChat(), 2000);
                 }
             }
 
@@ -313,15 +329,10 @@ public class LoadDataActivityViewModel extends ViewModel {
 
             for(GroupChat groupChat : groupChats) {
                 String[] groupNameSplit = groupChat.getNama().split(" ");
-                String groupName = String.join("_", groupNameSplit);
+                String groupName = TextUtils.join("_", groupNameSplit);
                 final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupName;
                 FirebaseMessaging.getInstance().subscribeToTopic(topic)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Log.d("Fabric", "Successfully subscribed to topic " + topic);
-                            }
-                        });
+                        .addOnCompleteListener(task -> Log.d("Fabric", "Successfully subscribed to topic " + topic));
             }
         }
     }
@@ -625,9 +636,35 @@ public class LoadDataActivityViewModel extends ViewModel {
                 });
     }
 
+    private void unsubscribeFromGroupChat() {
+        List<GroupChat> groupChats;
+        User user = userDao.getUser();
+        if (user != null) {
+            if (Tools.isSuperAdmin()) {
+                groupChats = groupChatDao.getAllGroupList();
+            }
+            else {
+                groupChats = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
+            }
+
+            for(GroupChat groupChat : groupChats) {
+                String[] groupNameSplit = groupChat.getNama().split(" ");
+                String groupName = TextUtils.join("_", groupNameSplit);
+                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupName;
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+                        .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + topic));
+            }
+        }
+    }
+
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        reference.child(userDao.getUser().get_id()).removeValue();
+
+        unsubscribeFromGroupChat();
 
         Constant.logout();
         appDb.clearAllTables();
@@ -746,6 +783,9 @@ public class LoadDataActivityViewModel extends ViewModel {
         protected void onPostExecute(Boolean aBoolean) {
             super.onPostExecute(aBoolean);
             getGroupChat();
+
+            new Handler().postDelayed(() -> initializeFcmToken(), 500);
+            new Handler().postDelayed(() -> subscribeToGroupChat(), 1000);
         }
     }
 

@@ -6,11 +6,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,17 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import com.bumptech.glide.Glide;
 import com.facebook.stetho.Stetho;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -51,16 +41,18 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Account;
+import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.entity.Notification;
 import com.roma.android.sihmi.model.database.entity.User;
+import com.roma.android.sihmi.model.database.interfaceDao.GroupChatDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
-import com.roma.android.sihmi.model.response.ProfileResponse;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.service.MyFirebaseMessagingService;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.utils.UploadFile;
@@ -87,6 +79,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -95,7 +97,6 @@ import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.internal.EverythingIsNonNull;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, DrawerLayout.DrawerListener {
@@ -138,6 +139,7 @@ public class MainActivity extends BaseActivity
     AppDb appDb;
     UserDao userDao;
     LevelDao levelDao;
+    GroupChatDao groupChatDao;
     MasterService service;
 
     @Override
@@ -149,11 +151,12 @@ public class MainActivity extends BaseActivity
         appDb = AppDb.getInstance(this);
         userDao = appDb.userDao();
         levelDao = appDb.levelDao();
+        groupChatDao = appDb.groupChatDao();
 
         Stetho.initializeWithDefaults(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("SIHMI");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("SIHMI");
 
         user = userDao.getUser();
         language = Constant.getLanguage();
@@ -176,7 +179,7 @@ public class MainActivity extends BaseActivity
         }
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.setDrawerElevation(0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -212,7 +215,7 @@ public class MainActivity extends BaseActivity
     }
 
     public void setToolBar(String title) {
-        getSupportActionBar().setTitle(title);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(title);
     }
 
     @Override
@@ -661,6 +664,27 @@ public class MainActivity extends BaseActivity
         dialog.show();
     }
 
+    private void unsubscribeFromGroupChat() {
+        List<GroupChat> groupChats;
+        User user = userDao.getUser();
+        if (user != null) {
+            if (Tools.isSuperAdmin()) {
+                groupChats = groupChatDao.getAllGroupList();
+            }
+            else {
+                groupChats = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
+            }
+
+            for(GroupChat groupChat : groupChats) {
+                String[] groupNameSplit = groupChat.getNama().split(" ");
+                String groupName = TextUtils.join("_", groupNameSplit);
+                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupName;
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+                        .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + topic));
+            }
+        }
+    }
+
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -669,6 +693,8 @@ public class MainActivity extends BaseActivity
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
         reference.child(userDao.getUser().get_id()).removeValue();
+
+        unsubscribeFromGroupChat();
 
         updatePhoto();
 

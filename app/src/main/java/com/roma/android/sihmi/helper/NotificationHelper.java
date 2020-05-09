@@ -43,7 +43,6 @@ public class NotificationHelper {
     public static final int ID_CHAT = 1;
     private static final int ID_GENERAL = 2;
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
-    private static final String SUMMARY_NOTIFICATION_DELETED_ACTION = "SUMMARY_NOTIFICATION_DELETED";
     private static final String TYPE_MESSAGE = "__type_message__";
     private static String GROUP_NOTIFICATION_MESSAGE = "com.roma.android.sihmi.MESSAGE";
 
@@ -60,7 +59,7 @@ public class NotificationHelper {
 
         if (type != null) {
             if (type.equals(TYPE_MESSAGE)) {
-                if (!contact.isBisukan()) {
+                if (!contact.isBisukan() || groupName != null) {
                     Message message = new Message(contact.getNama_panggilan(), (body != null) ? Tools.convertUTF8ToString(body) : "", System.currentTimeMillis());
                     if (groupName != null) {
                         message.setGroupName(groupName);

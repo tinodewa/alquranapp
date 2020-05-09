@@ -223,7 +223,8 @@ public class GroupFragment extends Fragment {
         protected Boolean doInBackground(DataSnapshot... dataSnapshots) {
             for (DataSnapshot snapshot : dataSnapshots[0].getChildren()) {
                 GroupChatSeen groupChatSeen = snapshot.getValue(GroupChatSeen.class);
-                if (groupChatSeen.getId_user() != null && groupChatSeen.getId_user().equals(userDao.getUser().get_id())) {
+                User user = userDao.getUser();
+                if (groupChatSeen != null && user != null && groupChatSeen.getId_user() != null && groupChatSeen.getId_user().equals(user.get_id())) {
                     groupChatDao.updateLastSeen(groupChatSeen.getNama(), groupChatSeen.getLast_seen());
                 }
             }

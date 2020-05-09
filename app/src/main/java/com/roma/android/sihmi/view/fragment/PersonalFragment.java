@@ -110,15 +110,7 @@ public class PersonalFragment extends Fragment {
             adapter.updateData(chatings);
         });
 
-        updateToken(FirebaseInstanceId.getInstance().getToken());
-
         return v;
-    }
-
-    private void updateToken(String token){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
-        Token token1 = new Token(token);
-        reference.child(userDao.getUser().get_id()).setValue(token1);
     }
 
     private void initAdapter(){
