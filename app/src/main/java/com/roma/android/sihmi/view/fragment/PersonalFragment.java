@@ -227,9 +227,6 @@ public class PersonalFragment extends Fragment {
                                 String name = contactDao.getContactById(userId).getFullName();
                                 chatingDao.insertChating(new Chating(userId, name, chat.getReceiver() + "split100x" + lastMsg, chat.getTime(), unreadCount));
                             }
-                            else {
-                                snapshot.getRef().removeValue();
-                            }
                         }
                     }
                 }
