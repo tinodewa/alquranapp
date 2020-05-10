@@ -373,6 +373,24 @@ public class Tools {
         dialog.show();
     }
 
+    public interface ListenerSelect {
+        public void dialogSelect(String res, int index);
+    }
+
+    public static void showDialogLK1(Context context, String[] list, ListenerSelect listenerSelect){
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerSelect.dialogSelect(list[which], which);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
+    }
+
     // konfirmasi delete data dialog
     public static void deleteDialog(Context context, String message, ListenerHelper listenerHelper){
         androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(context)
