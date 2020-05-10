@@ -12,7 +12,7 @@ public class Master {
     private String _id;
     private String type, value, date_created, date_modified, id_user;
     @NonNull
-    String parentId;
+    String parentId = "";
     private boolean availableAddres;
 
     public Master() {
