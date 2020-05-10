@@ -384,6 +384,8 @@
     <string name="invalid_year_format">Format tahun salah</string>
     <string name="you">Anda</string>
     <string name="message_from">Pesan dari&#160;</string>
+    <string name="name_of">Nama&#160;</string>
+    <string name="pilih">Pilih&#160;</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>

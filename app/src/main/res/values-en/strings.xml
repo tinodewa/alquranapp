@@ -453,5 +453,7 @@
     <string name="invalid_year_format">Invalid year format</string>
     <string name="you">You</string>
     <string name="message_from">Message from&#160;</string>
+    <string name="name_of">Name of&#160;</string>
+    <string name="pilih">Pilih&#160;</string>
 
 </resources>

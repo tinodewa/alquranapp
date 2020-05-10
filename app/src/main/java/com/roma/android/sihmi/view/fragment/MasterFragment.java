@@ -3,6 +3,7 @@ package com.roma.android.sihmi.view.fragment;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputType;
@@ -22,6 +23,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Master;
@@ -68,6 +71,8 @@ public class MasterFragment extends Fragment {
 
     AppDb appDb;
     MasterDao masterDao;
+    private String parentId;
+    private int parentPos;
 
 
 
@@ -84,6 +89,7 @@ public class MasterFragment extends Fragment {
         ButterKnife.bind(this, v);
         setHasOptionsMenu(true);
         ((MainActivity) getActivity()).setToolBar("Master HMI");
+        parentId = "";
 
         service = ApiClient.getInstance().getApi();
         appDb = AppDb.getInstance(getContext());
@@ -206,27 +212,44 @@ public class MasterFragment extends Fragment {
     }
 
     private void addDialog(String nama){
-        final EditText editText = new EditText(getActivity());
-        editText.setSingleLine();
-        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        editText.setHint(nama);
-        FrameLayout conrtainer = new FrameLayout(getActivity());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-        params.leftMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-        editText.setLayoutParams(params);
-        conrtainer.addView(editText);
+        parentId = "";
+        parentPos = 0;
+        View v = getLayoutInflater().inflate(R.layout.dialog_add_master, null);
+        EditText etParent = v.findViewById(R.id.input_parent);
+        EditText etValue = v.findViewById(R.id.input_name_master);
+        int masterIntType = typeMasterInt(nama);
+        String masterType = String.valueOf(masterIntType);
+
+        String masterTypeBefore = String.valueOf(masterIntType-1);
+        List<Master> masters = masterDao.getListMasterByType(masterTypeBefore);
+        List<String> masterValues = masterDao.getMasterNameByType(masterTypeBefore);
+        String[] masterValuesArray = new String[masterValues.size()];
+        masterValues.toArray(masterValuesArray);
+
+        if (masterIntType == 1 || masterIntType == 5) {
+            etParent.setVisibility(View.GONE);
+        }
+
+        etValue.setHint(nama);
+        etParent.setHint(getString(R.string.name_of) + nameMaster(masterTypeBefore));
+
+        etParent.setOnClickListener(v1 -> {
+            AlertDialog chooseParentDialog = new AlertDialog.Builder(getActivity())
+                    .setSingleChoiceItems(masterValuesArray, parentPos, (dialog1, which) -> {
+                        parentId = masters.get(which).get_id();
+                        etParent.setText(masterValues.get(which));
+                        parentPos = which;
+                        dialog1.dismiss();
+                    }).create();
+            chooseParentDialog.show();
+        });
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.tambah)+" "+nama)
-                .setView(conrtainer)
-                .setPositiveButton(getString(R.string.simpan), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-//                        Tools.showToast(getActivity(), editText.getText().toString());
-                        simpan(typeMaster(nama), editText.getText().toString());
-                        dialog.dismiss();
-                    }
+                .setView(v)
+                .setPositiveButton(getString(R.string.simpan), (dialog12, which) -> {
+                    simpan(typeMaster(nama), etValue.getText().toString(), parentId);
+                    dialog12.dismiss();
                 })
                 .setNegativeButton(getString(R.string.batal), (dialog1, which) -> dialog1.dismiss())
                 .create();
@@ -234,22 +257,55 @@ public class MasterFragment extends Fragment {
     }
 
     private void updateDialog(Master master){
-        final EditText editText = new EditText(getActivity());
-        editText.setSingleLine();
-        editText.setText(master.getValue());
-        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_SENTENCES);
-        FrameLayout conrtainer = new FrameLayout(getActivity());
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        params.rightMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-        params.leftMargin = getResources().getDimensionPixelSize(R.dimen.activity_horizontal_margin);
-        editText.setLayoutParams(params);
-        conrtainer.addView(editText);
+        parentId = "";
+        View v = getLayoutInflater().inflate(R.layout.dialog_add_master, null);
+        EditText etParent = v.findViewById(R.id.input_parent);
+        EditText etValue = v.findViewById(R.id.input_name_master);
+        String masterType = master.getType();
+        int masterIntType = Integer.parseInt(masterType);
+
+        String masterTypeBefore = String.valueOf(masterIntType-1);
+        List<Master> masters = masterDao.getListMasterByType(masterTypeBefore);
+        List<String> masterValues = masterDao.getMasterNameByType(masterTypeBefore);
+        String[] masterValuesArray = new String[masterValues.size()];
+        masterValues.toArray(masterValuesArray);
+
+        if (masterIntType == 1 || masterIntType == 5) {
+            etParent.setVisibility(View.GONE);
+        }
+        else {
+            String parent_id = master.getParentId();
+            Master masterParent = masterDao.getMasterById(parent_id);
+            if (masterParent != null) {
+                etParent.setText(masterParent.getValue());
+                parentPos = masterValues.indexOf(masterParent.getValue());
+            }
+            else {
+                parentPos = 0;
+            }
+        }
+
+        etValue.setHint(getString(R.string.name_of) + nameMaster(masterType));
+        etParent.setHint(getString(R.string.name_of) + nameMaster(masterTypeBefore));
+        etValue.setText(master.getValue());
+
+        etParent.setOnClickListener(v1 -> {
+            AlertDialog chooseParentDialog = new AlertDialog.Builder(getActivity())
+                    .setSingleChoiceItems(masterValuesArray, parentPos, (dialog1, which) -> {
+                        parentId = masters.get(which).get_id();
+                        etParent.setText(masterValues.get(which));
+                        parentPos = which;
+                        dialog1.dismiss();
+                    }).create();
+
+            chooseParentDialog.show();
+        });
 
         AlertDialog dialog = new AlertDialog.Builder(getActivity())
                 .setTitle(getString(R.string.update)+" "+nameMaster(master.getType()))
-                .setView(conrtainer)
+                .setView(v)
                 .setPositiveButton(getString(R.string.simpan), (dialog12, which) -> {
-                    edit(master, editText.getText().toString());
+                    edit(master, etValue.getText().toString(), parentId);
                     dialog12.dismiss();
                 })
                 .setNegativeButton(getString(R.string.batal), (dialog1, which) -> dialog1.dismiss())
@@ -259,15 +315,15 @@ public class MasterFragment extends Fragment {
 
     private String typeMaster(String nama){
         String type;
-        if (nama.toLowerCase().contains("badko")){
+        if (nama.toLowerCase().contains(getString(R.string.badko).toLowerCase())){
             type = "1";
-        } else if (nama.toLowerCase().contains("cabang")){
+        } else if (nama.toLowerCase().contains(getString(R.string.cabang).toLowerCase())){
             type = "2";
-        } else if (nama.toLowerCase().contains("korkom")){
+        } else if (nama.toLowerCase().contains(getString(R.string.korkom).toLowerCase())){
             type = "3";
-        } else if (nama.toLowerCase().contains("komisariat")){
+        } else if (nama.toLowerCase().contains(getString(R.string.komisariat).toLowerCase())){
             type = "4";
-        } else if (nama.toLowerCase().contains("pelatihan")) {
+        } else if (nama.toLowerCase().contains(getString(R.string.pelatihan).toLowerCase())) {
             type = "5";
         } else {
             type = "6";
@@ -275,28 +331,41 @@ public class MasterFragment extends Fragment {
         return type;
     }
 
+    private int typeMasterInt(String nama) {
+        return Integer.parseInt(typeMaster(nama));
+    }
+
     private String nameMaster(String type){
         String name;
-        if (type.toLowerCase().contains("1")){
-            name = "Badko";
-        } else if (type.toLowerCase().contains("2")){
-            name = "Cabang";
-        } else if (type.toLowerCase().contains("3")){
-            name = "Korkom";
-        } else if (type.toLowerCase().contains("4")){
-            name = "Komisariat";
-        } else if (type.toLowerCase().contains("5")) {
-            name = "Pelatihan";
+        if (type.toLowerCase().equalsIgnoreCase("1")){
+            name = getString(R.string.badko);
+        } else if (type.toLowerCase().equalsIgnoreCase("2")){
+            name = getString(R.string.cabang);
+        } else if (type.toLowerCase().equalsIgnoreCase("3")){
+            name = getString(R.string.korkom);
+        } else if (type.toLowerCase().equalsIgnoreCase("4")){
+            name = getString(R.string.komisariat);
+        } else if (type.toLowerCase().equalsIgnoreCase("5")) {
+            name = getString(R.string.pelatihan);
         } else {
             name = "Tidak Ada";
         }
         return name;
     }
 
-    private void simpan(String type, String value){
+    private void simpan(String type, String value, String parId){
         if (Tools.isOnline(getActivity())){
-            if (!value.trim().isEmpty()) {
-                Call<GeneralResponse> call = service.addMaster(Constant.getToken(), type, value);
+            int typeInt = Integer.parseInt(type);
+            if (value.trim().isEmpty() || (typeInt != 1 && typeInt != 5 && (parId == null || parId.trim().length() == 0))) {
+                Tools.showToast(getActivity(), getString(R.string.field_mandatory));
+            } else {
+                Call<GeneralResponse> call;
+                if (typeInt == 1 || typeInt == 5) {
+                    call = service.addMaster(Constant.getToken(), type, value);
+                }
+                else {
+                    call = service.addMaster(Constant.getToken(), type, value, parId);
+                }
                 call.enqueue(new Callback<GeneralResponse>() {
                     @Override
                     public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
@@ -315,44 +384,58 @@ public class MasterFragment extends Fragment {
                     @Override
                     public void onFailure(Call<GeneralResponse> call, Throwable t) {
                         Tools.showToast(getActivity(),getString(R.string.gagal_tambah));
-
                     }
                 });
-            } else {
-                Tools.showToast(getActivity(), getString(R.string.field_mandatory));
             }
         } else {
             Tools.showToast(getActivity(), getString(R.string.tidak_ada_internet));
         }
+
+        parentId = "";
+        parentPos = 0;
     }
 
-    private void edit(Master master, String value){
+    private void edit(Master master, String value, String parId){
         if (Tools.isOnline(getActivity())){
-            Call<GeneralResponse> call = service.updateMaster(Constant.getToken(), master.get_id(), master.getType(), value);
-            call.enqueue(new Callback<GeneralResponse>() {
-                @Override
-                public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
-                    if (response.isSuccessful()){
-                        if (response.body().getStatus().equalsIgnoreCase("ok")){
-                            Tools.showToast(getActivity(), getString(R.string.berhasil_update));
-                            reloadData();
+            int typeInt = Integer.parseInt(master.getType());
+            if (value.trim().isEmpty() || (typeInt != 1 && typeInt != 5 && (parId == null || parId.trim().length() == 0))) {
+                Tools.showToast(getActivity(), getString(R.string.field_mandatory));
+            } else {
+                Call<GeneralResponse> call;
+                if (typeInt == 1 || typeInt == 5) {
+                    call = service.updateMaster(Constant.getToken(), master.get_id(), master.getType(), value);
+                }
+                else {
+                    call = service.updateMaster(Constant.getToken(), master.get_id(), master.getType(), value, parId);
+                }
+                call.enqueue(new Callback<GeneralResponse>() {
+                    @Override
+                    public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
+                        if (response.isSuccessful()){
+                            if (response.body().getStatus().equalsIgnoreCase("ok")){
+                                Tools.showToast(getActivity(), getString(R.string.berhasil_update));
+                                reloadData();
+                            } else {
+                                Tools.showToast(getActivity(), response.body().getMessage());
+                            }
                         } else {
-                            Tools.showToast(getActivity(), response.body().getMessage());
+                            Tools.showToast(getActivity(), response.message());
                         }
-                    } else {
-                        Tools.showToast(getActivity(), response.message());
                     }
-                }
 
-                @Override
-                public void onFailure(Call<GeneralResponse> call, Throwable t) {
-                    Tools.showToast(getActivity(), t.getMessage());
+                    @Override
+                    public void onFailure(Call<GeneralResponse> call, Throwable t) {
+                        Tools.showToast(getActivity(), t.getMessage());
 
-                }
-            });
+                    }
+                });
+            }
         } else {
             Tools.showToast(getActivity(), getString(R.string.tidak_ada_internet));
         }
+
+        parentId = "";
+        parentPos = 0;
     }
 
     private void hapus(Master master){

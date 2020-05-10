@@ -11,6 +11,8 @@ public class Master {
     @NonNull
     private String _id;
     private String type, value, date_created, date_modified, id_user;
+    @NonNull
+    String parentId;
     private boolean availableAddres;
 
     public Master() {
@@ -20,6 +22,15 @@ public class Master {
     public Master(String type, String value) {
         this.type = type;
         this.value = value;
+    }
+
+    @NonNull
+    public String getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(@NonNull String parentId) {
+        this.parentId = parentId;
     }
 
     public String get_id() {
