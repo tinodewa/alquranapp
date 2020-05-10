@@ -453,16 +453,33 @@ public interface MasterService {
     Call<MasterResponse> getMaster(@Header("access-token") String token,
                                    @Query("type") String type);
 
+    Call<MasterResponse> getMaster(@Header("access-token") String token,
+                                   @Query("type") String type,
+                                   @Query("parentId") String parentId);
+
+    @POST("/master")
+    Call<GeneralResponse> addMaster(@Header("access-token") String token,
+                                    @Query("type") String type,
+                                    @Query("value") String value);
+
     @POST("/master")
     Call<GeneralResponse> addMaster(@Header("access-token") String token,
                                      @Query("type") String type,
-                                     @Query("value") String value);
+                                     @Query("value") String value,
+                                     @Query("parentId") String parentId);
+
+    @PUT("/master")
+    Call<GeneralResponse> updateMaster(@Header("access-token") String token,
+                                       @Query("id_master") String id_master,
+                                       @Query("type") String type,
+                                       @Query("value") String value);
 
     @PUT("/master")
     Call<GeneralResponse> updateMaster(@Header("access-token") String token,
                                         @Query("id_master") String id_master,
                                         @Query("type") String type,
-                                        @Query("value") String value);
+                                        @Query("value") String value,
+                                        @Query("parentId") String parentId);
 
 
     @HTTP(method = "DELETE", path = "/master", hasBody = true)
