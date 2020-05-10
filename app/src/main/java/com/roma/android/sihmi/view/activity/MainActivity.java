@@ -50,6 +50,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
+import com.roma.android.sihmi.model.response.ProfileResponse;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
 import com.roma.android.sihmi.service.MyFirebaseMessagingService;
@@ -97,6 +98,7 @@ import pub.devrel.easypermissions.EasyPermissions;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, DrawerLayout.DrawerListener {
@@ -750,45 +752,49 @@ public class MainActivity extends BaseActivity
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification.getTo().equals(user.get_id())) {
                         if (!notification.isIsshow()) {
+                            boolean updateNotification = true;
                             int level = levelDao.getLevel(user.getId_roles());
 
-                            if (notification.getStatus().equals("1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
-                                    if (level <= Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
+                            switch (notification.getStatus()) {
+                                case "1":
+                                    updateNotification = false;
+                                    checkLevelAdmin(snapshot, level);
+                                    break;
+                                case "2":
+                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
+                                        if (level > Constant.LEVEL_LK) {
+                                            logout();
+                                        }
+                                    });
+                                    break;
+                                case "3":
+                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
+                                        if (level == Constant.LEVEL_LK) {
+                                            logout();
+                                        }
+                                    });
+                                    break;
+                                case "4":
+                                    // Approve LK 1
+                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
+                                        if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
+                                            logout();
+                                        }
+                                    });
+                                    break;
+                                case "-1":
+                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
+                                    break;
+                                default:
+                                    break;
                             }
-                            else if (notification.getStatus().equals("2")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level > Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("3")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level == Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("4")) {
-                                // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
-                                    if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("-1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
+
+                            if (updateNotification) {
+                                HashMap<String, Object> hashMap = new HashMap<>();
+                                hashMap.put("isshow", true);
+                                snapshot.getRef().updateChildren(hashMap);
                             }
                         }
-
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("isshow", true);
-                        snapshot.getRef().updateChildren(hashMap);
                     }
                 }
             }
@@ -796,6 +802,62 @@ public class MainActivity extends BaseActivity
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    private void getMyProfile(DataSnapshot snapshot, int level, int retry) {
+        Call<ProfileResponse> call = service.getProfile(Constant.getToken());
+
+        call.enqueue(new Callback<ProfileResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                if (response.isSuccessful()) {
+                    ProfileResponse body = response.body();
+                    if (body != null && body.getStatus().equalsIgnoreCase("ok")) {
+                        HashMap<String, Object> hashMap = new HashMap<>();
+                        hashMap.put("isshow", true);
+                        snapshot.getRef().updateChildren(hashMap);
+
+                        User me = body.getData();
+                        if (me != null) {
+                            int myLevel = levelDao.getLevel(me.getId_roles());
+                            if (myLevel != level) {
+                                logout();
+                            }
+                        }
+                        else {
+                            logout();
+                        }
+                    }
+                    else {
+                        if (retry > 1) getMyProfile(snapshot, level, retry-1);
+                    }
+                }
+                else {
+                    if (retry > 1) getMyProfile(snapshot, level, retry-1);
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                if (retry > 1) getMyProfile(snapshot, level, retry-1);
+            }
+        });
+    }
+
+    private void checkLevelAdmin(DataSnapshot snapshot, int level) {
+        Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
+            if (level <= Constant.LEVEL_LK) {
+                HashMap<String, Object> hashMap = new HashMap<>();
+                hashMap.put("isshow", true);
+                snapshot.getRef().updateChildren(hashMap);
+                logout();
+            }
+            else {
+                getMyProfile(snapshot, level, 3);
             }
         });
     }
