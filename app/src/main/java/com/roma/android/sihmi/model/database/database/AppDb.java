@@ -45,6 +45,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.LeaderDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LoadDataStateDao;
 import com.roma.android.sihmi.model.database.interfaceDao.MasterDao;
+import com.roma.android.sihmi.model.database.interfaceDao.PendidikanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanDao;
 import com.roma.android.sihmi.model.database.interfaceDao.PengajuanLK1Dao;
 import com.roma.android.sihmi.model.database.interfaceDao.SejarahDao;
@@ -100,6 +101,7 @@ public abstract class   AppDb extends RoomDatabase {
     public abstract UserDao userDao();
     public abstract LoadDataStateDao loadDataStateDao();
     public abstract PengajuanLK1Dao pengajuanLK1Dao();
+    public abstract PendidikanDao pendidikanDao();
 
     public static AppDb getInstance(Context context){
         if (instance == null){

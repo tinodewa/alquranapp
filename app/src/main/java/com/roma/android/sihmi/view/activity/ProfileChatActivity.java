@@ -21,6 +21,7 @@ import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
+import com.roma.android.sihmi.model.database.entity.Pendidikan;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
 import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.Training;
@@ -32,10 +33,12 @@ import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
 import com.roma.android.sihmi.model.response.GeneralResponse;
+import com.roma.android.sihmi.model.response.PendidikanResponse;
 import com.roma.android.sihmi.model.response.TrainingResponse;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.adapter.PelatihanOtherUserAdapter;
+import com.roma.android.sihmi.view.adapter.PendidikanAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,6 +50,7 @@ import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import retrofit2.internal.EverythingIsNonNull;
 
 public class ProfileChatActivity extends BaseActivity {
     @BindView(R.id.toolbar)
@@ -69,12 +73,17 @@ public class ProfileChatActivity extends BaseActivity {
     ImageView ivPdf;
     @BindView(R.id.tv_ket)
     TextView tvKet;
+    @BindView(R.id.tv_pendidikan)
+    TextView tvPendidikan;
+    @BindView(R.id.rv_pendidikan)
+    RecyclerView rvPendidikan;
 
     Contact otherUser;
     MasterService service;
 
     List<Training> list;
     PelatihanOtherUserAdapter adapter;
+    private PendidikanAdapter pendidikanAdapter;
     String idPengajuan = "", filePdf = "";
 
     AppDb appDb;
@@ -127,8 +136,52 @@ public class ProfileChatActivity extends BaseActivity {
         initView();
         initAdapter();
         getDataPelatihan();
+        getPendidikan(3);
+
+        if (otherUser != null) appDb.pendidikanDao().getPendidikanLiveDataByUserId(otherUser.get_id()).observe(this, listPendidikan -> {
+            pendidikanAdapter.updateData(listPendidikan);
+        });
 
         tvPelatihan.setVisibility(View.GONE);
+    }
+
+    private void getPendidikan(int retry) {
+        Call<PendidikanResponse> call = service.getPendidikan(Constant.getToken(), otherUser.get_id());
+
+        call.enqueue(new Callback<PendidikanResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<PendidikanResponse> call, Response<PendidikanResponse> response) {
+                if (response.isSuccessful()) {
+                    if (response.body().getStatus().equalsIgnoreCase("success")) {
+                        PendidikanResponse body = response.body();
+
+                        if (body != null) {
+                            appDb.pendidikanDao().insertManyPendidikan(body.getData());
+
+                            if (body.getData().size() > 0) {
+                                tvPendidikan.setVisibility(View.VISIBLE);
+                                rvPendidikan.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                    else {
+                        // failed
+                        if (retry > 1) getPendidikan(retry-1);
+                    }
+                }
+                else {
+                    // failed
+                    if (retry > 1) getPendidikan(retry-1);
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<PendidikanResponse> call, Throwable t) {
+                if (retry > 1) getPendidikan(retry-1);
+            }
+        });
     }
 
     @OnClick(R.id.iv_pdf)
@@ -180,6 +233,11 @@ public class ProfileChatActivity extends BaseActivity {
         rvPelatihan.setLayoutManager(new LinearLayoutManager(this));
         rvPelatihan.setHasFixedSize(true);
         rvPelatihan.setAdapter(adapter);
+
+        pendidikanAdapter = new PendidikanAdapter(this, new ArrayList<Pendidikan>(), id -> { });
+        pendidikanAdapter.setDisplayAdd(false);
+        rvPendidikan.setLayoutManager(new LinearLayoutManager(this));
+        rvPendidikan.setAdapter(pendidikanAdapter);
     }
 
     private void getDataPelatihan(){

@@ -25,6 +25,7 @@ public class PendidikanAdapter extends RecyclerView.Adapter<PendidikanAdapter.Vi
     itemClickListener listener;
 
     List<Pendidikan> list;
+    private boolean displayAdd;
 
     public void updateData(List<Pendidikan> agendaList){
         list = agendaList;
@@ -36,6 +37,15 @@ public class PendidikanAdapter extends RecyclerView.Adapter<PendidikanAdapter.Vi
         this.context = context;
         this.list = list;
         this.listener = listener;
+        displayAdd = true;
+    }
+
+    public boolean isDisplayAdd() {
+        return displayAdd;
+    }
+
+    public void setDisplayAdd(boolean displayAdd) {
+        this.displayAdd = displayAdd;
     }
 
     @Override
@@ -68,12 +78,9 @@ public class PendidikanAdapter extends RecyclerView.Adapter<PendidikanAdapter.Vi
             }
         });
 
-//        viewHolder.ivDelete.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                listener.onItemClickId(pendidikan.get_id());
-//            }
-//        });
+        if (!displayAdd) {
+            viewHolder.fabAdd.setVisibility(View.GONE);
+        }
 
     }
 
