@@ -35,7 +35,8 @@
                         android:layout_height="wrap_content"
                         android:text="@string/pengguna_sihmi"
                         android:textColor="?attr/textcolor"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        android:textStyle="bold"/>
 
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
@@ -61,7 +62,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginRight="4dp"
                                     android:text="Kader\nNon Kader "
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="@color/colorTextDark"/>
 
                                 <TextView
                                     android:id="@+id/tv_total_kader"
@@ -83,9 +84,9 @@
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/jumlah"
+                                    android:text="@string/total"
                                     android:textAlignment="textEnd"
-                                    android:textColor="@android:color/black" />
+                                    android:textColor="@color/colorTextDark" />
 
                                 <TextView
                                     android:id="@+id/tv_total_all"
@@ -112,6 +113,15 @@
 
                 </LinearLayout>
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_organigram"
+                    android:textColor="?attr/textcolor"
+                    android:textSize="16sp"
+                    android:paddingTop="4dp"
+                    android:textStyle="bold"/>
+
                 <LinearLayout
                     android:id="@+id/ll_badko"
                     android:layout_width="match_parent"
@@ -132,7 +142,8 @@
                         android:layout_height="150dp"
                         android:layout_marginRight="8dp"
                         app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="0dp"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -188,7 +199,8 @@
                         android:layout_height="150dp"
                         android:layout_marginRight="8dp"
                         app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="0dp"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -244,7 +256,8 @@
                         android:layout_height="150dp"
                         android:layout_marginRight="8dp"
                         app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="0dp"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -300,7 +313,8 @@
                         android:layout_height="150dp"
                         android:layout_marginRight="8dp"
                         app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="0dp"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -340,7 +354,8 @@
                     android:id="@+id/ll_alumni"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp">
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="match_parent"
@@ -355,7 +370,8 @@
                         android:layout_height="150dp"
                         android:layout_marginRight="8dp"
                         app:cardCornerRadius="6dp"
-                        app:cardElevation="0dp">
+                        app:cardElevation="0dp"
+                        android:layout_marginTop="8dp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -410,14 +426,6 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/data_organigram"
-                    android:textColor="?attr/textcolor"
-                    android:textSize="16sp" />
-
 
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cv_aktivitas_pengguna"
