@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.RawQuery;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.roma.android.sihmi.model.database.entity.UserCount;
 import com.roma.android.sihmi.model.database.entity.Contact;
 
 import java.util.List;
@@ -142,4 +143,10 @@ public interface ContactDao { @RawQuery
 
     @Query("UPDATE Contact SET id_roles= :idRoles, id_level = :id_level WHERE _id = :id")
     void updateRolesUser(String id, String idRoles, int id_level);
+
+    @Query("SELECT cabang AS value, count(cabang) AS userCount FROM Contact WHERE cabang IN (SELECT value FROM MASTER WHERE parentId = :parentId) AND tahun_lk1 = :tahun_lk1 AND id_level != 1 AND id_level != 20 AND id_level != 19 GROUP BY cabang")
+    List<UserCount> getCabangUserCount(String parentId, String tahun_lk1);
+
+    @Query("SELECT komisariat AS value, count(komisariat) AS userCount FROM Contact WHERE cabang = :cabang AND tahun_lk1 = :tahun_lk1 AND id_level != 1 AND id_level != 20 AND id_level != 19 GROUP BY komisariat")
+    List<UserCount> getKomisariatUserCount(String cabang, String tahun_lk1);
 }

@@ -387,6 +387,8 @@
     <string name="name_of">Nama&#160;</string>
     <string name="pilih">Pilih&#160;</string>
     <string name="total">Total</string>
+    <string name="data_kader_tahun">Data Kader -&#160;</string>
+    <string name="tida_ada_data">Tida ada data</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>

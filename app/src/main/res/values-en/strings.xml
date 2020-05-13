@@ -456,5 +456,7 @@
     <string name="name_of">Name of&#160;</string>
     <string name="pilih">Pilih&#160;</string>
     <string name="total">Total</string>
+    <string name="data_kader_tahun">Cadre Data -&#160;</string>
+    <string name="tida_ada_data">No data</string>
 
 </resources>
