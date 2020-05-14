@@ -197,7 +197,7 @@ public class AgendaFragment extends Fragment {
                         if (response.body().getStatus().equalsIgnoreCase("ok")) {
                             agendaDao.deleteAgendaById(id);
 
-                            AgendaScheduler.cancelAgenda(getContext());
+                            AgendaScheduler.setupUpcomingAgendaNotifier(getContext());
                             Tools.showToast(getActivity(), getString(R.string.berhasil_hapus));
                         } else {
                             Tools.showToast(getActivity(), getString(R.string.gagal_hapus));
