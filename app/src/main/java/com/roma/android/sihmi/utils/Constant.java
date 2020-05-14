@@ -192,6 +192,10 @@ public class Constant {
         groupChatDao = appDb.groupChatDao();
     }
 
+    public AppDb getAppDb() {
+        return appDb;
+    }
+
     public GroupChatDao getGroupChatDao() {
         return groupChatDao;
     }

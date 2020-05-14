@@ -665,6 +665,7 @@ public class LoadDataActivityViewModel extends ViewModel {
         reference.child(userDao.getUser().get_id()).removeValue();
 
         unsubscribeFromGroupChat();
+        unsubscribeFromAgenda();
 
         Constant.logout();
         appDb.clearAllTables();
@@ -784,9 +785,20 @@ public class LoadDataActivityViewModel extends ViewModel {
             super.onPostExecute(aBoolean);
             getGroupChat();
 
-            new Handler().postDelayed(() -> initializeFcmToken(), 500);
-            new Handler().postDelayed(() -> subscribeToGroupChat(), 1000);
+            new Handler().postDelayed(LoadDataActivityViewModel.this::initializeFcmToken, 500);
+            new Handler().postDelayed(LoadDataActivityViewModel.this::subscribeToGroupChat, 1000);
+            new Handler().postDelayed(LoadDataActivityViewModel.this::subscribeToAgenda, 1500);
         }
+    }
+
+    private void subscribeToAgenda() {
+        FirebaseMessaging.getInstance().subscribeToTopic(MyFirebaseMessagingService.AGENDA_TOPIC)
+                .addOnCompleteListener(task -> Log.d("Fabric", "Successfully subscribed to topic " + MyFirebaseMessagingService.AGENDA_TOPIC));
+    }
+
+    private void unsubscribeFromAgenda() {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(MyFirebaseMessagingService.AGENDA_TOPIC)
+                .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + MyFirebaseMessagingService.AGENDA_TOPIC));
     }
 
     private void getGroupChat(){

@@ -2,6 +2,7 @@ package com.roma.android.sihmi.model.network;
 
 import com.roma.android.sihmi.model.response.AboutUsResponse;
 import com.roma.android.sihmi.model.response.AgendaResponse;
+import com.roma.android.sihmi.model.response.AgendaSingleResponse;
 import com.roma.android.sihmi.model.response.AlamatResponse;
 import com.roma.android.sihmi.model.response.ContactResponse;
 import com.roma.android.sihmi.model.response.FileResponse;
@@ -183,6 +184,9 @@ public interface MasterService {
     Call<AgendaResponse> getAgenda(@Header("access-token") String token,
                                    @Query("type") String type);
 
+    Call<AgendaSingleResponse> getAgenda(@Header("access-token") String token,
+                                         @Query("type") String type,
+                                         @Query("agendaId") String agendaId);
 
     @POST("agenda")
     Call<GeneralResponse> addAgenda(@Header("access-token") String token,

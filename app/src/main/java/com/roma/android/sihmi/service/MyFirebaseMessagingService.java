@@ -18,6 +18,7 @@ import static io.fabric.sdk.android.Fabric.TAG;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public static String GROUP_TOPIC_PREFIX = "com.roma.android.sihmi.GROUP.";
+    public static String AGENDA_TOPIC = "com.roma.android.sihmi.AGENDA";
 
     UserDao userDao;
     ContactDao contactDao;
