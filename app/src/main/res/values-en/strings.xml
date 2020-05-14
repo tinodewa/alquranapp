@@ -458,8 +458,8 @@
     <string name="total">Total</string>
     <string name="data_kader_tahun">Cadre Data -&#160;</string>
     <string name="tida_ada_data">No data</string>
-    <string name="pada_tanggal">"&#160;on&#160;"</string>
-    <string name="di_agenda">&#160;in&#160;</string>
+    <string name="pada_tanggal">"on"</string>
+    <string name="di_agenda">in</string>
     <string name="new_agenda">New Agenda</string>
 
 </resources>

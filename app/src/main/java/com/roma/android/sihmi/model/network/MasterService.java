@@ -184,6 +184,7 @@ public interface MasterService {
     Call<AgendaResponse> getAgenda(@Header("access-token") String token,
                                    @Query("type") String type);
 
+    @GET("agenda")
     Call<AgendaSingleResponse> getAgenda(@Header("access-token") String token,
                                          @Query("type") String type,
                                          @Query("agendaId") String agendaId);

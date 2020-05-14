@@ -20,6 +20,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.google.firebase.database.core.Repo;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.AgendaScheduler;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.DataKader;
@@ -494,6 +495,10 @@ public class LaporanFragment extends Fragment {
                                 list.add(contact);
                             }
                             adapterCwAgenda.updateData(list);
+
+                            appDb.agendaDao().insertAgenda(response.body().getData());
+
+                            AgendaScheduler.setupUpcomingAgendaNotifier(getContext());
                         }
                     } else {
 

@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
+import com.roma.android.sihmi.helper.AgendaScheduler;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
@@ -192,6 +193,10 @@ public class LaporanDetailActivity extends BaseActivity {
                                 list.add(contact);
                             }
                             adapter.updateData(list);
+
+                            appDb.agendaDao().insertAgenda(response.body().getData());
+
+                            AgendaScheduler.setupUpcomingAgendaNotifier(LaporanDetailActivity.this);
                         }
                     } else {
 

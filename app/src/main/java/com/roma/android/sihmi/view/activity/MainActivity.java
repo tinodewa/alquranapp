@@ -38,6 +38,7 @@ import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.AgendaScheduler;
 import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Account;
@@ -214,6 +215,8 @@ public class MainActivity extends BaseActivity
                 imageView.setVisibility(View.VISIBLE);
             }
         });
+
+        AgendaScheduler.setupUpcomingAgendaNotifier(this);
     }
 
     public void setToolBar(String title) {
@@ -687,6 +690,11 @@ public class MainActivity extends BaseActivity
         }
     }
 
+    private void unsubscribeFromAgenda() {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(MyFirebaseMessagingService.AGENDA_TOPIC)
+                .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + MyFirebaseMessagingService.AGENDA_TOPIC));
+    }
+
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -697,6 +705,9 @@ public class MainActivity extends BaseActivity
         reference.child(userDao.getUser().get_id()).removeValue();
 
         unsubscribeFromGroupChat();
+        unsubscribeFromAgenda();
+
+        AgendaScheduler.cancelAgenda(this);
 
         updatePhoto();
 

@@ -57,7 +57,7 @@ public class NotificationHelper {
     private static final int ID_GENERAL = 2;
     private static final String NOTIFICATION_DELETED_ACTION = "NOTIFICATION_DELETED";
     private static final String TYPE_MESSAGE = "__type_message__";
-    private static final String TYPE_AGENDA = "__type_agenda__";
+    public static final String TYPE_AGENDA = "__type_agenda__";
 
     public static void sendNotification(RemoteMessage remoteMessage, Contact contact, Context context) {
         String body = remoteMessage.getData().get("body");
@@ -85,15 +85,15 @@ public class NotificationHelper {
                 if (body == null) return;
                 String[] bodySplit = body.split(";");
                 String agendaId = bodySplit[0];
-                String agendaName = bodySplit[1];
-                long agendaExpire = Long.parseLong(bodySplit[2]);
-                String agendaLocation = bodySplit[3];
-                String agendaType = bodySplit[4];
+                String agendaType = bodySplit[1];
+                String agendaName = bodySplit[2];
+                long agendaExpire = Long.parseLong(bodySplit[3]);
+                String agendaLocation = bodySplit[4];
 
                 User me = CoreApplication.get().getConstant().getUserDao().getUser();
 
                 String notifTitle = context.getString(R.string.new_agenda);
-                String notifContent = agendaName + context.getString(R.string.pada_tanggal) + Tools.getDateTimeLaporanFromMillis(agendaExpire) + context.getString(R.string.di_agenda) + agendaLocation;
+                String notifContent = agendaName + " " + context.getString(R.string.pada_tanggal) + " " + Tools.getDateTimeLaporanFromMillis(agendaExpire) + " " + context.getString(R.string.di_agenda) + " " + agendaLocation;
 
                 if (Tools.isSuperAdmin() || agendaType.equalsIgnoreCase("PB HMI") || me.getKomisariat().equalsIgnoreCase(agendaType) || me.getCabang().equalsIgnoreCase(agendaType)) {
                     getAgendaById(agendaId, notifTitle, notifContent, context, 3);
@@ -123,6 +123,8 @@ public class NotificationHelper {
                             Intent intent = new Intent(context, AgendaDetailActivity.class)
                                     .putExtra(AgendaDetailActivity.ID_AGENDA, agenda.get_id());
                             sendNotificationGeneral(notifTitle, notifContent, context, TYPE_AGENDA, intent);
+
+                            AgendaScheduler.setupUpcomingAgendaNotifier(context);
                         }
                     }
                     else {
@@ -364,7 +366,7 @@ public class NotificationHelper {
         UNUSED_MESSAGE_RC.clear();
     }
 
-    private static void sendNotificationGeneral(String title, String body, Context context, String tagName, Intent navigateIntent) {
+    public static void sendNotificationGeneral(String title, String body, Context context, String tagName, Intent navigateIntent) {
         Log.d("NOTIFICATION HELPER", "NOTIFICATION HELPER general");
         Intent intent;
         PendingIntent pendingIntent;
@@ -389,6 +391,8 @@ public class NotificationHelper {
                     .setColor(ContextCompat.getColor(context, R.color.colorlogo))
                     .setContentTitle(title)
                     .setContentText(Tools.convertUTF8ToString(body))
+                    .setStyle(new Notification.BigTextStyle()
+                            .bigText(Tools.convertUTF8ToString(body)))
                     .setCategory(Notification.CATEGORY_MESSAGE)
                     .setContentIntent(pendingIntent)
                     .setAutoCancel(true)
@@ -400,6 +404,8 @@ public class NotificationHelper {
                     .setColor(ContextCompat.getColor(context, R.color.colorlogo))
                     .setContentTitle(title)
                     .setContentText(Tools.convertUTF8ToString(body))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(Tools.convertUTF8ToString(body)))
                     .setCategory(NotificationCompat.CATEGORY_MESSAGE)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setContentIntent(pendingIntent)

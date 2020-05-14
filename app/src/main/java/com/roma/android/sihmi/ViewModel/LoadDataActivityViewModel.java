@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.AgendaScheduler;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Chat;
 import com.roma.android.sihmi.model.database.entity.Chating;
@@ -38,6 +39,7 @@ import com.roma.android.sihmi.model.database.interfaceDao.TrainingDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
 import com.roma.android.sihmi.model.network.MasterService;
+import com.roma.android.sihmi.model.response.AgendaResponse;
 import com.roma.android.sihmi.model.response.ContactResponse;
 import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.model.response.LevelResponse;
@@ -129,6 +131,7 @@ public class LoadDataActivityViewModel extends ViewModel {
                         masterDao.insertMaster(response.body().getData());
                         getListGroupChat();
                         new Handler().postDelayed(() -> getLevel(), 1000);
+                        new Handler().postDelayed(() -> getAgenda(3), 1500);
                     }
                 }
                 else {
@@ -657,6 +660,39 @@ public class LoadDataActivityViewModel extends ViewModel {
         }
     }
 
+    private void getAgenda(int retry){
+        Call<AgendaResponse> call = service.getAgenda(Constant.getToken(), "0");
+        call.enqueue(new Callback<AgendaResponse>() {
+            @Override
+            @EverythingIsNonNull
+            public void onResponse(Call<AgendaResponse> call, Response<AgendaResponse> response) {
+                if (response.isSuccessful()) {
+                    AgendaResponse body = response.body();
+                    if (body != null && body.getStatus().equalsIgnoreCase("ok")) {
+                        if (body.getData().size() > 0){
+                            appDb.agendaDao().insertAgenda(body.getData());
+
+                            AgendaScheduler.setupUpcomingAgendaNotifier(context);
+                        }
+                    } else {
+                        // failed
+                        if (retry > 1) getAgenda(retry-1);
+                    }
+                } else {
+                    // failed
+                    if (retry > 1) getAgenda(retry-1);
+                }
+            }
+
+            @Override
+            @EverythingIsNonNull
+            public void onFailure(Call<AgendaResponse> call, Throwable t) {
+                // failed
+                if (retry > 1) getAgenda(retry-1);
+            }
+        });
+    }
+
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -666,6 +702,8 @@ public class LoadDataActivityViewModel extends ViewModel {
 
         unsubscribeFromGroupChat();
         unsubscribeFromAgenda();
+
+        AgendaScheduler.cancelAgenda(context);
 
         Constant.logout();
         appDb.clearAllTables();
