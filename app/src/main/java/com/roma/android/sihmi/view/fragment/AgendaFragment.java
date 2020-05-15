@@ -229,15 +229,18 @@ public class AgendaFragment extends Fragment {
                     if (response.isSuccessful()) {
                         if (response.body().getStatus().equalsIgnoreCase("ok")) {
                             List<Agenda> list = response.body().getData();
+                            List<String> agendaIds = new ArrayList<>();
                             if (list.size() > 0){
                                 for (int i = 0; i < list.size() ; i++) {
                                     Agenda agenda = list.get(i);
                                     Agenda checkDuplicate = agendaDao.getAgendaById(agenda.get_id());
+                                    agendaIds.add(agenda.get_id());
                                     if (checkDuplicate != null){
                                         agenda.setReminder(checkDuplicate.isReminder());
                                     }
                                 }
                             }
+                            agendaDao.deleteUnusedAgenda(agendaIds);
                             agendaDao.insertAgenda(response.body().getData());
 
                             AgendaScheduler.setupUpcomingAgendaNotifier(getContext());
