@@ -3,6 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.roma.android.sihmi">
 
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the 'MyLocation' functionality.
+    -->
     <application
         android:name=".core.CoreApplication"
         android:allowBackup="true"
@@ -13,7 +18,17 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".view.activity.DataKaderLA2Activity"></activity>
+
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+        -->
+
+        <activity android:name=".view.activity.DataKaderLA2Activity" />
         <activity android:name=".view.activity.LoadDataActivity" />
         <activity android:name=".view.activity.DetailReportPelatihanActivity" />
         <activity android:name=".view.activity.DetailReportActivity" />
@@ -128,7 +143,8 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCovEBOvaVF_VCXgYwtOOsuuKc-5IGOWV0" />
+            android:value="@string/google_maps_key" />
+
         <meta-data
             android:name="firebase_crashlytics_collection_enabled"
             android:value="false" />
@@ -148,6 +164,8 @@
             android:name="io.fabric.ApiKey"
             android:value="d325822dbba8f57a6330e88d368cbbe2a5ee0d10" />
 
+        <receiver android:name=".receiver.AgendaAlarmReceiver" />
+
         <service
             android:name=".service.MyFirebaseMessagingService"
             android:enabled="true"
@@ -156,13 +174,11 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <receiver android:name=".receiver.AgendaAlarmReceiver"/>
     </application>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />

@@ -6,9 +6,15 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -24,6 +30,15 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
@@ -41,9 +56,6 @@ import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.libraries.places.compat.AutocompleteFilter;
-import com.google.android.libraries.places.compat.Place;
-import com.google.android.libraries.places.compat.ui.PlaceAutocomplete;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -55,6 +67,7 @@ import com.google.android.gms.tasks.Task;
 import com.roma.android.sihmi.view.adapter.AlamatMasterAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -70,8 +83,6 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
     Toolbar toolbar;
     @BindView(R.id.btn_simpan)
     Button btnSimpan;
-    @BindView(R.id.tvLokasi)
-    TextView tvLokasi;
     @BindView(R.id.etNamaKomisariat)
     EditText etNamaKomisariat;
     @BindView(R.id.llInfo)
@@ -82,6 +93,8 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
     TextView tvNama;
     @BindView(R.id.tv_lokasi)
     TextView tvLokasiDetail;
+    @BindView(R.id.actv_lokasi)
+    AutoCompleteTextView actvLokasi;
 
     public static final int PICK_LOCATION = 0;
     private static int REQUEST_CODE = 0;
@@ -110,6 +123,11 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
     MasterDao masterDao;
     UserDao userDao;
     Master master;
+    private List<String> locationList;
+
+    private PlacesClient placesClient;
+    private List<String> placeIds;
+    private ArrayAdapter<String> locationListAdapter;
 
 
     @Override
@@ -161,63 +179,113 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        tvLokasi.setOnClickListener(v -> showPlaceAutoComplete(PICK_LOCATION));
-
         if (!Tools.isSuperAdmin()){
             etNamaKomisariat.setEnabled(false);
             etNamaKomisariat.setText(userDao.getUser().getKomisariat());
             etNamaKomisariat.setBackgroundColor(getResources().getColor(R.color.colorTextLight));
         }
 
+        // Initialize Places.
+        Places.initialize(getApplicationContext(), getString(R.string.google_maps_key));
+
+        // Create a new Places client instance.
+        placesClient = Places.createClient(this);
+
+
+        locationList = new ArrayList<>();
+        placeIds = new ArrayList<>();
+        locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
+
+        actvLokasi.setAdapter(locationListAdapter);
+
+        Handler handler = new Handler();
+
+        actvLokasi.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                handler.removeCallbacksAndMessages(null);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                handler.postDelayed(() -> showPlaceAutoComplete(s.toString()), 1000);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        actvLokasi.setOnItemClickListener((parent, view, position, id) -> {
+            handler.removeCallbacksAndMessages(null);
+            address = locationList.get(position);
+
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+
+            String placeId = placeIds.get(position);
+            FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+
+            placesClient.fetchPlace(request).addOnSuccessListener(response -> {
+                Place place = response.getPlace();
+
+                LatLng latLngPlace = place.getLatLng();
+                if (latLngPlace != null) {
+                    lat = latLngPlace.latitude;
+                    lng = latLngPlace.longitude;
+
+                    map.addMarker(new MarkerOptions().position(latLng).title(place.getName()));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngPlace, 15f));
+                }
+
+                Log.i("LOCATION", "Place wirh id " + placeId + " retrieved");
+            }).addOnFailureListener(exception -> {
+                if (exception instanceof ApiException) {
+                    // Handle error with given status code.
+                    Log.e("LOCAtiON", "Place not found: " + exception.getMessage());
+                }
+            });
+        });
     }
 
-    private void showPlaceAutoComplete(int type) {
-        REQUEST_CODE = type;
+    private void showPlaceAutoComplete(String query) {
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
 
-        //FIlter
-        AutocompleteFilter typeFilter = new AutocompleteFilter.Builder().setCountry("ID").build();
+        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                .setCountry("ID")
+                .setSessionToken(token)
+                .setQuery(query)
+                .build();
 
-        try {
-            Intent i = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                    .setFilter(typeFilter)
-                    .build(this);
-            startActivityForResult(i, REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
-            e.printStackTrace();
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
+        placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
+            locationList.clear();
+
+            for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+                locationList.add(prediction.getFullText(null).toString());
+
+                Log.i("LOCATION", prediction.getPlaceId());
+                Log.i("LOCATION", prediction.getPrimaryText(null).toString());
+
+                placeIds.add(prediction.getPlaceId());
+            }
+
+            locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
+
+            actvLokasi.setAdapter(locationListAdapter);
+            locationListAdapter.notifyDataSetChanged();
+        }).addOnFailureListener(exception -> {
+            if (exception instanceof ApiException) {
+                ApiException apiException = (ApiException) exception;
+                Log.e("LOCATION API", "Place not found: " + apiException.getStatusCode());
+            }
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Place place = PlaceAutocomplete.getPlace(this, data);
-            if (place.isDataValid()) {
-                String placeAddress = place.getAddress().toString();
-                LatLng placeLatLng = place.getLatLng();
-                String placeName = place.getName().toString();
 
-                address = placeAddress;
-                latLng = place.getLatLng();
-                lat = place.getLatLng().latitude;
-                lng = place.getLatLng().longitude;
-
-                switch (REQUEST_CODE) {
-                    case PICK_LOCATION:
-                        tvLokasi.setText(placeAddress);
-
-                        latLng = placeLatLng;
-
-                        map.clear();
-                        map.addMarker(new MarkerOptions().position(placeLatLng).title("test"));
-                        map.moveCamera(CameraUpdateFactory.newLatLngZoom(placeLatLng, 15f));
-                        break;
-                }
-            } else {
-                Toast.makeText(this, "Invalid Place!", Toast.LENGTH_SHORT).show();
-            }
         }
     }
 
@@ -227,14 +295,12 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
         if (id_address != null){
             if (isEdit){
                 etNamaKomisariat.setFocusable(true);
-                tvLokasi.setClickable(true);
 
             } else {
                 etNamaKomisariat.setFocusable(false);
-                tvLokasi.setClickable(false);
             }
             etNamaKomisariat.setText(alamat.getNama());
-            tvLokasi.setText(alamat.getAlamat());
+            actvLokasi.setText(alamat.getAlamat());
             latLng = new LatLng(Double.parseDouble(alamat.getLatitude()), Double.parseDouble(alamat.getLongitude()));
             map.addMarker(new MarkerOptions().position(latLng).title(alamat.getNama()));
 
@@ -360,7 +426,7 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
             type = masterDao.getTypeMasterByValue(etNamaKomisariat.getText().toString()) + "-" + etNamaKomisariat.getText().toString();
         }
         Call<GeneralResponse> call = service.addAddress(Constant.getToken(), etNamaKomisariat.getText().toString(), address, lat, lng, type, "");
-        if (!etNamaKomisariat.getText().toString().isEmpty()) {
+        if (!etNamaKomisariat.getText().toString().isEmpty() && !address.isEmpty() && lat != 0 && lng != 0) {
             if (Tools.isOnline(this)) {
                 Tools.showProgressDialog(this, getString(R.string.menambah_alamat));
                 call.enqueue(new Callback<GeneralResponse>() {

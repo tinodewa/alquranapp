@@ -394,6 +394,7 @@
     <string name="new_agenda">Agenda Baru</string>
     <string name="agenda_dimulai">Agenda Dimulai</string>
     <string name="pengingat_diaktifkan">Pengingat diaktifkan</string>
+    <string name="title_activity_alamat_maps">Alamat</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>
