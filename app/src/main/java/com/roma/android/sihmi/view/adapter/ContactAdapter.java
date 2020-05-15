@@ -56,8 +56,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ViewHold
         String firstLetter = String.valueOf(contact.getFullName().charAt(0));
         ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
         // generate random color
-        int color = generator.getColor(contact);
-        //int color = generator.getRandomColor();
+        int color = generator.getColor(firstLetter);
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(firstLetter, color); // radius in px
 
