@@ -41,8 +41,8 @@ public interface GroupChatDao {
     @Query("UPDATE GroupChat SET last_seen=:lastSeen WHERE nama = :name")
     void updateLastSeen(String name, long lastSeen);
 
-    @Query("UPDATE GroupChat SET unread=:unread, last_msg=:msg WHERE nama = :name")
-    void updateGroupChat(String name, int unread, String msg);
+    @Query("UPDATE GroupChat SET unread=:unread WHERE nama = :name")
+    void updateGroupChat(String name, int unread);
 
     @Query("DELETE FROM GroupChat")
     void deleteAllGroup();
