@@ -27,9 +27,6 @@
              sign the APK for publishing.
              You can define the keys for the debug and release targets in src/debug/ and src/release/.
         -->
-        <activity
-            android:name=".view.activity.AlamatMapsActivity"
-            android:label="@string/title_activity_alamat_maps"></activity>
 
         <activity android:name=".view.activity.DataKaderLA2Activity" />
         <activity android:name=".view.activity.LoadDataActivity" />

@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.roma.android.sihmi.R;
-import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Alamat;
 import com.roma.android.sihmi.model.database.interfaceDao.AlamatDao;
@@ -33,7 +32,6 @@ import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.AlamatFormActivity;
-import com.roma.android.sihmi.view.activity.AlamatMapsActivity;
 import com.roma.android.sihmi.view.activity.MainActivity;
 import com.roma.android.sihmi.view.adapter.AlamatAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
