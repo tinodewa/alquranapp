@@ -33,6 +33,7 @@ import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.view.activity.AlamatFormActivity;
+import com.roma.android.sihmi.view.activity.AlamatMapsActivity;
 import com.roma.android.sihmi.view.activity.MainActivity;
 import com.roma.android.sihmi.view.adapter.AlamatAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -153,6 +154,7 @@ public class AlamatFragment extends Fragment {
                     }, true, allowDelete());
                 }
             } else {
+//                startActivity(new Intent(getContext(), AlamatMapsActivity.class));
                 startActivityForResult(new Intent(getActivity(), AlamatFormActivity.class)
                         .putExtra("id", alamat.get_id()).putExtra(AlamatFormActivity.IS_EDIT, false), Constant.REQUEST_ALAMAT);
             }
