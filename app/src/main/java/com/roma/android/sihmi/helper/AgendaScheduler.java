@@ -44,7 +44,7 @@ public class AgendaScheduler {
         long agendaExpire = agenda.getDate_expired();
         String agendaLocation = agenda.getTempat();
 
-        String notifTitle = context.getString(R.string.new_agenda);
+        String notifTitle = context.getString(R.string.agenda_dimulai);
         String notifContent = agendaName + " " + context.getString(R.string.pada_tanggal) + " " + Tools.getDateTimeLaporanFromMillis(agendaExpire) + " " + context.getString(R.string.di_agenda) + " " + agendaLocation;
 
         Intent intent = new Intent(context, AgendaAlarmReceiver.class)

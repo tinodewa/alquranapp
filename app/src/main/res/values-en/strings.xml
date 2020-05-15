@@ -461,5 +461,7 @@
     <string name="pada_tanggal">"on"</string>
     <string name="di_agenda">in</string>
     <string name="new_agenda">New Agenda</string>
+    <string name="agenda_dimulai">Ongoing Agenda</string>
+    <string name="pengingat_diaktifkan">Reminder set</string>
 
 </resources>

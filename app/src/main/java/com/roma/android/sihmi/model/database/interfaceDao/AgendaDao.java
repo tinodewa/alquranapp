@@ -52,7 +52,7 @@ public interface AgendaDao {
     @Query("DELETE FROM Agenda WHERE _id LIKE :id")
     void deleteAgendaById(String id);
 
-    @Query("SELECT * FROM Agenda WHERE date_expired >= :currentDay ORDER BY date_expired LIMIT 1")
+    @Query("SELECT * FROM Agenda WHERE date_expired >= :currentDay AND isReminder = 1 ORDER BY date_expired LIMIT 1")
     Agenda getUpcomingAgenda(long currentDay);
 
     @Query("DELETE FROM Agenda")
