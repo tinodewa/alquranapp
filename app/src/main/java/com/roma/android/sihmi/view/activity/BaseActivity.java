@@ -65,13 +65,21 @@ public class BaseActivity extends AppCompatActivity {
         initFabric();
         initTheme();
 
-//        adjustFontScale(getResources().getConfiguration(), Constant.getFontSize());
+        adjustFontScale(getResources().getConfiguration(), Constant.getFontSize());
 
-//        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-//                .setDefaultFontPath("fonts/"+Constant.getFontName()+".ttf")
-//                .setFontAttrId(R.attr.fontPath)
-//                .build()
-//        );
+        String fontPathStr;
+        if (!Constant.getFontName().equalsIgnoreCase("Default")) {
+            fontPathStr = "fonts/"+Constant.getFontName()+".ttf";
+        }
+        else {
+            fontPathStr = null;
+        }
+
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath(fontPathStr)
+                .setFontAttrId(R.attr.fontPath)
+                .build()
+        );
     }
 
     private void initTheme(){
