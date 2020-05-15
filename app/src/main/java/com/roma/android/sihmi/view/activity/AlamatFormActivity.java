@@ -34,7 +34,9 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.roma.android.sihmi.R;
@@ -65,6 +67,7 @@ import com.google.android.gms.tasks.Task;
 import com.roma.android.sihmi.view.adapter.AlamatMasterAdapter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import butterknife.BindView;
@@ -120,9 +123,10 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
     MasterDao masterDao;
     UserDao userDao;
     Master master;
-    List<String> locationList;
+    private List<String> locationList;
 
     private PlacesClient placesClient;
+    private List<String> placeIds;
     private ArrayAdapter<String> locationListAdapter;
 
 
@@ -189,6 +193,7 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
 
 
         locationList = new ArrayList<>();
+        placeIds = new ArrayList<>();
         locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
 
         actvLokasi.setAdapter(locationListAdapter);
@@ -198,7 +203,7 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
         actvLokasi.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                handler.removeCallbacks(null);
+                handler.removeCallbacksAndMessages(null);
             }
 
             @Override
@@ -213,7 +218,33 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
         });
 
         actvLokasi.setOnItemClickListener((parent, view, position, id) -> {
+            handler.removeCallbacksAndMessages(null);
             address = locationList.get(position);
+
+            List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME);
+
+            String placeId = placeIds.get(position);
+            FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+
+            placesClient.fetchPlace(request).addOnSuccessListener(response -> {
+                Place place = response.getPlace();
+
+                LatLng latLngPlace = place.getLatLng();
+                if (latLngPlace != null) {
+                    lat = latLngPlace.latitude;
+                    lng = latLngPlace.longitude;
+
+                    map.addMarker(new MarkerOptions().position(latLng).title(place.getName()));
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLngPlace, 15f));
+                }
+
+                Log.i("LOCATION", "Place wirh id " + placeId + " retrieved");
+            }).addOnFailureListener(exception -> {
+                if (exception instanceof ApiException) {
+                    // Handle error with given status code.
+                    Log.e("LOCAtiON", "Place not found: " + exception.getMessage());
+                }
+            });
         });
     }
 
@@ -234,6 +265,8 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
 
                 Log.i("LOCATION", prediction.getPlaceId());
                 Log.i("LOCATION", prediction.getPrimaryText(null).toString());
+
+                placeIds.add(prediction.getPlaceId());
             }
 
             locationListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, locationList);
@@ -267,6 +300,7 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
                 etNamaKomisariat.setFocusable(false);
             }
             etNamaKomisariat.setText(alamat.getNama());
+            actvLokasi.setText(alamat.getAlamat());
             latLng = new LatLng(Double.parseDouble(alamat.getLatitude()), Double.parseDouble(alamat.getLongitude()));
             map.addMarker(new MarkerOptions().position(latLng).title(alamat.getNama()));
 
@@ -392,7 +426,7 @@ public class AlamatFormActivity extends BaseActivity implements OnMapReadyCallba
             type = masterDao.getTypeMasterByValue(etNamaKomisariat.getText().toString()) + "-" + etNamaKomisariat.getText().toString();
         }
         Call<GeneralResponse> call = service.addAddress(Constant.getToken(), etNamaKomisariat.getText().toString(), address, lat, lng, type, "");
-        if (!etNamaKomisariat.getText().toString().isEmpty() && !address.isEmpty()) {
+        if (!etNamaKomisariat.getText().toString().isEmpty() && !address.isEmpty() && lat != 0 && lng != 0) {
             if (Tools.isOnline(this)) {
                 Tools.showProgressDialog(this, getString(R.string.menambah_alamat));
                 call.enqueue(new Callback<GeneralResponse>() {
