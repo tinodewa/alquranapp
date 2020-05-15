@@ -389,6 +389,11 @@
     <string name="total">Total</string>
     <string name="data_kader_tahun">Data Kader -&#160;</string>
     <string name="tida_ada_data">Tida ada data</string>
+    <string name="pada_tanggal">pada tanggal"</string>
+    <string name="di_agenda">di</string>
+    <string name="new_agenda">Agenda Baru</string>
+    <string name="agenda_dimulai">Agenda Dimulai</string>
+    <string name="pengingat_diaktifkan">Pengingat diaktifkan</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>
