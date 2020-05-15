@@ -177,14 +177,12 @@ public class ChatGroupActivity extends BaseActivity {
 
         readMessage();
 
-        GroupChat groupChat = appDb.groupChatDao().getGroupChatByName(namaGroup);
-        if (groupChat != null) {
-            groupChat.setUnread(0);
-        }
-
         if (namaGroup != null) {
             String key = namaGroup+"_"+ NotificationHelper.ID_CHAT;
             NotificationHelper.removeHistoryMessage(key);
+
+            // set unread to 0
+            appDb.groupChatDao().updateGroupChat(namaGroup, 0);
         }
     }
 
