@@ -5,6 +5,12 @@ public class Notification {
     boolean isshow;
     long time;
 
+    int newLevel;
+
+    public int getNewLevel() {
+        return newLevel;
+    }
+
     public Notification() {
     }
 

@@ -381,9 +381,9 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                     if (response.isSuccessful()) {
                         if (response.body().getStatus().equalsIgnoreCase("ok")) {
                             if (level != 2) {
-                                sendNotif(contact.get_id(), status);
+                                sendNotif(contact.get_id(), status, level);
                             } else {
-                                sendNotif(contact.get_id(), "4");
+                                sendNotif(contact.get_id(), "4", level);
                             }
 
                             PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
@@ -431,7 +431,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                     PengajuanHistory pengajuanHistory = new PengajuanHistory(id_pengajuan, idRoles, "", idUser, "", 0, 0, -1, "", level);
                     pengajuanHistory.setNama(contactDao.getContactById(idUser).getNama_depan());
                     historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-                    sendNotif(idUser, "2");
+                    sendNotif(idUser, "-1", 1);
                     historyPengajuanDao.updatePengajuanUser(id_pengajuan, idRoles);
 //                    sendNotif(idUser, "2");
 //                    CoreApplication.get().getAppDb().interfaceDao().updatePengajuanUser(id_pengajuan, idRoles);
@@ -448,7 +448,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
     }
 
 
-    private void sendNotif(String user, String status) {
+    private void sendNotif(String user, String status, int newLevel) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -457,6 +457,7 @@ public class PermintaanFragment extends Fragment implements Ifragment {
         hashMap.put("status", status.trim());
         hashMap.put("time", System.currentTimeMillis());
         hashMap.put("isshow", false);
+        hashMap.put("newLevel", newLevel);
         hashMap.put("type", "User");
 
         databaseReference.child("Notification").push().setValue(hashMap);

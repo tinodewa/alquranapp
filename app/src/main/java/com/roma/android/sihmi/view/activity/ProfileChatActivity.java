@@ -330,7 +330,7 @@ public class ProfileChatActivity extends BaseActivity {
                         otherUser.setId_level(level);
                         otherUser.setId_roles(levelDao.getIdRoles(level));
                         contactDao.insertContact(otherUser);
-                        sendNotif(otherUser.get_id(), "1");
+                        sendNotif(otherUser.get_id(), "1", level);
                         Tools.showToast(ProfileChatActivity.this, "Berhasil menjadikan admin");
                         finish();
                     }
@@ -349,7 +349,7 @@ public class ProfileChatActivity extends BaseActivity {
         dialog.show();
     }
 
-    private void sendNotif(String user, String status) {
+    private void sendNotif(String user, String status, int newLevel) {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -358,6 +358,7 @@ public class ProfileChatActivity extends BaseActivity {
         hashMap.put("status", status.trim());
         hashMap.put("time", System.currentTimeMillis());
         hashMap.put("isshow", false);
+        hashMap.put("newLevel", newLevel);
         hashMap.put("type", "User");
 
         databaseReference.child("Notification").push().setValue(hashMap);
@@ -388,7 +389,7 @@ public class ProfileChatActivity extends BaseActivity {
                                 PengajuanHistory pengajuanHistory = historyPengajuanDao.getPengajuanHistoryById(id_pengajuan);
                                 pengajuanHistory.setStatus(-1);
                                 historyPengajuanDao.insertPengajuanHistory(pengajuanHistory);
-                                sendNotif(idUser, "-1");
+                                sendNotif(idUser, "-1", levelBefore);
                                 Tools.showToast(ProfileChatActivity.this, "Berhasil membatalkan");
                                 finish();
                             }

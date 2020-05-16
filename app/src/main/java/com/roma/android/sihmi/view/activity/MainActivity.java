@@ -763,48 +763,51 @@ public class MainActivity extends BaseActivity
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification.getTo().equals(user.get_id())) {
                         if (!notification.isIsshow()) {
-                            boolean updateNotification = true;
-                            int level = levelDao.getLevel(user.getId_roles());
+                            int level = levelDao.getPengajuanLevel(user.getId_roles());
+                            String dialogTitle = "";
+                            String dialogDesc = "";
+                            String dialogPositive = "";
 
                             switch (notification.getStatus()) {
                                 case "1":
-                                    updateNotification = false;
-                                    checkLevelAdmin(snapshot, level);
+                                    dialogTitle = getString(R.string.approve_admin_title);
+                                    dialogDesc = getString(R.string.approve_admin_desc);
+                                    dialogPositive = getString(R.string.bismillah);
                                     break;
                                 case "2":
-                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                        if (level > Constant.LEVEL_LK) {
-                                            logout();
-                                        }
-                                    });
+                                    dialogTitle = getString(R.string.admin_berakhir);
+                                    dialogDesc = getString(R.string.admin_berakhir_desc);
+                                    dialogPositive = getString(R.string.alhamdulillah);
                                     break;
                                 case "3":
-                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                        if (level == Constant.LEVEL_LK) {
-                                            logout();
-                                        }
-                                    });
+                                    dialogTitle = getString(R.string.anggota_berakhir);
+                                    dialogDesc = getString(R.string.anggota_berakhir_desc);
+                                    dialogPositive = getString(R.string.alhamdulillah);
                                     break;
                                 case "4":
                                     // Approve LK 1
-                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
-                                        if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
-                                            logout();
-                                        }
-                                    });
+                                    dialogTitle = getString(R.string.selamat_berproses);
+                                    dialogDesc = getString(R.string.selamat_berproses_desc);
+                                    dialogPositive = getString(R.string.yakusa);
                                     break;
                                 case "-1":
-                                    Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
+                                    dialogTitle = getString(R.string.pengajuan_ditolak);
+                                    dialogDesc = getString(R.string.pengajuan_ditolak_desc);
+                                    dialogPositive = getString(R.string.tutup);
                                     break;
                                 default:
                                     break;
                             }
 
-                            if (updateNotification) {
-                                HashMap<String, Object> hashMap = new HashMap<>();
-                                hashMap.put("isshow", true);
-                                snapshot.getRef().updateChildren(hashMap);
-                            }
+                            Tools.showDialogCustom(MainActivity.this, dialogTitle, dialogDesc, dialogPositive, getString(R.string.ya), ket -> {
+                                if (level != notification.getNewLevel()) {
+                                    logout();
+                                }
+                            });
+
+                            HashMap<String, Object> hashMap = new HashMap<>();
+                            hashMap.put("isshow", true);
+                            snapshot.getRef().updateChildren(hashMap);
                         }
                     }
                 }
@@ -813,62 +816,6 @@ public class MainActivity extends BaseActivity
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
-            }
-        });
-    }
-
-    private void getMyProfile(DataSnapshot snapshot, int level, int retry) {
-        Call<ProfileResponse> call = service.getProfile(Constant.getToken());
-
-        call.enqueue(new Callback<ProfileResponse>() {
-            @Override
-            @EverythingIsNonNull
-            public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
-                if (response.isSuccessful()) {
-                    ProfileResponse body = response.body();
-                    if (body != null && body.getStatus().equalsIgnoreCase("ok")) {
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("isshow", true);
-                        snapshot.getRef().updateChildren(hashMap);
-
-                        User me = body.getData();
-                        if (me != null) {
-                            int myLevel = levelDao.getLevel(me.getId_roles());
-                            if (myLevel != level) {
-                                logout();
-                            }
-                        }
-                        else {
-                            logout();
-                        }
-                    }
-                    else {
-                        if (retry > 1) getMyProfile(snapshot, level, retry-1);
-                    }
-                }
-                else {
-                    if (retry > 1) getMyProfile(snapshot, level, retry-1);
-                }
-            }
-
-            @Override
-            @EverythingIsNonNull
-            public void onFailure(Call<ProfileResponse> call, Throwable t) {
-                if (retry > 1) getMyProfile(snapshot, level, retry-1);
-            }
-        });
-    }
-
-    private void checkLevelAdmin(DataSnapshot snapshot, int level) {
-        Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
-            if (level <= Constant.LEVEL_LK) {
-                HashMap<String, Object> hashMap = new HashMap<>();
-                hashMap.put("isshow", true);
-                snapshot.getRef().updateChildren(hashMap);
-                logout();
-            }
-            else {
-                getMyProfile(snapshot, level, 3);
             }
         });
     }
