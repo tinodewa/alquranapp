@@ -22,8 +22,8 @@ android {
         applicationId "com.roma.android.sihmi"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 1324
-        versionName '1.6.1'
+        versionCode 1325
+        versionName '1.6.2'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
