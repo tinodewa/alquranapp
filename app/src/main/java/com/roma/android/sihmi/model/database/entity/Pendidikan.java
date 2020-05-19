@@ -1,6 +1,7 @@
 package com.roma.android.sihmi.model.database.entity;
 
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -9,26 +10,18 @@ import com.google.gson.annotations.SerializedName;
 @Entity
 public class Pendidikan {
     @PrimaryKey
-    int id;
-    String _id, id_user;
+    @NonNull
+    String _id;
+    String id_user;
     String tahun, strata, jurusan;
     @SerializedName("kampus")
     String nama_kampus;
 
-    public Pendidikan(int id, String tahun, String strata, String nama_kampus, String jurusan) {
-        this.id = id;
+    public Pendidikan(String tahun, String strata, String nama_kampus, String jurusan) {
         this.tahun = tahun;
         this.strata = strata;
         this.nama_kampus = nama_kampus;
         this.jurusan = jurusan;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String get_id() {

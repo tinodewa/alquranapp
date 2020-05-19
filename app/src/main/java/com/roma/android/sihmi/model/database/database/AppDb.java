@@ -77,7 +77,7 @@ import com.roma.android.sihmi.utils.Constant;
             LoadDataState.class,
             PengajuanLK1.class
         },
-        version = 26,
+        version = 27,
         exportSchema = false)
 public abstract class   AppDb extends RoomDatabase {
     private static volatile AppDb instance = null;
@@ -162,6 +162,30 @@ public abstract class   AppDb extends RoomDatabase {
 
             database.execSQL("ALTER TABLE Master " +
                     "ADD parentId TEXT NOT NULL DEFAULT ''");
+        }
+    };
+
+    private static final Migration MIGRATION_26_27 = new Migration(26, 27) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.beginTransaction();
+
+            database.execSQL("ALTER TABLE Pendidikan RENAME TO Pendidikan_temp");
+
+            database.execSQL("CREATE TABLE Pendidikan (" +
+                    "_id TEXT PRIMARY KEY NOT NULL," +
+                    "id_user TEXT," +
+                    "tahun TEXT," +
+                    "strata TEXT," +
+                    "jurusan TEXT," +
+                    "nama_kampus TEXT" +
+                    ")");
+
+            database.execSQL("INSERT INTO Pendidikan (_id, id_user, tahun, strata, jurusan, nama_kampus) " +
+                    "SELECT _id, id_user, tahun, strata, jurusan, nama_kampus " +
+                    "FROM Pendidikan_temp");
+
+            database.setTransactionSuccessful();
         }
     };
 }
