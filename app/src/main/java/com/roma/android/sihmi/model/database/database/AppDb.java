@@ -109,7 +109,7 @@ public abstract class   AppDb extends RoomDatabase {
                 instance = Room.databaseBuilder(context.getApplicationContext(), AppDb.class,"sihmi_database")
                         .allowMainThreadQueries()
                         .fallbackToDestructiveMigration()
-                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25, MIGRATION_25_26)
+                        .addMigrations(MIGRATION_22_23, MIGRATION_23_24, MIGRATION_24_25, MIGRATION_25_26, MIGRATION_26_27)
                         .build();
             }
         }
@@ -185,7 +185,10 @@ public abstract class   AppDb extends RoomDatabase {
                     "SELECT _id, id_user, tahun, strata, jurusan, nama_kampus " +
                     "FROM Pendidikan_temp");
 
+            database.execSQL("DROP TABLE Pendidikan_temp");
+
             database.setTransactionSuccessful();
+            database.endTransaction();
         }
     };
 }
