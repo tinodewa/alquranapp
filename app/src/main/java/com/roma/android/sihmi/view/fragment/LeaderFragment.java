@@ -143,15 +143,19 @@ public class LeaderFragment extends Fragment {
     private void initAdapterSuper(){
         adapter = new LeaderDetailAdapter(getContext(), list, (leader, type) -> {
             if (type == Constant.READ) {
-//                startActivityForResult(new Intent(getContext(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_NEW, false).putExtra(LeaderFormActivity.IS_UPDATE, false).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
+                // empty
             } else if (type == Constant.UPDATE){
                 startActivityForResult(new Intent(getActivity(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_NEW, false).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
-
-//                startActivityForResult(new Intent(getParentFragment().getActivity(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_UPDATE, true).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
             } else {
                 confirmDelete(leader.get_id());
             }
         });
+
+        if ((type == 2 && Tools.isLA1()) || (type == 3 && Tools.isAdmin1())) {
+            adapter.setAllowDelete(true);
+            adapter.setAllowUpdate(true);
+        }
+
         rvLeader.setLayoutManager(new LinearLayoutManager(getContext()));
         rvLeader.setAdapter(adapter);
     }
@@ -159,11 +163,9 @@ public class LeaderFragment extends Fragment {
     private void initAdapterNonSuper(){
         adapterNonSuper = new LeaderDetailNonSuperAdapter(getContext(), list, (leader, type) -> {
             if (type == Constant.READ) {
-//                startActivityForResult(new Intent(getContext(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_NEW, false).putExtra(LeaderFormActivity.IS_UPDATE, false).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
+                // empty
             } else if (type == Constant.UPDATE){
                 startActivityForResult(new Intent(getActivity(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_NEW, false).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
-
-//                startActivityForResult(new Intent(getParentFragment().getActivity(), LeaderFormActivity.class).putExtra(LeaderFormActivity.IS_UPDATE, true).putExtra(LeaderFormActivity.ID_LEAD, leader.get_id()), Constant.REQUEST_LEADER);
             } else {
                 confirmDelete(leader.get_id());
             }

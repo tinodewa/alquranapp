@@ -64,18 +64,24 @@ public class LaporanUserAdapter extends RecyclerView.Adapter<LaporanUserAdapter.
                 if (contact.getTanggal_daftar() == null || contact.getTanggal_daftar().isEmpty()) {
                     tglDftar = "01/01/2019";
                 } else {
-                    tglDftar = Tools.getDateLaporanFromMillis(Long.getLong(contact.getLast_login()));
+                    tglDftar = Tools.getDateLaporanFromMillis(Long.parseLong(contact.getTanggal_daftar()));
                 }
-            } catch (NullPointerException e){
+            } catch (Exception e){
+                e.printStackTrace();
                 tglDftar = "01/01/2019";
             }
 
-            if (contact.getLast_login() == null || contact.getLast_login().isEmpty()){
+            try {
+                if (contact.getLast_login() == null || contact.getLast_login().isEmpty()){
+                    lastLogin = Tools.getDateTimeLaporanFromMillis(Long.parseLong(contact.getTanggal_daftar()));
+                } else {
+                    lastLogin = Tools.getDateTimeLaporanFromMillis(Long.parseLong(contact.getLast_login()));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 lastLogin = "01/01/2019, 09:00";
-            } else {
-//                lastLogin=contact.getLast_login();
-                lastLogin = Tools.getDateTimeLaporanFromMillis(Long.parseLong(contact.getLast_login()));
             }
+
             viewHolder.tvCol1.setText(contact.getFullName());
             viewHolder.tvCol2.setText(tglDftar);
             viewHolder.tvCol3.setText(lastLogin);

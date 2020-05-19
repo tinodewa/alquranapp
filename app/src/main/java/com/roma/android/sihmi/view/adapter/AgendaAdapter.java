@@ -1,12 +1,16 @@
 package com.roma.android.sihmi.view.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Color;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,8 +69,18 @@ public class AgendaAdapter extends RecyclerView.Adapter<AgendaAdapter.ViewHolder
 
         if (agenda.isReminder()){
             viewHolder.imgReminder.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_notifications));
+
+            TypedValue typedValue = new TypedValue();
+            Resources.Theme theme = context.getTheme();
+            theme.resolveAttribute(R.attr.textcolor, typedValue, true);
+            @ColorInt int textColor = typedValue.data;
+
+            viewHolder.imgReminder.setColorFilter(textColor);
         } else {
             viewHolder.imgReminder.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_notifications_off_black));
+
+            @ColorInt int defaultColor = Color.parseColor("#686868");
+            viewHolder.imgReminder.setColorFilter(defaultColor);
         }
 
         viewHolder.itemView.setOnClickListener(v -> listener.onItemClick(agenda, false));

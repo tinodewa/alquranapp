@@ -81,6 +81,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         viewHolder.tvNama.setText(user.getFullName());
         viewHolder.tvDesc.setText(lastMessage);
 
+        if (user.isBisukan()) {
+            viewHolder.notifIcon.setVisibility(View.VISIBLE);
+        }
+        else {
+            viewHolder.notifIcon.setVisibility(View.GONE);
+        }
+
         if (chating.getUnread() > 0 && receiver.equals(userDao.getUser().get_id())){
             viewHolder.tvUnread.setVisibility(View.VISIBLE);
             viewHolder.tvUnread.setText(String.valueOf(chating.getUnread()));
@@ -89,15 +96,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         }
 
         if (Tools.getDateFromMillis(chating.getTime_message()).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-//            viewHolder.tvTime.setText(Tools.getTimeAMPMFromMillis(chating.getTime_message()));
-//            viewHolder.tvTime.setText(context.getString(R.string.hari_ini));
             if (Constant.getLanguage().equals("id")){
                 viewHolder.tvTime.setText("Hari Ini");
             } else {
                 viewHolder.tvTime.setText("Today");
             }
         } else if (Tools.getDateFromMillis(chating.getTime_message()+ TimeUnit.DAYS.toMillis(1)).equalsIgnoreCase(Tools.getDateFromMillis(System.currentTimeMillis()))){
-//            viewHolder.tvTime.setText(context.getString(R.string.kemarin));
             if (Constant.getLanguage().equals("id")){
                 viewHolder.tvTime.setText("Kemarin");
             } else {
@@ -109,9 +113,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
 
         String firstLetter = String.valueOf(user.getFullName().charAt(0));
         ColorGenerator generator = ColorGenerator.MATERIAL; // or use DEFAULT
-        // generate random color
         int color = generator.getColor(firstLetter);
-        //int color = generator.getRandomColor();
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(firstLetter, color); // radius in px
 
@@ -166,6 +168,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ViewHolder> {
         ImageView ivIntial;
         @BindView(R.id.tvUnread)
         TextView tvUnread;
+        @BindView(R.id.notifIcon)
+        ImageView notifIcon;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

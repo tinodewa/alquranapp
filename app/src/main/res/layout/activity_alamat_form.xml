@@ -62,19 +62,11 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <HorizontalScrollView
+                <AutoCompleteTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbars="none">
-                    <TextView
-                        android:textColor="?attr/textcolor"
-                        android:id="@+id/tvLokasi"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:maxLines="1"
-                        android:text="@string/cari_lokasi"
-                        android:textSize="18sp"/>
-                </HorizontalScrollView>
+                    android:id="@+id/actv_lokasi"
+                    android:hint="@string/cari_lokasi"/>
 
             </LinearLayout>
 

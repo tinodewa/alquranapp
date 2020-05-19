@@ -347,7 +347,14 @@ public class DetailReportActivity extends BaseActivity {
                 String whereClause = "tahun_lk1";
 
                 Log.d("GET TAHUN", "GET TAHUN "+dataGrafik.getTahun());
-                showDialogUser(getObjectQuery() + " AND " + whereClause + " = '" + dataGrafik.getTahun() + "'");
+                if (Tools.isLA2()) {
+                    Intent intent = new Intent(this, DataKaderLA2Activity.class)
+                            .putExtra(DataKaderLA2Activity.YEAR_DATA, String.valueOf(dataGrafik.getTahun()));
+                    startActivity(intent);
+                }
+                else {
+                    showDialogUser(getObjectQuery() + " AND " + whereClause + " = '" + dataGrafik.getTahun() + "'");
+                }
             } else {
                 Toast.makeText(this, getString(R.string.data_tidak_tersedia), Toast.LENGTH_SHORT).show();
             }

@@ -152,14 +152,14 @@ public class AnggotaFragment extends Fragment {
     }
 
     private void changeRoles(String idUser){
-        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, 1);
+        Call<GeneralResponse> call = service.updateUserLevel(Constant.getToken(), idUser, Constant.USER_NON_LK);
         call.enqueue(new Callback<GeneralResponse>() {
             @Override
             public void onResponse(Call<GeneralResponse> call, Response<GeneralResponse> response) {
                 if (response.isSuccessful()){
-                    String idRoles = levelDao.getIdRoles(1);
-                    sendNotif(idUser, "3");
-                    contactDao.updateRolesUser(idUser, idRoles, Constant.LEVEL_NON_LK);
+                    String idRoles = levelDao.getIdRoles(Constant.USER_NON_LK);
+                    sendNotif(idUser, "3", Constant.USER_NON_LK);
+                    contactDao.updateRolesUser(idUser, idRoles, Constant.USER_NON_LK);
                 } else {
                     Tools.showToast(getActivity(), getString(R.string.gagal_update));
                 }
@@ -172,7 +172,7 @@ public class AnggotaFragment extends Fragment {
         });
     }
 
-    private void sendNotif(String user, String status){
+    private void sendNotif(String user, String status, int newLevel){
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
 
         HashMap<String, Object> hashMap = new HashMap<>();
@@ -181,6 +181,7 @@ public class AnggotaFragment extends Fragment {
         hashMap.put("status", status.trim());
         hashMap.put("time", System.currentTimeMillis());
         hashMap.put("isshow", false);
+        hashMap.put("newLevel", newLevel);
         hashMap.put("type", "User");
 
         databaseReference.child("Notification").push().setValue(hashMap);

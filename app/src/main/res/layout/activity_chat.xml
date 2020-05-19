@@ -159,7 +159,7 @@
                 android:background="@android:color/transparent"
                 android:layout_centerVertical="true"
                 android:maxLines="4"
-                android:textColor="@color/colorTextDark"
+                android:textColor="?attr/textcolor"
                 android:layout_toRightOf="@id/fab_add"
                 android:layout_toLeftOf="@id/btn_send"/>
 

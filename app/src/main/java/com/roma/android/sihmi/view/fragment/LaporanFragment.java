@@ -20,7 +20,9 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.google.firebase.database.core.Repo;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.AgendaScheduler;
 import com.roma.android.sihmi.model.database.database.AppDb;
+import com.roma.android.sihmi.model.database.entity.Agenda;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.DataKader;
 import com.roma.android.sihmi.model.database.entity.Training;
@@ -487,13 +489,26 @@ public class LaporanFragment extends Fragment {
             public void onResponse(Call<AgendaResponse> call, Response<AgendaResponse> response) {
                 if (response.isSuccessful()) {
                     if (response.body().getStatus().equalsIgnoreCase("ok")) {
-                        if (response.body().getData().size() > 0){
-                            for (int i = 0; i < response.body().getData().size() ; i++) {
-                                Contact contact = contactDao.getContactById(response.body().getData().get(i).getId_user());
-                                contact.setKeterangan(response.body().getData().get(i).getNama());
+                        List<Agenda> agendas = response.body().getData();
+                        if (agendas.size() > 0){
+                            List<String> agendaIds = new ArrayList<>();
+                            for (int i = 0; i < agendas.size() ; i++) {
+                                Agenda agenda = agendas.get(i);
+                                Agenda checkDuplicate = appDb.agendaDao().getAgendaById(agenda.get_id());
+                                agendaIds.add(agenda.get_id());
+                                if (checkDuplicate != null){
+                                    agenda.setReminder(checkDuplicate.isReminder());
+                                }
+                                Contact contact = contactDao.getContactById(agenda.getId_user());
+                                contact.setKeterangan(agenda.getNama());
                                 list.add(contact);
                             }
                             adapterCwAgenda.updateData(list);
+
+                            appDb.agendaDao().deleteUnusedAgenda(agendaIds);
+                            appDb.agendaDao().insertAgenda(response.body().getData());
+
+                            AgendaScheduler.setupUpcomingAgendaNotifier(getContext());
                         }
                     } else {
 

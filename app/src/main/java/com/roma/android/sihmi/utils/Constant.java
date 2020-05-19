@@ -13,6 +13,7 @@ import com.roma.android.sihmi.model.database.entity.Account;
 import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.model.database.entity.User;
 import com.roma.android.sihmi.model.database.interfaceDao.ContactDao;
+import com.roma.android.sihmi.model.database.interfaceDao.GroupChatDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 
 import java.lang.reflect.Type;
@@ -169,6 +170,7 @@ public class Constant {
     AppDb appDb;
     UserDao userDao;
     ContactDao contactDao;
+    GroupChatDao groupChatDao;
 
     public UserDao getUserDao() {
         return userDao;
@@ -187,6 +189,15 @@ public class Constant {
         appDb = AppDb.getInstance(context);
         userDao = appDb.userDao();
         contactDao = appDb.contactDao();
+        groupChatDao = appDb.groupChatDao();
+    }
+
+    public AppDb getAppDb() {
+        return appDb;
+    }
+
+    public GroupChatDao getGroupChatDao() {
+        return groupChatDao;
     }
 
     public static boolean isLoggedIn(Context context) {

@@ -382,6 +382,19 @@
     <string name="tahun_overload">Tahun tidak boleh lebih dari tahun sekarang</string>
     <string name="same_training_type">Tidak bisa menambahkan tipe Training yang sama</string>
     <string name="invalid_year_format">Format tahun salah</string>
+    <string name="you">Anda</string>
+    <string name="message_from">Pesan dari&#160;</string>
+    <string name="name_of">Nama&#160;</string>
+    <string name="pilih">Pilih&#160;</string>
+    <string name="total">Total</string>
+    <string name="data_kader_tahun">Data Kader -&#160;</string>
+    <string name="tida_ada_data">Tida ada data</string>
+    <string name="pada_tanggal">pada tanggal"</string>
+    <string name="di_agenda">di</string>
+    <string name="new_agenda">Agenda Baru</string>
+    <string name="agenda_dimulai">Agenda Dimulai</string>
+    <string name="pengingat_diaktifkan">Pengingat diaktifkan</string>
+    <string name="title_activity_alamat_maps">Alamat</string>
     <string-array name="jenjang_pendidikan">
         <item>D3</item>
         <item>D4</item>

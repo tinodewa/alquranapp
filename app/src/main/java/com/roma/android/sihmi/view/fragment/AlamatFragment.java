@@ -21,7 +21,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.roma.android.sihmi.R;
-import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Alamat;
 import com.roma.android.sihmi.model.database.interfaceDao.AlamatDao;
@@ -153,6 +152,7 @@ public class AlamatFragment extends Fragment {
                     }, true, allowDelete());
                 }
             } else {
+//                startActivity(new Intent(getContext(), AlamatMapsActivity.class));
                 startActivityForResult(new Intent(getActivity(), AlamatFormActivity.class)
                         .putExtra("id", alamat.get_id()).putExtra(AlamatFormActivity.IS_EDIT, false), Constant.REQUEST_ALAMAT);
             }

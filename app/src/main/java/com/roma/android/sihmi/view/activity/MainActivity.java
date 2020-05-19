@@ -6,11 +6,11 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,17 +22,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 import com.bumptech.glide.Glide;
 import com.facebook.stetho.Stetho;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,16 +31,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 import com.roma.android.sihmi.R;
+import com.roma.android.sihmi.helper.AgendaScheduler;
+import com.roma.android.sihmi.helper.NotificationHelper;
 import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Account;
+import com.roma.android.sihmi.model.database.entity.GroupChat;
 import com.roma.android.sihmi.model.database.entity.Notification;
 import com.roma.android.sihmi.model.database.entity.User;
+import com.roma.android.sihmi.model.database.interfaceDao.GroupChatDao;
 import com.roma.android.sihmi.model.database.interfaceDao.LevelDao;
 import com.roma.android.sihmi.model.database.interfaceDao.UserDao;
 import com.roma.android.sihmi.model.network.ApiClient;
@@ -60,6 +54,7 @@ import com.roma.android.sihmi.model.response.GeneralResponse;
 import com.roma.android.sihmi.model.response.ProfileResponse;
 import com.roma.android.sihmi.model.response.UploadFileResponse;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.service.MyFirebaseMessagingService;
 import com.roma.android.sihmi.utils.Constant;
 import com.roma.android.sihmi.utils.Tools;
 import com.roma.android.sihmi.utils.UploadFile;
@@ -86,6 +81,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -137,6 +142,7 @@ public class MainActivity extends BaseActivity
     AppDb appDb;
     UserDao userDao;
     LevelDao levelDao;
+    GroupChatDao groupChatDao;
     MasterService service;
 
     @Override
@@ -148,11 +154,12 @@ public class MainActivity extends BaseActivity
         appDb = AppDb.getInstance(this);
         userDao = appDb.userDao();
         levelDao = appDb.levelDao();
+        groupChatDao = appDb.groupChatDao();
 
         Stetho.initializeWithDefaults(this);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("SIHMI");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("SIHMI");
 
         user = userDao.getUser();
         language = Constant.getLanguage();
@@ -175,7 +182,7 @@ public class MainActivity extends BaseActivity
         }
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.setDrawerElevation(0);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -208,10 +215,12 @@ public class MainActivity extends BaseActivity
                 imageView.setVisibility(View.VISIBLE);
             }
         });
+
+        AgendaScheduler.setupUpcomingAgendaNotifier(this);
     }
 
     public void setToolBar(String title) {
-        getSupportActionBar().setTitle(title);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(title);
     }
 
     @Override
@@ -660,9 +669,45 @@ public class MainActivity extends BaseActivity
         dialog.show();
     }
 
+    private void unsubscribeFromGroupChat() {
+        List<GroupChat> groupChats;
+        User user = userDao.getUser();
+        if (user != null) {
+            if (Tools.isSuperAdmin()) {
+                groupChats = groupChatDao.getAllGroupList();
+            }
+            else {
+                groupChats = groupChatDao.getAllGroupListNotSuperAdmin(user.getCabang(), user.getKomisariat(), user.getDomisili_cabang());
+            }
+
+            for(GroupChat groupChat : groupChats) {
+                String[] groupNameSplit = groupChat.getNama().split(" ");
+                String groupName = TextUtils.join("_", groupNameSplit);
+                final String topic = MyFirebaseMessagingService.GROUP_TOPIC_PREFIX + groupName;
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(topic)
+                        .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + topic));
+            }
+        }
+    }
+
+    private void unsubscribeFromAgenda() {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(MyFirebaseMessagingService.AGENDA_TOPIC)
+                .addOnCompleteListener(task -> Log.d("Fabric", "Successfully unsubscribed from topic " + MyFirebaseMessagingService.AGENDA_TOPIC));
+    }
+
     private void clearData() {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+
+        NotificationHelper.removeAllHistoryMessage();
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Tokens");
+        reference.child(userDao.getUser().get_id()).removeValue();
+
+        unsubscribeFromGroupChat();
+        unsubscribeFromAgenda();
+
+        AgendaScheduler.cancelAgenda(this);
 
         updatePhoto();
 
@@ -718,45 +763,52 @@ public class MainActivity extends BaseActivity
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification.getTo().equals(user.get_id())) {
                         if (!notification.isIsshow()) {
-                            int level = levelDao.getLevel(user.getId_roles());
+                            int level = levelDao.getPengajuanLevel(user.getId_roles());
+                            String dialogTitle = "";
+                            String dialogDesc = "";
+                            String dialogPositive = "";
 
-                            if (notification.getStatus().equals("1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.approve_admin_title), getString(R.string.approve_admin_desc), getString(R.string.bismillah), getString(R.string.ya), ket -> {
-                                    if (level <= Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
+                            switch (notification.getStatus()) {
+                                case "1":
+                                    dialogTitle = getString(R.string.approve_admin_title);
+                                    dialogDesc = getString(R.string.approve_admin_desc);
+                                    dialogPositive = getString(R.string.bismillah);
+                                    break;
+                                case "2":
+                                    dialogTitle = getString(R.string.admin_berakhir);
+                                    dialogDesc = getString(R.string.admin_berakhir_desc);
+                                    dialogPositive = getString(R.string.alhamdulillah);
+                                    break;
+                                case "3":
+                                    dialogTitle = getString(R.string.anggota_berakhir);
+                                    dialogDesc = getString(R.string.anggota_berakhir_desc);
+                                    dialogPositive = getString(R.string.alhamdulillah);
+                                    break;
+                                case "4":
+                                    // Approve LK 1
+                                    dialogTitle = getString(R.string.selamat_berproses);
+                                    dialogDesc = getString(R.string.selamat_berproses_desc);
+                                    dialogPositive = getString(R.string.yakusa);
+                                    break;
+                                case "-1":
+                                    dialogTitle = getString(R.string.pengajuan_ditolak);
+                                    dialogDesc = getString(R.string.pengajuan_ditolak_desc);
+                                    dialogPositive = getString(R.string.tutup);
+                                    break;
+                                default:
+                                    break;
                             }
-                            else if (notification.getStatus().equals("2")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.admin_berakhir), getString(R.string.admin_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level > Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("3")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.anggota_berakhir), getString(R.string.anggota_berakhir_desc), getString(R.string.alhamdulillah), getString(R.string.ya), ket -> {
-                                    if (level == Constant.LEVEL_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("4")) {
-                                // Approve LK 1
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.selamat_berproses), getString(R.string.selamat_berproses_desc), getString(R.string.yakusa), getString(R.string.ya), ket -> {
-                                    if (levelDao.getLevel(user.getId_roles()) == Constant.USER_NON_LK) {
-                                        logout();
-                                    }
-                                });
-                            }
-                            else if (notification.getStatus().equals("-1")) {
-                                Tools.showDialogCustom(MainActivity.this, getString(R.string.pengajuan_ditolak), getString(R.string.pengajuan_ditolak_desc), getString(R.string.tutup));
-                            }
+
+                            Tools.showDialogCustom(MainActivity.this, dialogTitle, dialogDesc, dialogPositive, getString(R.string.ya), ket -> {
+                                if (level != notification.getNewLevel()) {
+                                    logout();
+                                }
+                            });
+
+                            HashMap<String, Object> hashMap = new HashMap<>();
+                            hashMap.put("isshow", true);
+                            snapshot.getRef().updateChildren(hashMap);
                         }
-
-                        HashMap<String, Object> hashMap = new HashMap<>();
-                        hashMap.put("isshow", true);
-                        snapshot.getRef().updateChildren(hashMap);
                     }
                 }
             }

@@ -7,6 +7,7 @@ import androidx.room.Query;
 import androidx.room.RawQuery;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.roma.android.sihmi.model.database.entity.UserCount;
 import com.roma.android.sihmi.model.database.entity.Contact;
 
 import java.util.List;
@@ -65,13 +66,13 @@ public interface ContactDao { @RawQuery
     @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8) AND (nama_depan LIKE :name OR nama_belakang LIKE :name) AND cabang = :cabang ORDER BY lower(nama_depan) ASC")
     List<Contact> getSearchListAdminForLA1(String cabang, String name);
 
-    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 13 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
     List<Contact> getListAdminForLA2();
 
-    @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 13 ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 13 ORDER BY lower(nama_depan) ASC")
     LiveData<List<Contact>> getLiveDataListAdminForLA2();
 
-    @Query("SELECT * FROM Contact WHERE (id_level == 5 OR id_level == 8 OR id_level == 13) AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
+    @Query("SELECT * FROM Contact WHERE id_level == 13 AND (nama_depan LIKE :name OR nama_belakang LIKE :name)  ORDER BY lower(nama_depan) ASC")
     List<Contact> getSearchListAdminForLA2(String name);
 
     @Query("SELECT * FROM Contact WHERE id_level == 5 OR id_level == 8 OR id_level == 11 OR id_level == 13 OR id_level == 16 OR id_level == 19 ORDER BY lower(nama_depan) ASC")
@@ -142,4 +143,10 @@ public interface ContactDao { @RawQuery
 
     @Query("UPDATE Contact SET id_roles= :idRoles, id_level = :id_level WHERE _id = :id")
     void updateRolesUser(String id, String idRoles, int id_level);
+
+    @Query("SELECT cabang AS value, count(cabang) AS userCount FROM Contact WHERE cabang IN (SELECT value FROM MASTER WHERE parentId = :parentId) AND tahun_lk1 = :tahun_lk1 AND id_level != 1 AND id_level != 20 AND id_level != 19 GROUP BY cabang")
+    List<UserCount> getCabangUserCount(String parentId, String tahun_lk1);
+
+    @Query("SELECT komisariat AS value, count(komisariat) AS userCount FROM Contact WHERE cabang = :cabang AND tahun_lk1 = :tahun_lk1 AND id_level != 1 AND id_level != 20 AND id_level != 19 GROUP BY komisariat")
+    List<UserCount> getKomisariatUserCount(String cabang, String tahun_lk1);
 }

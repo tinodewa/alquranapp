@@ -10,9 +10,11 @@ import android.widget.TextView;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.roma.android.sihmi.ListenerHelper;
 import com.roma.android.sihmi.R;
 import com.roma.android.sihmi.core.CoreApplication;
 import com.roma.android.sihmi.model.database.database.AppDb;
+import com.roma.android.sihmi.model.database.entity.Master;
 import com.roma.android.sihmi.model.database.entity.PengajuanHistory;
 import com.roma.android.sihmi.model.database.entity.PengajuanLK1;
 import com.roma.android.sihmi.model.database.entity.User;
@@ -67,6 +69,10 @@ public class LK1Activity extends BaseActivity {
     LevelDao levelDao;
     HistoryPengajuanDao historyPengajuanDao;
     Boolean isOnPengajuan = false;
+
+    private String badkoId = "";
+    private String cabangId = "";
+    private String korkomId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,24 +138,36 @@ public class LK1Activity extends BaseActivity {
         switch (editText.getId()){
             case R.id.et_badko:
                 String[] badkoArray = masterDao.getMasterNameByType("1").toArray(new String[0]);
-                Tools.showDialogLK1(this, badkoArray, ket -> {
-                    etBadko.setText(ket);
+                List<Master> badkoMaster = masterDao.getListMasterByType("1");
+                Tools.showDialogLK1(this, badkoArray, (res, index) -> {
+                    etBadko.setText(res);
+                    badkoId = badkoMaster.get(index).get_id();
+                    etCabang.setText(null);
+                    etKorkom.setText(null);
+                    etKomisariat.setText(null);
                 });
                 break;
             case R.id.et_cabang:
-                String[] cabangArray = masterDao.getMasterNameByType("2").toArray(new String[0]);
-                Tools.showDialogLK1(this, cabangArray, ket -> {
-                    etCabang.setText(ket);
+                String[] cabangArray = masterDao.getMasterValueByParentId(badkoId, "2").toArray(new String[0]);
+                List<Master> cabangMaster = masterDao.getMasterByParentId(badkoId, "2");
+                Tools.showDialogLK1(this, cabangArray, (res, index) -> {
+                    etCabang.setText(res);
+                    cabangId = cabangMaster.get(index).get_id();
+                    etKorkom.setText(null);
+                    etKomisariat.setText(null);
                 });
                 break;
             case R.id.et_korkom:
-                String[] korkomArray = masterDao.getMasterNameByType("3").toArray(new String[0]);
-                Tools.showDialogLK1(this, korkomArray, ket -> {
-                    etKorkom.setText(ket);
+                String[] korkomArray = masterDao.getMasterValueByParentId(cabangId, "3").toArray(new String[0]);
+                List<Master> korkomMaster = masterDao.getMasterByParentId(cabangId, "3");
+                Tools.showDialogLK1(this, korkomArray, (res, index) -> {
+                    etKorkom.setText(res);
+                    korkomId = korkomMaster.get(index).get_id();
+                    etKomisariat.setText(null);
                 });
                 break;
             case R.id.et_komisariat:
-                String[] komisariatArray = masterDao.getMasterNameByType("4").toArray(new String[0]);
+                String[] komisariatArray = masterDao.getMasterValueByParentId(korkomId, "4").toArray(new String[0]);
                 Tools.showDialogLK1(this, komisariatArray, ket -> {
                     etKomisariat.setText(ket);
                 });
