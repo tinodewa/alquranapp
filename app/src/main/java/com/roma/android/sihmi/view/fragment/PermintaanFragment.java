@@ -173,6 +173,8 @@ public class PermintaanFragment extends Fragment implements Ifragment {
                             List<Contact> contacts = response.body().getData();
                             for (int i = 0; i < contacts.size() ; i++) {
                                 Contact c = contacts.get(i);
+                                Contact thisContact = contactDao.getContactById(c.get_id());
+                                c.setBisukan(thisContact.isBisukan());
                                 c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
 
