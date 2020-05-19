@@ -451,5 +451,17 @@
     <string name="tahun_overload">Year field can not be more than current year</string>
     <string name="same_training_type">Can not add training data with same type</string>
     <string name="invalid_year_format">Invalid year format</string>
+    <string name="you">You</string>
+    <string name="message_from">Message from&#160;</string>
+    <string name="name_of">Name of&#160;</string>
+    <string name="pilih">Pilih&#160;</string>
+    <string name="total">Total</string>
+    <string name="data_kader_tahun">Cadre Data -&#160;</string>
+    <string name="tida_ada_data">No data</string>
+    <string name="pada_tanggal">"on"</string>
+    <string name="di_agenda">in</string>
+    <string name="new_agenda">New Agenda</string>
+    <string name="agenda_dimulai">Ongoing Agenda</string>
+    <string name="pengingat_diaktifkan">Reminder set</string>
 
 </resources>

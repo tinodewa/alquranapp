@@ -2,6 +2,7 @@ package com.roma.android.sihmi.model.network;
 
 import com.roma.android.sihmi.model.response.AboutUsResponse;
 import com.roma.android.sihmi.model.response.AgendaResponse;
+import com.roma.android.sihmi.model.response.AgendaSingleResponse;
 import com.roma.android.sihmi.model.response.AlamatResponse;
 import com.roma.android.sihmi.model.response.ContactResponse;
 import com.roma.android.sihmi.model.response.FileResponse;
@@ -183,6 +184,10 @@ public interface MasterService {
     Call<AgendaResponse> getAgenda(@Header("access-token") String token,
                                    @Query("type") String type);
 
+    @GET("agenda")
+    Call<AgendaSingleResponse> getAgenda(@Header("access-token") String token,
+                                         @Query("type") String type,
+                                         @Query("agendaId") String agendaId);
 
     @POST("agenda")
     Call<GeneralResponse> addAgenda(@Header("access-token") String token,
@@ -453,16 +458,33 @@ public interface MasterService {
     Call<MasterResponse> getMaster(@Header("access-token") String token,
                                    @Query("type") String type);
 
+    Call<MasterResponse> getMaster(@Header("access-token") String token,
+                                   @Query("type") String type,
+                                   @Query("parentId") String parentId);
+
+    @POST("/master")
+    Call<GeneralResponse> addMaster(@Header("access-token") String token,
+                                    @Query("type") String type,
+                                    @Query("value") String value);
+
     @POST("/master")
     Call<GeneralResponse> addMaster(@Header("access-token") String token,
                                      @Query("type") String type,
-                                     @Query("value") String value);
+                                     @Query("value") String value,
+                                     @Query("parentId") String parentId);
+
+    @PUT("/master")
+    Call<GeneralResponse> updateMaster(@Header("access-token") String token,
+                                       @Query("id_master") String id_master,
+                                       @Query("type") String type,
+                                       @Query("value") String value);
 
     @PUT("/master")
     Call<GeneralResponse> updateMaster(@Header("access-token") String token,
                                         @Query("id_master") String id_master,
                                         @Query("type") String type,
-                                        @Query("value") String value);
+                                        @Query("value") String value,
+                                        @Query("parentId") String parentId);
 
 
     @HTTP(method = "DELETE", path = "/master", hasBody = true)

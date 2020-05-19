@@ -52,4 +52,10 @@ public interface MasterDao {
 
     @Query("DELETE FROM Master WHERE _id LIKE :id")
     void deleteMasterById(String id);
+
+    @Query("SELECT value FROM Master WHERE type = :type AND (parentId = :parentId OR value LIKE 'Non%')")
+    List<String> getMasterValueByParentId(String parentId, String type);
+
+    @Query("SELECT * FROM Master WHERE type = :type AND (parentId = :parentId OR value LIKE 'Non%')")
+    List<Master> getMasterByParentId(String parentId, String type);
 }

@@ -8,6 +8,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="textcolor">@color/colorTextDark</item>
         <item name="backgroundcolor">@color/colorBgWhite</item>
+        <item name="backgroundcarditemcolor">@color/bg_card_item</item>
     </style>
 
 
@@ -18,6 +19,7 @@
         <item name="colorAccent">@color/colorDarkAccent2</item>
         <item name="textcolor">@color/textColorDark</item>
         <item name="backgroundcolor">@color/colorDarkAccent</item>
+        <item name="backgroundcarditemcolor">@color/bg_card_item_dark</item>
         <!--<item name="dividerColor">#F2F2F3</item>-->
         <!--<item name="iconPlaceholder">@drawable/i_dark_pholder</item>-->
     </style>

@@ -16,10 +16,19 @@ public class GroupChat {
     private String last_msg;
     private long last_seen;
     private int unread;
+    private boolean bisukan;
 
     public GroupChat(@NonNull String nama, String image) {
         this.nama = nama;
         this.image = image;
+    }
+
+    public boolean isBisukan() {
+        return bisukan;
+    }
+
+    public void setBisukan(boolean bisukan) {
+        this.bisukan = bisukan;
     }
 
     public String getNama() {

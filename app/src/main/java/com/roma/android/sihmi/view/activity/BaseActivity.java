@@ -67,8 +67,16 @@ public class BaseActivity extends AppCompatActivity {
 
         adjustFontScale(getResources().getConfiguration(), Constant.getFontSize());
 
+        String fontPathStr;
+        if (!Constant.getFontName().equalsIgnoreCase("Default")) {
+            fontPathStr = "fonts/"+Constant.getFontName()+".ttf";
+        }
+        else {
+            fontPathStr = null;
+        }
+
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
-                .setDefaultFontPath("fonts/"+Constant.getFontName()+".ttf")
+                .setDefaultFontPath(fontPathStr)
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );

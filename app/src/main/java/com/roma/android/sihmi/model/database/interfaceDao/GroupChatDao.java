@@ -21,13 +21,16 @@ public interface GroupChatDao {
     void insertGroupChat(GroupChat groupChat);
 
     @Query("SELECT * FROM GroupChat ORDER BY time DESC")
-    LiveData<List<GroupChat>> getAllGroup();
+    LiveData<List<GroupChat>> getAllGroupLiveData();
 
     @Query("SELECT * FROM GroupChat WHERE nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni ORDER BY time DESC")
-    LiveData<List<GroupChat>> getAllGroupNotSuperAdmin(String cabang, String komisariat, String alumni);
+    LiveData<List<GroupChat>> getAllGroupLiveDataNotSuperAdmin(String cabang, String komisariat, String alumni);
 
-    @Query("SELECT * FROM GroupChat")
+    @Query("SELECT * FROM GroupChat ORDER BY time DESC")
     List<GroupChat> getAllGroupList();
+
+    @Query("SELECT * FROM GroupChat WHERE nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni ORDER BY time DESC")
+    List<GroupChat> getAllGroupListNotSuperAdmin(String cabang, String komisariat, String alumni);
 
     @Query("SELECT * FROM GroupChat WHERE nama = :name")
     GroupChat getGroupChatByName(String name);
@@ -38,9 +41,13 @@ public interface GroupChatDao {
     @Query("UPDATE GroupChat SET last_seen=:lastSeen WHERE nama = :name")
     void updateLastSeen(String name, long lastSeen);
 
-    @Query("UPDATE GroupChat SET unread=:unread, last_msg=:msg WHERE nama = :name")
-    void updateGroupChat(String name, int unread, String msg);
+    @Query("UPDATE GroupChat SET unread=:unread WHERE nama = :name")
+    void updateGroupChat(String name, int unread);
 
     @Query("DELETE FROM GroupChat")
     void deleteAllGroup();
+
+        @Query("SELECT * FROM GroupChat WHERE nama LIKE :s AND (nama LIKE 'nasional' OR nama LIKE :cabang OR nama LIKE :komisariat OR nama LIKE :alumni) ORDER BY time DESC")
+    List<GroupChat> getSearchGroupChatNotSuperAdmin(String cabang, String komisariat, String alumni, String s);
+
 }

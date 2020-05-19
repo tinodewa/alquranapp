@@ -27,16 +27,30 @@ public class LeaderDetailAdapter extends RecyclerView.Adapter<LeaderDetailAdapte
     Context context;
     List<Leader> list;
     itemClickListener listener;
+    private boolean allowUpdate, allowDelete;
 
     public LeaderDetailAdapter(Context context, itemClickListener listener) {
         this.context = context;
         this.listener = listener;
+        this.allowDelete = false;
+        this.allowUpdate = false;
     }
 
-    //    public LeaderAdapter(Context context, List<Leader> list) {
-//        this.context = context;
-//        this.list = list;
-//    }
+    public boolean isAllowUpdate() {
+        return allowUpdate;
+    }
+
+    public void setAllowUpdate(boolean allowUpdate) {
+        this.allowUpdate = allowUpdate;
+    }
+
+    public boolean isAllowDelete() {
+        return allowDelete;
+    }
+
+    public void setAllowDelete(boolean allowDelete) {
+        this.allowDelete = allowDelete;
+    }
 
     public LeaderDetailAdapter(Context context, List<Leader> list, itemClickListener listener) {
         this.context = context;
@@ -110,14 +124,7 @@ public class LeaderDetailAdapter extends RecyclerView.Adapter<LeaderDetailAdapte
     }
 
     private boolean allowUpdate(Leader leader){
-//        if (Tools.isAdmin1() && leader.getType().contains("4-"+Constant.getUser().getKomisariat())){
-//            return true;
-//        } else if (Tools.isLA1() && leader.getType().contains("2-"+Constant.getUser().getCabang())){
-//            return true;
-//        } else if (Tools.isLA2() && leader.getType().contains("0-PB HMI")){
-//            return true;
-//        } else
-        if (Tools.isLA2() || Tools.isSecondAdmin() || Tools.isSuperAdmin()){
+        if (Tools.isLA2() || Tools.isSecondAdmin() || Tools.isSuperAdmin() || allowUpdate){
             return true;
         } else {
             return false;
@@ -125,7 +132,7 @@ public class LeaderDetailAdapter extends RecyclerView.Adapter<LeaderDetailAdapte
     }
 
     private boolean allowDelete(){
-        if (Tools.isSecondAdmin() || Tools.isSuperAdmin()) {
+        if (Tools.isSecondAdmin() || Tools.isSuperAdmin() || allowDelete) {
             return true;
         } else {
             return false;

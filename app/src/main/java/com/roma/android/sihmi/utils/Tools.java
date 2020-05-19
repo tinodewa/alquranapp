@@ -8,7 +8,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
@@ -30,8 +34,12 @@ import com.roma.android.sihmi.ListenerHelper;
 import com.roma.android.sihmi.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.roma.android.sihmi.core.CoreApplication;
+import com.roma.android.sihmi.helper.AgendaScheduler;
+import com.roma.android.sihmi.model.database.database.AppDb;
 import com.roma.android.sihmi.model.database.entity.Agenda;
+import com.roma.android.sihmi.model.database.entity.Contact;
 import com.roma.android.sihmi.service.AgendaWorkManager;
+import com.roma.android.sihmi.view.adapter.ChatAdapter;
 
 import java.net.InetAddress;
 import java.text.DateFormat;
@@ -47,6 +55,17 @@ public class Tools {
     static ProgressDialog dialog;
 
     private int type=0;
+
+    public static long getStartCurrentDayMillis() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTimeInMillis();
+    }
 
     public static String formatDateTime(Date date) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
@@ -226,76 +245,33 @@ public class Tools {
         dialog.show();
     }
 
-    public static void showDialogRb(Context context, String user_id){
-//        String[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
-//        boolean isBisu = CoreApplication.get().getAppDb().interfaceDao().getContactById(user_id).isBisukan();
-//        int pos = isBisu ? 1 : 0;
-//
-//        AlertDialog dialog = new AlertDialog.Builder(context)
-//                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
-//                    boolean bisu;
-//                    if (which == 0){
-//                        bisu = false;
-//                    } else {
-//                        bisu = true;
-//                    }
-//                    CoreApplication.get().getAppDb().interfaceDao().updateBisukan(user_id, bisu);
-//                    dialog1.dismiss();
-//                })
-//                .create();
-//        dialog.show();
+    public static void showDialogRb(Context context, String user_id, ChatAdapter adapter){
+        CharSequence[] grpName = context.getResources().getStringArray(R.array.notfikasi_chat_array);
+        Contact contact = CoreApplication.get().getConstant().getContactDao().getContactById(user_id);
+        int pos = contact.isBisukan() ? 1 : 0;
+
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
+                    boolean bisu = which != 0;
+                    contact.setBisukan(bisu);
+                    CoreApplication.get().getConstant().getContactDao().insertContact(contact);
+                    adapter.notifyDataSetChanged();
+                    dialog1.dismiss();
+                })
+                .create();
+        dialog.show();
     }
 
     public static void showDialogAgendaRb(Context context, Agenda agenda){
-//        String agenda_id = agenda.get_id();
-//        String[] grpName = context.getResources().getStringArray(R.array.pemberitahuan_agenda_array);
-//        String msg = context.getResources().getString(R.string.pemberitahuan_agenda);
-//        boolean isReminder = CoreApplication.get().getAppDb().interfaceDao().getAgendaById(agenda_id).isReminder();
-//        int pos = isReminder ? 0 : 1;
-//
-//        String sDate1="28/10/2019 20:49:00";
-//        SimpleDateFormat formatter1=new SimpleDateFormat("dd/MM/yyyy HH:mm");
-//        long dateCustom;
-//        try {
-//            Date date1=formatter1.parse(sDate1);
-//            dateCustom = date1.getTime();
-//
-//        TextView title = new TextView(context);
-//        title.setText(msg);
-//        title.setPadding(10, 10, 10, 10);
-//        title.setGravity(Gravity.CENTER);
-//        title.setTextSize(12);
-//        AlertDialog dialog = new AlertDialog.Builder(context)
-//                .setCustomTitle(title)
-//                .setSingleChoiceItems(grpName, pos, (dialog1, which) -> {
-//                    boolean reminder;
-//                    if (which == 0){
-//                        reminder = true;
-////                        long reminderAlamat = agenda.getDate_expired() - System.currentTimeMillis() - (1000 * 60 * 10);
-//                        long reminderAlamat = dateCustom - System.currentTimeMillis() - (1000 * 60 * 10);
-//                        String[] type = agenda.getType().split("-");
-//                        int id = Integer.valueOf(type[0]);
-//                        String desc = type[1];
-//
-//                        if (reminderAlamat < 0){
-////                            reminderAlamat = 60000;
-//                            reminderAlamat = 5000;
-//                        }
-//                        Data data = createWorkInputData(agenda.getNama(), desc, id);
-//                        AgendaWorkManager.scheduleReminder(reminderAlamat, data , agenda_id);
-//                    } else {
-//                        reminder = false;
-//                        AgendaWorkManager.cancelReminder(agenda_id);
-//                    }
-//                    CoreApplication.get().getAppDb().interfaceDao().updateReminderAgenda(agenda_id, reminder);
-//                    dialog1.dismiss();
-//                })
-//                .create();
-//        dialog.show();
+        AppDb appDb = CoreApplication.get().getConstant().getAppDb();
 
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
+        appDb.agendaDao().updateReminderAgenda(agenda.get_id(), !agenda.isReminder());
+
+        AgendaScheduler.setupUpcomingAgendaNotifier(context);
+
+        if (!agenda.isReminder()) {
+            Tools.showToast(context, context.getString(R.string.pengingat_diaktifkan));
+        }
     }
 
     private static Data createWorkInputData(String title, String text, int id){
@@ -362,6 +338,24 @@ public class Tools {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         listenerHelper.dialogYes(list[which]);
+                        dialog.dismiss();
+                    }
+                })
+                .setCancelable(true)
+                .create();
+        dialog.show();
+    }
+
+    public interface ListenerSelect {
+        public void dialogSelect(String res, int index);
+    }
+
+    public static void showDialogLK1(Context context, String[] list, ListenerSelect listenerSelect){
+        AlertDialog dialog = new AlertDialog.Builder(context)
+                .setSingleChoiceItems(list, -1, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        listenerSelect.dialogSelect(list[which], which);
                         dialog.dismiss();
                     }
                 })
@@ -711,6 +705,33 @@ public class Tools {
         TextDrawable drawable = TextDrawable.builder()
                 .buildRound(first, color);
         imageView.setImageDrawable(drawable);
+    }
+
+    public static Bitmap drawableToBitmap (Drawable drawable) {
+        if (drawable instanceof BitmapDrawable) {
+            return ((BitmapDrawable)drawable).getBitmap();
+        }
+
+
+        int width = drawable.getIntrinsicWidth();
+        width = width > 0 ? width : 96; // Replaced the 1 by a 96
+        int height = drawable.getIntrinsicHeight();
+        height = height > 0 ? height : 96; // Replaced the 1 by a 96
+
+        Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public static Bitmap getInitial(char c) {
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        int color = generator.getColor(c);
+        TextDrawable drawable = TextDrawable.builder()
+                .buildRound(String.valueOf(c), color);
+        return drawableToBitmap(drawable);
     }
 
     public static void showDateDialog(Activity activity, EditText editText){
