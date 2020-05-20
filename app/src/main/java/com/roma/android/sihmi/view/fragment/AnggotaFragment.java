@@ -209,6 +209,8 @@ public class AnggotaFragment extends Fragment {
                             List<Contact> contactsResponse = response.body().getData();
                             for (int i = 0; i < contactsResponse.size() ; i++) {
                                 Contact c = contactsResponse.get(i);
+                                Contact thisContact = contactDao.getContactById(c.get_id());
+                                c.setBisukan(thisContact.isBisukan());
                                 c.setId_level(levelDao.getPengajuanLevel(c.getId_roles()));
                                 c.setTahun_daftar(Tools.getYearFromMillis(Long.parseLong(c.getTanggal_daftar())));
 
